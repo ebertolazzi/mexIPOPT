@@ -1,0 +1,172 @@
+/*--------------------------------------------------------------------------*\
+ |  file: Ipopt.cc                                                          |
+ |                                                                          |
+ |  IPOPT MATLAB-interface provided by:                                     |
+ |      Enrico Bertolazzi (enrico.bertolazzi@unitn.it)                      |
+ |      Dipartimento di Ingegneria Industriale                              |
+ |      Universita` degli Studi di Trento                                   |
+ |      Via Sommarive 9, I-38123, Trento, Italy                             |
+ |                                                                          |
+ |  This IPOPT MATLAB-interface is derived from the code by:                |
+ |        Peter Carbonetto                                                  |
+ |        Dept. of Computer Science                                         |
+ |        University of British Columbia, May 19, 2007                      |
+ |        Original code is published under the Eclipse Public License.      |
+\*--------------------------------------------------------------------------*/
+
+/*
+//  Copyright (c) 2015, Enrico Bertolazzi
+//  All rights reserved.
+//
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//
+//      * Redistributions of source code must retain the above copyright
+//        notice, this list of conditions and the following disclaimer.
+//      * Redistributions in binary form must reproduce the above copyright
+//        notice, this list of conditions and the following disclaimer in
+//        the documentation and/or other materials provided with the distribution
+//      * Neither the name of the  nor the names
+//        of its contributors may be used to endorse or promote products derived
+//        from this software without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+//  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+//  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+//  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+//  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+//  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+//  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+//  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+//  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+//  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+//  POSSIBILITY OF SUCH DAMAGE.
+*/
+
+#include "mex.h"
+
+#include "IpoptInterfaceCommon.hh"
+
+#include "IpRegOptions.hpp"
+#include "IpJournalist.hpp"
+#include "IpIpoptApplication.hpp"
+#include "IpSolveStatistics.hpp"
+
+using Ipopt::IsValid;
+using Ipopt::RegisteredOption;
+using Ipopt::EJournalLevel;
+using Ipopt::Journal;
+using Ipopt::MatlabJournal;
+using Ipopt::IpoptApplication;
+using Ipopt::SmartPtr;
+using Ipopt::TNLP;
+using Ipopt::ApplicationReturnStatus;
+using Ipopt::SolveStatistics;
+
+namespace IpoptInterface {
+
+  static
+  void
+  mexFunction( int nlhs, mxArray       *plhs[],
+	  	         int nrhs, mxArray const *prhs[] ) {
+
+    // Check to see if we have the correct number of input and output
+    // arguments.
+    IPOPT_ASSERT( nrhs == 3,
+                  "Incorrect number of input arguments, expected 3 found " << nrhs );
+    IPOPT_ASSERT( nlhs == 2,
+                  "Incorrect number of output arguments, expected 2 found " << nlhs );
+
+    // Get the second input which specifies the callback functions.
+    CallbackFunctions funcs(prhs[0],prhs[1]);
+
+    // Get the third input which specifies the options.
+    // Create a new IPOPT application object and process the options.
+    IpoptApplication app(false);
+    Options          options(funcs.numVariables(),app,prhs[2]); // app, options
+
+    app.RethrowNonIpoptException(true);
+
+    // The first output argument is the value of the optimization
+    // variables obtained at the solution.
+
+    // The second output argument stores other information, such as
+    // the exit status, the value of the Lagrange multipliers upon
+    // termination, the final state of the auxiliary data, and so on.
+    MatlabInfo info(plhs[1]);
+
+    // Check to see whether the user provided a callback function for
+    // computing the Hessian. This is not needed in the special case
+    // when a quasi-Newton approximation to the Hessian is being used.
+    IPOPT_ASSERT( options.ipoptOptions().useQuasiNewton() ||
+                  funcs.hessianFuncIsAvailable(),
+                  "You must supply a callback function for computing the Hessian "
+                  "unless you decide to use a quasi-Newton approximation to the Hessian" );
+
+    // If the user tried to use her own scaling, report an error.
+    IPOPT_ASSERT( !options.ipoptOptions().userScaling(),
+                  "The user-defined scaling option does not work in the MATLAB interface for IPOPT");
+
+    // If the user supplied initial values for the Lagrange
+    // multipliers, activate the "warm start" option in IPOPT.
+    if ( options.multlb().size()>0 &&
+         options.multub().size()>0 &&
+         (numconstraints(options)==0 || options.multconstr().size()>0) )
+      app.Options()->SetStringValue("warm_start_init_point","yes");
+
+    // Set up the IPOPT console.
+    EJournalLevel printLevel = (EJournalLevel) options.ipoptOptions().printLevel();
+    if (printLevel > 0) { //prevents IPOPT display if we don't want it
+      SmartPtr<Journal> console = new MatlabJournal(printLevel);
+      app.Jnlst()->AddJournal(console);
+    }
+
+    // Intialize the IpoptApplication object and process the options.
+    ApplicationReturnStatus exitstatus;
+    exitstatus = app.Initialize();
+    IPOPT_ASSERT( exitstatus == Ipopt::Solve_Succeeded,
+                  "IPOPT solver initialization failed" );
+
+    // Create a new instance of the constrained, nonlinear program.
+    MatlabProgram* matlabProgram = new MatlabProgram(funcs,options,info);
+    SmartPtr<TNLP> program = matlabProgram;
+
+    // Ask Ipopt to solve the problem.
+    exitstatus = app.OptimizeTNLP(program);
+    info.setExitStatus(exitstatus);
+    plhs[0] = mxDuplicateArray(info.getfield_mx("x")) ;
+
+    // Collect statistics about Ipopt run
+    if (IsValid(app.Statistics())) {
+      SmartPtr<SolveStatistics> stats = app.Statistics();
+      info.setIterationCount(stats->IterationCount());
+      //Get Function Calls
+      int obj, con, grad, jac, hess;
+      stats->NumberOfEvaluations(obj,con,grad,jac,hess);
+      info.setFuncEvals(obj, con, grad, jac, hess);
+      //CPU Time
+      info.setCpuTime(stats->TotalCpuTime());
+    }
+
+    // Free the dynamically allocated memory.
+    //mxDestroyArray(x0.mx_ptr());
+  }
+
+}
+
+// Function definitions.
+// -----------------------------------------------------------------
+void
+mexFunction( int nlhs, mxArray       *plhs[],
+		         int nrhs, mxArray const *prhs[] ) {
+  try {
+    IpoptInterface::mexFunction( nlhs, plhs, nrhs, prhs ) ;
+  } catch ( std::exception & error ) {
+    mexPrintf("\n*** Error using Ipopt Matlab interface: ***\n\n"
+              "%s"
+              "\n*******************************************\n",error.what());
+  } catch ( ... ) {
+    mexPrintf("\n*** Error using Ipopt Matlab interface: ***\nUnknown error\n");
+  }
+  mexPrintf("\n*** IPOPT DONE ***\n");
+}
