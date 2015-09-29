@@ -52,9 +52,17 @@
 #include "IpIpoptApplication.hpp"
 #include "IpTNLP.hpp"
 
+#include <stdexcept> // for unix system
 #include <exception>
 #include <cstdio>
 #include <sstream>
+
+#if IPOPT_VERSION_MAJOR < 3
+  #error "Ipopt Matlab Interface need IPOPT version >= 3.11"
+#endif
+#if IPOPT_VERSION_MINOR < 11
+  #error "Ipopt Matlab Interface need IPOPT version >= 3.11"
+#endif
 
 #ifndef IPOPT_ASSERT
   #define IPOPT_DO_ERROR(MSG) \

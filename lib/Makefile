@@ -20,7 +20,8 @@
 # This variable corresponds to the base directory of your MATLAB installation.
 # This is the directory so that in its 'bin/'  subdirectory you see all the
 # matlab executables (such as 'matlab', 'mex', etc.)
-MATLAB_HOME = /Applications/MATLAB_R2015a.app
+#MATLAB_HOME = /Applications/MATLAB_R2015a.app
+MATLAB_HOME = /usr/local/MATLAB/R2015b/
 
 # Set the suffix for matlab mex files. The contents of the
 # $(MATLAB_HOME)/extern/examples/mex directory might be able to help
@@ -34,15 +35,12 @@ MEX = $(MATLAB_HOME)/bin/mex
 
 #############################################################################
 # Do not modify anything below unless you know what you're doing.
-CXX         = clang++
-#CXX         = g++
-CXXFLAGS    = -O3 -pipe -DNDEBUG \
--Wparentheses -Wreturn-type -Wcast-qual -Wall -Wpointer-arith \
--Wwrite-strings -Wconversion -Wno-unknown-pragmas -Wno-long-long \
--DIPOPT_BUILD -DMATLAB_MEXFILE
+#CXX         = clang++
+CXX         = g++ -DHAVE_CSTDDEF
+CXXFLAGS    = -O3 -DNDEBUG -DIPOPT_BUILD -DMATLAB_MEXFILE
 
 LDFLAGS = $(CXXFLAGS)
-INCL    = -I../src -I/usr/local/include/coin
+INCL    = -I../src  -I/usr/include/coin -I/usr/local/include/coin
 LIBS    = -L/usr/local/lib -lipopt -lstdc++
 
 LIBS_STATIC = $(LIBS)

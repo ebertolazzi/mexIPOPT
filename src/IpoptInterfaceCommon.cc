@@ -1046,12 +1046,19 @@ CallbackFunctions::iterCallback( Index  iter,
                                      bool     initializeLambda,
                                      Number * lambda ) {
 
+    IPOPT_ASSERT( n == numvars(options),
+                  "Bad number of variables required in get_starting_point, expected = "
+                  << numvars(options) << " required = " << n ) ;
+    IPOPT_ASSERT( m == numconstraints(options),
+                  "Bad number of constraints required in get_starting_point, expected = "
+                  << numconstraints(options) << " required = " << m ) ;
+
     // Check to see whether IPOPT is requesting the initial point for the primal variables.
-    if (initializeVars) std::copy_n(funcs.getx0().begin(),n,vars);
+    if ( initializeVars ) std::copy_n(funcs.getx0().begin(),n,vars);
 
     // Check to see whether IPOPT is requesting the initial point for the Lagrange
     // multipliers associated with the bounds on the optimization variables.
-    if (initializez) {
+    if ( initializez ) {
       IPOPT_ASSERT( options.multlb().size() > 0 && options.multub().size() > 0,
                     "Initialization of Lagrange multipliers for lower and upper bounds "
                     "requested but initial values are not supplied");
@@ -1061,12 +1068,13 @@ CallbackFunctions::iterCallback( Index  iter,
 
     // Check to see whether IPOPT is requesting the initial point for the Lagrange
     // multipliers corresponding to the equality and inequality constraints.
-    if (initializeLambda && m>0) {
+    if ( initializeLambda && m>0 ) {
       IPOPT_ASSERT( options.multconstr().size() > 0,
                     "Initialization of Lagrange multipliers for constraints are requested "
                     "but initial values are not provided");
       std::copy_n(options.multconstr().begin(),m,lambda);
     }
+
     return true;
   }
 

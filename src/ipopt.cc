@@ -52,6 +52,10 @@
 #include "IpIpoptApplication.hpp"
 #include "IpSolveStatistics.hpp"
 
+#ifdef IPOPT_INTERFACE_USE_MPI
+  #include <mpi.h>
+#endif
+
 using Ipopt::IsValid;
 using Ipopt::RegisteredOption;
 using Ipopt::EJournalLevel;
@@ -85,7 +89,9 @@ namespace IpoptInterface {
     IpoptApplication app(false);
     Options          options(funcs.numVariables(),app,prhs[2]); // app, options
 
+    #if IPOPT_VERSION_MINOR > 11
     app.RethrowNonIpoptException(true);
+    #endif
 
     // The first output argument is the value of the optimization
     // variables obtained at the solution.
@@ -151,7 +157,7 @@ namespace IpoptInterface {
     // Free the dynamically allocated memory.
     //mxDestroyArray(x0.mx_ptr());
   }
-
+  
 }
 
 // Function definitions.
@@ -159,6 +165,13 @@ namespace IpoptInterface {
 void
 mexFunction( int nlhs, mxArray       *plhs[],
 		         int nrhs, mxArray const *prhs[] ) {
+
+  #ifdef IPOPT_INTERFACE_USE_MPI
+  int flag ;
+  int ok = MPI_Initialized(&flag) ;
+  if ( !flag ) MPI_Init(nullptr,nullptr);
+  #endif
+
   try {
     IpoptInterface::mexFunction( nlhs, plhs, nrhs, prhs ) ;
   } catch ( std::exception & error ) {
@@ -169,4 +182,9 @@ mexFunction( int nlhs, mxArray       *plhs[],
     mexPrintf("\n*** Error using Ipopt Matlab interface: ***\nUnknown error\n");
   }
   mexPrintf("\n*** IPOPT DONE ***\n");
+  
+  #ifdef IPOPT_INTERFACE_USE_MPI
+  //ok = MPI_Finalize(); // cannot destroy
+  #endif
+
 }

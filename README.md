@@ -22,8 +22,7 @@ Moreover I tried to improve error catching.
 **How to compile**
 
 The interface is written in C++. To compile the mex file run the script
-`compile.m` in the `lib` directory or, for UNIX-like OS, use the 
-`Makefile` in the same directory.
+`compile_osx.m` or `compile_linux.m` in the `lib` directory.
 
 For the uage of the library use `addpath` to add `lib` directory
 in the search path or move the contents of `lib` to a directory 
