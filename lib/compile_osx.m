@@ -14,7 +14,7 @@
 %        Original code is published under the Eclipse Public License.      %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% change this flag if mumps do not use MPI support
+% change this flag to false if mumps do not use MPI support
 use_mpi = true ;
 
 % interface sources
@@ -23,9 +23,6 @@ files = [ '../src/ipopt.cc ', ...
 
 % compiler options
 CXXFLAGS = [ '-fPIC -O3 -DMATLAB_MEXFILE ' ] ;
-if use_mpi
-  CXXFLAGS = [ CXXFLAGS '-DIPOPT_INTERFACE_USE_MPI ' ] ;
-end
 
 % where are headers files
 INCL = [ '-I../src ' ...
@@ -36,9 +33,7 @@ INCL = [ '-I../src ' ...
 % libraries linked dynamically
 LIBS = [ '-lmumps_common -lsmumps -ldmumps -lcmumps -lzmumps -lpord -lscalapack -lmpi' ] ;
 
-if use_mpi
-  LIBS = [ LIBS ' -lscalapack -lmpi' ] ;
-else
+if ~use_mpi
   LIBS = [ LIBS ' -lmpiseq' ] ;
 end
 

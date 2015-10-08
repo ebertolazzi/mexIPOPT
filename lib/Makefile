@@ -20,8 +20,8 @@
 # This variable corresponds to the base directory of your MATLAB installation.
 # This is the directory so that in its 'bin/'  subdirectory you see all the
 # matlab executables (such as 'matlab', 'mex', etc.)
-#MATLAB_HOME = /Applications/MATLAB_R2015a.app
-MATLAB_HOME = /usr/local/MATLAB/R2015b/
+MATLAB_HOME = /Applications/MATLAB_R2015a.app
+#MATLAB_HOME = /usr/local/MATLAB/R2015b/
 
 # Set the suffix for matlab mex files. The contents of the
 # $(MATLAB_HOME)/extern/examples/mex directory might be able to help

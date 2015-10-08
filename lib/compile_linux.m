@@ -23,12 +23,13 @@ CXXFLAGS = [ '-fPIC -O3 -DMATLAB_MEXFILE -DHAVE_CSTDDEF' ] ; % -DMWINDEXISINT
 
 % where are headers files
 INCL = [ '-I../src ' ...
+         '-I/usr/include/mpi ' ...
          '-I/usr/include/coin ' ...
          '-I/usr/local/include/coin ' ] ;
 
 % libraries linked dynamically
 LIBS     = [ '-L/usr/local/lib -L/usr/lib -L/usr/lib/openblas-base ' ...
-              '-lgfortran -lquadmath -ldl -lstdc++ -lgcc -lgcc_s -lm -lc' ] ;
+              '-lgfortran -lquadmath -ldl -lstdc++ -lgcc -lgcc_s -lm -lc -lmpi' ] ;
 
 % libraries linked statically using
 LIBS2    = '-Wl,-Bstatic -lipopt -lcoinmumps -llapack -lopenblas -Wl,-Bdynamic ';

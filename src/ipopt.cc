@@ -52,9 +52,7 @@
 #include "IpIpoptApplication.hpp"
 #include "IpSolveStatistics.hpp"
 
-#ifdef IPOPT_INTERFACE_USE_MPI
-  #include <mpi.h>
-#endif
+#include <mpi.h>
 
 using Ipopt::IsValid;
 using Ipopt::RegisteredOption;
@@ -166,11 +164,10 @@ void
 mexFunction( int nlhs, mxArray       *plhs[],
 		         int nrhs, mxArray const *prhs[] ) {
 
-  #ifdef IPOPT_INTERFACE_USE_MPI
+  // mumps use mpi
   int flag ;
   int ok = MPI_Initialized(&flag) ;
   if ( !flag ) MPI_Init(nullptr,nullptr);
-  #endif
 
   try {
     IpoptInterface::mexFunction( nlhs, plhs, nrhs, prhs ) ;
@@ -182,9 +179,5 @@ mexFunction( int nlhs, mxArray       *plhs[],
     mexPrintf("\n*** Error using Ipopt Matlab interface: ***\nUnknown error\n");
   }
   mexPrintf("\n*** IPOPT DONE ***\n");
-  
-  #ifdef IPOPT_INTERFACE_USE_MPI
-  //ok = MPI_Finalize(); // cannot destroy
-  #endif
 
 }

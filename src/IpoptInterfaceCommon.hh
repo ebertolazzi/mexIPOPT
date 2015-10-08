@@ -57,6 +57,10 @@
 #include <cstdio>
 #include <sstream>
 
+// STL
+#include <algorithm>
+#include <vector>
+
 #if IPOPT_VERSION_MAJOR < 3
   #error "Ipopt Matlab Interface need IPOPT version >= 3.11"
 #endif
