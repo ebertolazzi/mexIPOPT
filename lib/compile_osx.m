@@ -14,61 +14,68 @@
 %        Original code is published under the Eclipse Public License.      %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% change this flag to false if mumps do not use MPI support
-use_mpi    = true ;
-use_static = false ;
-
 % interface sources
 files = [ '../src/ipopt.cc ', ...
-          '../src/IpoptInterfaceCommon.cc' ] ;
+          '../src/IpoptInterfaceCommon.cc ' ] ;
 
 % compiler options
 CXXFLAGS = '-fPIC -O3 -DMATLAB_MEXFILE ' ;
 
-% where are headers files
+% extra libs
+LIBS = '' ;
+
+% if you follow the proposed installation instruction 
+% the ipopt library is located at /usr/local2
+PREFIX = '/usr/local2' ;
+
 INCL = [ '-I../src ' ...
-         '-I/usr/include/coin ' ...
-         '-I/usr/local/include ' ...
-         '-I/usr/local/include/coin ' ] ;
+         '-I' PREFIX '/include ' ...
+         '-I' PREFIX '/include/coin ' ] ;
+
+% full path where gfortran is installed, MATLAB do not known where is
+GFORTRANCMD = '/usr/local/bin/gfortran' ;
+
+% full path MATLAB
+MATLAB = '/Applications/MATLAB_R2015a.app' ;
+
+% add list of static version of fortran libraries
+[status,GFORTRAN] = system([ GFORTRANCMD ' -print-file-name=libgfortran.a']) ;
+[status,QUAD]     = system([ GFORTRANCMD ' -print-file-name=libquadmath.a']) ;
+[status,GCC]      = system([ GFORTRANCMD ' -print-file-name=libgcc.a']) ;
+files = sprintf('%s %s %s %s',files, ...
+                 GFORTRAN(1:end-1), ...
+                 QUAD(1:end-1), ...
+                 GCC(1:end-1) ) ;
 
 % libraries for MUMPS
-% check if it is installed coinmumps library
-if exist('/usr/local/lib/libcoinmumps.a','file') || ...
-   exist('/usr/local/lib/libcoinmumps.dylib','file') 
-  LIBS = '-L/usr/local/lib -lipopt -lcoinmumps' ;
+% check if it is installed coinmumps library or mumps from homebrew
+if exist([ PREFIX '/lib/libcoinmumps.a'],'file') || ...
+   exist([ PREFIX '/lib/libcoinmumps.dylib'],'file') 
+  LIBS = [ LIBS '-L' PREFIX '/lib -lipopt -lcoinmumps ' ] ;
+  % assume that ipopt is compiled with support for ma57 
+  % library MA57 inside MATLAB
+  LIBS = [ LIBS ' -L' MATLAB '/bin/maci64 -lmwma57 -lmwblas ' ] ;
 elseif exist('/usr/local/lib/libmumps_common.dylib','file')
   LIBS = '-L/usr/local/lib -lipopt -lmumps_common -lsmumps -ldmumps -lcmumps -lzmumps -lpord -lscalapack' ;
+  % redefine include headers search path
+  INCL = '-I../src -I/usr/local/include -I/usr/local/include/coin ' ;
+
   % check if non mpi version of mumps is installed
   if exist('/usr/local/lib/libmpiseq.dylib','file')
-    use_mpi = false ;
-    LIBS    = [ LIBS ' -lmpiseq' ] ;
+    LIBS     = [ LIBS ' -lmpiseq' ] ;
+  else
+    LIBS     = [ LIBS ' -lmpi' ] ;
+    CXXFLAGS = [ CXXFLAGS ' -DIPOPT_INTERFACE_USE_MPI' ] ;
   end
 end
 
-if ~use_mpi
-  CXXFLAGS = [ CXXFLAGS ' -DIPOPT_INTERFACE_NO_MPI' ] ;
-else
-  LIBS = [ LIBS ' -lmpi' ] ;  
-end
-
-if use_static
-  [status,GFORTRAN] = system('/usr/local/bin/gfortran -print-file-name=libgfortran.a') ;
-  [status,QUAD]     = system('/usr/local/bin/gfortran -print-file-name=libquadmath.a') ;
-  %[status,GCC]      = system('/usr/local/bin/gfortran -print-file-name=libgcc_ext.10.5.dylib') ;
-  [status,GCC]      = system('/usr/local/bin/gfortran -print-file-name=libgcc.a') ;
-  files = sprintf('%s %s %s %s ',files, GFORTRAN(1:end-1), QUAD(1:end-1), GCC(1:end-1) ) ;
-else
-  LIBS = [LIBS ' -L/usr/local/lib/gcc/5 -lgfortran -lquadmath'] ;
-end
-
 % frameworks
-LIBS2 = '-framework Accelerate ' ;
+LIBS2 = '-framework Accelerate ' ; % -Wl,-no_compact_unwind
 
 % compiler options
 MEXFLAGS = [ '-v -cxx -largeArrayDims ' ...
-             'COPTIMFLAGS="' CXXFLAGS '" ' ...
              'CXXOPTIMFLAGS="' CXXFLAGS '" ' ...
-             'LDFLAGS=''$LDFLAGS ' LIBS2 ''''  ] ; % -static -shared-libgcc 
+             'LDFLAGS=''$LDFLAGS ' LIBS2 ''''  ] ;
 
 % build and execute compilation command
 cmd = sprintf('mex %s %s %s %s',MEXFLAGS,INCL,files,LIBS) ;

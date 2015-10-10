@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%  file: Compile.m                                                         %
+%  file: compile_linux.m                                                   %
 %                                                                          %
 %  IPOPT MATLAB-interface provided by:                                     %
 %      Enrico Bertolazzi (enrico.bertolazzi@unitn.it)                      %
@@ -14,34 +14,36 @@
 %        Original code is published under the Eclipse Public License.      %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% change this flag to false if mumps do not use MPI support
-use_mpi = true ;
+% full path MATLAB
+MATLAB = '/usr/local/MATLAB' ;
 
 % interface sources
 files = [ '../src/ipopt.cc ', ...
           '../src/IpoptInterfaceCommon.cc' ] ;
 
 % compiler options
-CXXFLAGS = [ '-fPIC -O3 -DMATLAB_MEXFILE -DHAVE_CSTDDEF' ] ; % -DMWINDEXISINT
+CXXFLAGS = '-fPIC -O3 -DMATLAB_MEXFILE -DHAVE_CSTDDEF ' ;
 
-% where are headers files
+% where are headers files and ipopt libraries
+PREFIX = '/usr/local2' ;
+
 INCL = [ '-I../src ' ...
-         '-I/usr/include/mpi ' ...
-         '-I/usr/include/coin ' ...
-         '-I/usr/local/include/coin ' ] ;
+         '-I' PREFIX '/include ' ...
+         '-I' PREFIX '/include/coin ' ] ;
 
 % libraries linked dynamically
-LIBS     = [ '-L/usr/local/lib -L/usr/lib -L/usr/lib/openblas-base ' ...
-              '-lgfortran -lquadmath -ldl -lstdc++ -lgcc -lgcc_s -lm -lc' ] ;
+% gfortran and quadmath shuold be installed statically
+% But on some linux this cannot be done cause the library is not 
+% compiled with the switch `-fno-common`
+%
+LIBS = [ '-L' PREFIX '/lib -L/usr/lib -lgfortran -lquadmath -lstdc++ -ldl -lm -lc' ] ; 
 
-if use_mpi
-  LIBS = [ LIBS ' -lmpi' ] ;
-else
-  CXXFLAGS = [ CXXFLAGS ' -DIPOPT_INTERFACE_NO_MPI' ] ;
-end
+% If you implementation of IPOPT do not use ma57 comment the next line.
+LIBS = [ LIBS ' -L' MATLAB '/bin/maci64 -lmwma57 ' ] ;
+% library MA57 inside MATLAB
 
-% libraries linked statically using
-LIBS2    = '-Wl,-Bstatic -lipopt -lcoinmumps -llapack -lopenblas -Wl,-Bdynamic ';
+% libraries linked statically
+LIBS2 = '-Wl,-Bstatic -lipopt -lcoinmumps -llapack -lblas -Wl,-Bdynamic ';
 
 % compiler options
 MEXFLAGS = [ '-v -cxx -largeArrayDims ' ...

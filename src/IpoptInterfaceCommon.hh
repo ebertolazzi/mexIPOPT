@@ -82,6 +82,16 @@
   #endif
 #endif
 
+#ifdef IPOPT_INTERFACE_MISSING_COPY_N
+namespace std {
+  template <typename Ta, typename Tb>
+  inline
+  void
+  copy_n( Ta from, int n, Tb to )
+  { std::copy( from, from+n, to ) ; }
+}
+#endif
+
 namespace IpoptInterface {
 
   using Ipopt::ApplicationReturnStatus ;

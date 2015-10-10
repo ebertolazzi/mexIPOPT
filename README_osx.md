@@ -1,10 +1,15 @@
 ### mexIPOPT on OSX
 **by Enrico Bertolazzi**
 
-**How to install IPOPT**
+**Install IPOPT from source**
 
-To install mexIPOPT on OSX the easites way is to use 
-Homebrew.
+To install IPOP from source read `README_how_to_install_ipopt.md`.
+This is the preferred way cause it is possibile to produce a mex
+file mainly linked with static library avoiding conflict with
+
+**Install IPOPT using homebrew**
+
+To install mexIPOPT on OSX one easy way is to use Homebrew.
 Donwload Homebrew from `http://brew.sh` and install.
 Then on a shell windows type
 
@@ -30,54 +35,6 @@ It is possible to use `mumps` without MPI support
 
 ~~~
 brew install mumps --without-mpi
-~~~
-
-if you use non parallel version on `mumps` set 
-`use_mpi = false` in command file `compile_osx.m`.
-
-**Install IPOPT from source**
-
-In alternative you can donwload the source from
-
-`https://projects.coin-or.org/Ipopt`
-
-and follows instructions. 
-
-The following instructions permits to install 
-static libray of `ipopt+mumps` in `/usr/local/lib`. 
-
-After unpacking the latest source change directory into the
-subdirectory `ThirdParty/Mumps` and obtain the source by 
-run the script 
-
-~~~
-./get.Mumps
-~~~
-
-configure for build a static library
-
-~~~
-./configure --prefix=/usr/local --enable-static --disable-shared
-~~~
-
-compile and install
-
-~~~
-make
-make install
-~~~
-
-then go to the root of the distribution and configure
-
-~~~
-./configure --prefix=/usr/local --enable-static --disable-shared
-~~~
-
-compile and install
-
-~~~
-make
-make install
 ~~~
 
 **MATLAB and Xcode 7.0**
@@ -126,4 +83,3 @@ To do that configure
 where `__IPOPT_SOURCE___` is the directory where you unpacked
 the Ipopt sources.
 You need to edit some files in `ThirdParty/HSL`.
-This procedure works but the compiled mex gives wrong results.
