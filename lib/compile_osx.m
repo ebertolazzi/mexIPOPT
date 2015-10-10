@@ -54,7 +54,8 @@ end
 if use_static
   [status,GFORTRAN] = system('/usr/local/bin/gfortran -print-file-name=libgfortran.a') ;
   [status,QUAD]     = system('/usr/local/bin/gfortran -print-file-name=libquadmath.a') ;
-  [status,GCC]      = system('/usr/local/bin/gfortran -print-file-name=libgcc_ext.10.5.dylib') ;
+  %[status,GCC]      = system('/usr/local/bin/gfortran -print-file-name=libgcc_ext.10.5.dylib') ;
+  [status,GCC]      = system('/usr/local/bin/gfortran -print-file-name=libgcc.a') ;
   files = sprintf('%s %s %s %s ',files, GFORTRAN(1:end-1), QUAD(1:end-1), GCC(1:end-1) ) ;
 else
   LIBS = [LIBS ' -L/usr/local/lib/gcc/5 -lgfortran -lquadmath'] ;
