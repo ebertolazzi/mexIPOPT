@@ -48,5 +48,3 @@ after that the library is ready to be linked with the Ipopt
 interface. To avoid conflict with MATLAB blas/lapack shared
 library the mex command must force linking of static version of these libraries. The command is build with the script
 `compile_linux.m`. Adapt it if necessary to meet the configuration of your system.
-
-

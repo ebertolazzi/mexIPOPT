@@ -14,6 +14,9 @@
 %        Original code is published under the Eclipse Public License.      %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% change this flag to false if mumps do not use MPI support
+use_mpi = true ;
+
 % interface sources
 files = [ '../src/ipopt.cc ', ...
           '../src/IpoptInterfaceCommon.cc' ] ;
@@ -29,7 +32,13 @@ INCL = [ '-I../src ' ...
 
 % libraries linked dynamically
 LIBS     = [ '-L/usr/local/lib -L/usr/lib -L/usr/lib/openblas-base ' ...
-              '-lgfortran -lquadmath -ldl -lstdc++ -lgcc -lgcc_s -lm -lc -lmpi' ] ;
+              '-lgfortran -lquadmath -ldl -lstdc++ -lgcc -lgcc_s -lm -lc' ] ;
+
+if use_mpi
+  LIBS = [ LIBS ' -lmpi' ] ;
+else
+  CXXFLAGS = [ CXXFLAGS ' -DIPOPT_INTERFACE_NO_MPI' ] ;
+end
 
 % libraries linked statically using
 LIBS2    = '-Wl,-Bstatic -lipopt -lcoinmumps -llapack -lopenblas -Wl,-Bdynamic ';

@@ -52,7 +52,9 @@
 #include "IpIpoptApplication.hpp"
 #include "IpSolveStatistics.hpp"
 
-#include <mpi.h>
+#ifndef IPOPT_INTERFACE_NO_MPI
+  #include <mpi.h>
+#endif
 
 using Ipopt::IsValid;
 using Ipopt::RegisteredOption;
@@ -164,10 +166,12 @@ void
 mexFunction( int nlhs, mxArray       *plhs[],
 		         int nrhs, mxArray const *prhs[] ) {
 
+  #ifndef IPOPT_INTERFACE_NO_MPI
   // mumps use mpi
   int flag ;
   int ok = MPI_Initialized(&flag) ;
   if ( !flag ) MPI_Init(nullptr,nullptr);
+  #endif
 
   try {
     IpoptInterface::mexFunction( nlhs, plhs, nrhs, prhs ) ;
