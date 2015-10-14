@@ -24,23 +24,6 @@ system I di the following procedure:
 
 2) Untar/unzip the tarball and go on the root of the distribution. 
 
-5) get Mumps with the commands:
-
-~~~
-cd ThirdParty/Mumps
-./get.Mumps
-~~~
-
-6) Configure for compile a static mumps library:
-
-~~~
-export ADD_CFLAGS="-fPIC -fno-common"
-export ADD_CXXFLAGS="-fPIC -fno-common"
-export ADD_FFLAGS="-fPIC -fno-common"
-./configure --prefix=/usr/local2 --enable-static --disable-shared --without-metis
-make
-make install
-~~~
 
 notice that metis is disabled. I choose to disable metis and
 MPI cause otherwise IPOPT joined with mex interface crash
@@ -59,8 +42,8 @@ export ADD_CXXFLAGS="-fPIC -fno-common -DFUNNY_MA57_FINT"
 export ADD_FFLAGS="-fPIC -fno-common -DFUNNY_MA57_FINT"
 ~~~
 
-To enable the use of MA57 it is enoght to copy `config_coinhsl.h.in`
-to `config_coinhsl.h` in ThirdParty/HSL/ and change
+To enable the use of MA57 it is enught modify `config_coinhsl.h.in`
+in ThirdParty/HSL/ and change
 
 `#undef COINHSL_HAS_MA57`
 
@@ -68,18 +51,19 @@ to
 
 `#define COINHSL_HAS_MA57 1`
 
+Undef all the other HSL interfaces unless you have the
+corresponding libraries.
+
 The configure script is set to produce **only** a static
 library and install the library at `/usr/local2/lib` with
 headers at `/usr/local2/include`:
 
 ~~~
-../configure --enable-static --disable-shared \
-             --prefix=/usr/local2 --without-metis \
-             --with-hsl-lib="-L/Applications/MATLAB_R2015a.app/bin/maci64 -lmxma57" \
-             --with-hsl-incdir=__ROOT__/Ipopt-3.12.4/ThirdParty/HSL
-
+./configure --enable-static --disable-shared \
+            --prefix=/usr/local2 --without-metis \
+             -enable-matlab-ma57
 make
-make install
+sudo make install
 ~~~
 
 after that Ipopt is ready to be linked with the mex interface. 

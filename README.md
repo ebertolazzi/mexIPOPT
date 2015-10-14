@@ -22,6 +22,14 @@ Moreover I tried to improve error catching.
 
 **How to compile**
 
+If you have an OSX or a LINUX 64 bit OS try to use
+the corresponding precompiled mex file, otherwise
+try to compile the mex interface following the 
+instructions.
+Compilation is not an easy task, I try to be
+as clear as possibile, in any case things may
+change from different version of OS.
+
 The interface is written in C++. 
 To compile the mex file
 
@@ -31,6 +39,13 @@ To compile the mex file
 To compile the mex interface you need a static IPOPT library
 installed in your system. To install the library read
 `README_how_to_install_ipopt.md`.
+
+On linux system make sure that atlas versioni of blas/lapack
+libraries are available. In missing to install use the command
+
+~~~
+sudo apt-get install libatlas-dev
+~~~
 
 For the usage of the library use `addpath` to add `lib` directory
 in the search path or move the contents of `lib` to a directory 

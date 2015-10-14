@@ -24,6 +24,10 @@ files = [ '../src/ipopt.cc ', ...
 % compiler options
 CXXFLAGS = '-fPIC -O3 -DMATLAB_MEXFILE -DHAVE_CSTDDEF ' ;
 
+% on some linux system STL do not contain copy_n
+% comment the next line if your system know copy_n
+CXXFLAGS = [CXXFLAGS '-DIPOPT_INTERFACE_MISSING_COPY_N '] ;
+
 % where are headers files and ipopt libraries
 PREFIX = '/usr/local2' ;
 
@@ -32,18 +36,23 @@ INCL = [ '-I../src ' ...
          '-I' PREFIX '/include/coin ' ] ;
 
 % libraries linked dynamically
-% gfortran and quadmath shuold be installed statically
+% -lgfortran -lquadmath -lstdc++ -lblas -llapack  should be installed statically
 % But on some linux this cannot be done cause the library is not 
 % compiled with the switch `-fno-common`
-%
+% 
 LIBS = [ '-L' PREFIX '/lib -L/usr/lib -lgfortran -lquadmath -lstdc++ -ldl -lm -lc' ] ; 
 
 % If you implementation of IPOPT do not use ma57 comment the next line.
-LIBS = [ LIBS ' -L' MATLAB '/bin/maci64 -lmwma57 ' ] ;
+LIBS = [ LIBS ' -L' MATLAB '/bin/glnxa64 -lmwma57' ] ;
 % library MA57 inside MATLAB
 
-% libraries linked statically
-LIBS2 = '-Wl,-Bstatic -lipopt -lcoinmumps -llapack -lblas -Wl,-Bdynamic ';
+% libraries linked statically (check for atlas)
+if exist('/usr/lib/atlas-base/atlas/libblas.a','file')
+  LIBS2 = '-Wl,-Bstatic -L/usr/lib/atlas-base/atlas -lipopt -lcoinmumps -llapack -lblas -Wl,-Bdynamic ';
+else
+  error( ['missing atlas version of blas/lapack libraries\n' ...
+          'to install run the command:\nsudo apt-get install libatlas-dev'] ) ;
+end
 
 % compiler options
 MEXFLAGS = [ '-v -cxx -largeArrayDims ' ...

@@ -76,8 +76,8 @@ To do that configure
 
 ~~~
 ./configure --with-hsl-lib="-L/Applications/MATLAB_R2015a.app/bin/maci64 -lmwma57" \
-           --with-hsl-incdir=__IPOPT_SOURCE___/ThirdParty/HSL/ \
-           --prefix=/usr/local --enable-static --disable-shared
+            --with-hsl-incdir=__IPOPT_SOURCE___/ThirdParty/HSL/ \
+            --prefix=/usr/local --enable-static --disable-shared
 ~~~
 
 where `__IPOPT_SOURCE___` is the directory where you unpacked
