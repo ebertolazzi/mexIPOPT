@@ -51,7 +51,7 @@ if exist('/usr/lib/atlas-base/atlas/libblas.a','file')
   LIBS2 = '-Wl,-Bstatic -L/usr/lib/atlas-base/atlas -lipopt -lcoinmumps -llapack -lblas -Wl,-Bdynamic ';
 else
   error( ['missing atlas version of blas/lapack libraries\n' ...
-          'to install run the command:\nsudo apt-get install libatlas-dev'] ) ;
+          'to install run the command:\nsudo apt-get install libatlas-base-dev'] ) ;
 end
 
 % compiler options

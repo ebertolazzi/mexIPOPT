@@ -44,7 +44,7 @@ On linux system make sure that atlas versioni of blas/lapack
 libraries are available. In missing to install use the command
 
 ~~~
-sudo apt-get install libatlas-dev
+sudo apt-get install libatlas-base-dev
 ~~~
 
 For the usage of the library use `addpath` to add `lib` directory
