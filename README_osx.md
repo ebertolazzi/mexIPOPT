@@ -5,7 +5,7 @@
 
 To install IPOP from source read `README_how_to_install_ipopt.md`.
 This is the preferred way cause it is possibile to produce a mex
-file mainly linked with static library avoiding conflict with
+file mainly linked with static libraries avoiding conflict with MATLAB dynamic libraries.
 
 **Install IPOPT using homebrew**
 
@@ -17,7 +17,7 @@ Then on a shell windows type
 brew install ipopt
 ~~~
 
-installation may  use some options, 
+installation may use some options, 
 for example to install IPOPT using openblas support:
 
 ~~~
@@ -66,20 +66,3 @@ After that you need to restart MATLAB and execute
 `mex -setup C++`
 
 in order that MATLAB is aware of the modifications.
-
-
-***Experimental***
-
-Is is possible to link IPOPT with MA57 which is contained in the 
-pool of MATLAB libraries.
-To do that configure
-
-~~~
-./configure --with-hsl-lib="-L/Applications/MATLAB_R2015a.app/bin/maci64 -lmwma57" \
-            --with-hsl-incdir=__IPOPT_SOURCE___/ThirdParty/HSL/ \
-            --prefix=/usr/local --enable-static --disable-shared
-~~~
-
-where `__IPOPT_SOURCE___` is the directory where you unpacked
-the Ipopt sources.
-You need to edit some files in `ThirdParty/HSL`.

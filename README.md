@@ -41,13 +41,15 @@ installed in your system. To install the library read
 `README_how_to_install_ipopt.md`.
 
 On linux system make sure that atlas versioni of blas/lapack
-libraries are available. In missing to install use the command
+libraries are available. If it is missing use the command
 
 ~~~
 sudo apt-get install libatlas-base-dev
 ~~~
 
-For the usage of the library use `addpath` to add `lib` directory
+to install it.
+
+For the usage of the mex file use `addpath` to add `lib` directory
 in the search path or move the contents of `lib` to a directory 
 in the search path.
 

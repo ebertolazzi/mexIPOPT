@@ -1,7 +1,7 @@
-### mexIPOPT on LINUX
+### IPOPT compilation
 **by Enrico Bertolazzi**
 
-**How to install IPOPT on LINUX or OSX**
+**How to compile IPOPT on LINUX or OSX**
 
 The compilation of a mex file involving external 
 shared library is a difficult task cause Matlab
@@ -15,19 +15,32 @@ as long as you can.
 
 The proposed installation procedure uses /usr/local2 as
 installation directory, so that, after generation of
-mex file you can delete /usr/local2 ad free memeory.
+mex file you can delete /usr/local2 and free the memory.
 
 To make a working static library for IPOPT on my linux
-system I di the following procedure:
+system I done the following procedure:
 
 1) Download the IPOPT tarball from `http://www.coin-or.org/download/source/Ipopt/`
 
 2) Untar/unzip the tarball and go on the root of the distribution. 
 
+3) get Mumps with the commands:
 
-notice that metis is disabled. I choose to disable metis and
-MPI cause otherwise IPOPT joined with mex interface crash
-in special circumstance crash.
+~~~
+cd ThirdParty/Mumps
+./get.Mumps
+~~~
+
+4) Configure for compile a static mumps library:
+
+~~~
+export ADD_CFLAGS="-fPIC -fno-common"
+export ADD_CXXFLAGS="-fPIC -fno-common"
+export ADD_FFLAGS="-fPIC -fno-common"
+./configure --prefix=/usr/local2 --enable-static --disable-shared --without-metis
+make
+make install
+~~~
 
 7) Configure for compile a static ipopt library:
 
@@ -62,6 +75,13 @@ headers at `/usr/local2/include`:
 ./configure --enable-static --disable-shared \
             --prefix=/usr/local2 --without-metis \
              -enable-matlab-ma57
+~~~
+
+notice that metis is disabled. I choose to disable metis and
+MPI otherwise IPOPT joined with mex interface crash
+in special circumstance.
+
+~~~
 make
 sudo make install
 ~~~
@@ -73,6 +93,10 @@ In `/usr/local2/lib` you shuold find the following library
 - libipopt.a
 
 To avoid conflict with MATLAB blas/lapack shared
-library the mex command must force linking of static version of these libraries. The command is build with the script
+library the mex command must force linking of 
+static version of these libraries.
+The command is build with the script
+
 `compile_linux.m` or `compile_osx.m`.
+
 Adapt it, if necessary, to meet the configuration of your system.
