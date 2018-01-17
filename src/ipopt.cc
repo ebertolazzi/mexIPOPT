@@ -156,11 +156,13 @@ mexFunction( int nlhs, mxArray       *plhs[],
   try {
     IpoptInterface::mexFunction( nlhs, plhs, nrhs, prhs ) ;
   } catch ( std::exception & error ) {
-    mexPrintf("\n*** Error using Ipopt Matlab interface: ***\n\n"
-              "%s"
-              "\n*******************************************\n",error.what());
+    std::ostringstream ost ;
+    ost << "\n*** Error using Ipopt Matlab interface: ***\n\n"
+        << error.what()
+        << "\n*******************************************\n" ;
+    mexErrMsgTxt(ost.str().c_str());
   } catch ( ... ) {
-    mexPrintf("\n*** Error using Ipopt Matlab interface: ***\nUnknown error\n");
+    mexErrMsgTxt("\n*** Error using Ipopt Matlab interface: ***\nUnknown error\n");
   }
   mexPrintf("\n*** IPOPT DONE ***\n");
 

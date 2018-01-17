@@ -26,7 +26,7 @@ LIBS = '' ;
 
 % if you follow the proposed installation instruction 
 % the ipopt library is located at /usr/local2
-PREFIX = '/usr/local2' ;
+PREFIX = '/opt/local2' ;
 
 INCL = [ '-I../src ' ...
          '-I' PREFIX '/include ' ...
@@ -36,7 +36,7 @@ INCL = [ '-I../src ' ...
 GFORTRANCMD = '/usr/local/bin/gfortran' ;
 
 % full path MATLAB
-MATLAB = '/Applications/MATLAB_R2015a.app' ;
+MATLAB = ['/Applications/MATLAB_R' version('-release') '.app'] ;
 
 % add list of static version of fortran libraries
 [status,GFORTRAN] = system([ GFORTRANCMD ' -print-file-name=libgfortran.a']) ;
@@ -72,11 +72,13 @@ end
 % frameworks
 LIBS2 = '-framework Accelerate ' ; % -Wl,-no_compact_unwind
 
-% compiler options
-MEXFLAGS = [ '-v -cxx -largeArrayDims ' ...
+% compiler options -largeArrayDims 
+MEXFLAGS = [ '-v -cxx ' ...
              'CXXOPTIMFLAGS="' CXXFLAGS '" ' ...
              'LDFLAGS=''$LDFLAGS ' LIBS2 ''''  ] ;
 
 % build and execute compilation command
 cmd = sprintf('mex %s %s %s %s',MEXFLAGS,INCL,files,LIBS) ;
 eval(cmd);
+
+disp(cmd);

@@ -40,6 +40,7 @@
 // STL
 #include <algorithm>
 #include <vector>
+#include <iterator>
 
 #if IPOPT_VERSION_MAJOR < 3
   #error "Ipopt Matlab Interface need IPOPT version >= 3.11"
@@ -109,7 +110,8 @@ namespace IpoptInterface {
     MatlabFunctionHandle() : f(nullptr) { }
 
     // The destructor.
-    ~MatlabFunctionHandle() { if ( f != nullptr ) mxDestroyArray(f) ; }
+    ~MatlabFunctionHandle()
+    { if ( f != nullptr ) mxDestroyArray(f) ; f = nullptr ; }
 
     std::string const & name() const { return f_name ; }
 
@@ -191,7 +193,7 @@ namespace IpoptInterface {
         for ( i = mxJc[c], k = Jc[c] ; i < mxJc[c+1] ; ++i, ++k ) {
           while ( Ir[k] < mxIr[i] && k < Jc[c+1] ) ++k ; // skip not set elements
           IPOPT_ASSERT( Ir[k] == mxIr[i],
-                        "In MATLAB function " << func << "\nbad pattern" ) ;
+                        "In MATLAB function " << func << "\nelement (" << mxIr[i]+1 << "," << c+1 << ") not found in pattern" ) ;
           values[k] = v[i] ;
         }
       }
@@ -224,9 +226,9 @@ namespace IpoptInterface {
     MatlabFunctionHandle hesstruc_func ;   // Hessian structure function.
     MatlabFunctionHandle iter_func ;       // Iterative callback function.
 
-    Index nc, nv ;
+    Index     mx_x_nc, mx_x_nv ;
     mxArray * mx_x ;
-    bool x_is_cell_array ; // true if x is a cell array
+    bool      x_is_cell_array ; // true if x is a cell array
 
     std::vector<Number> x0 ;
 
@@ -251,7 +253,7 @@ namespace IpoptInterface {
     bool
     from_cell_array( mxArray const * ptr, Index n, Number * x ) const ;
 
-    Index numVariables() const { return nv ; }
+    Index numVariables() const { return this->mx_x_nv ; }
 
     // These functions return true if the respective callback functions
     // are available.
@@ -497,7 +499,7 @@ namespace IpoptInterface {
 
     // The constructor.
     MatlabProgram( CallbackFunctions const & funcs,
-		               Options           const & options,
+		           Options           const & options,
                    MatlabInfo              & info );
 
     // The destructor.

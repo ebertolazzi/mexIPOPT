@@ -1,3 +1,5 @@
+addpath('../lib') ;
+
 % In this small MATLAB script, we compute the least squares solution to a
 % regression problem subject to L1 regularization, which rewards "sparse"
 % models that have regression coefficients of zero. See, for instance,

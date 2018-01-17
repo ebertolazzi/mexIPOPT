@@ -29,7 +29,7 @@ CXXFLAGS = '-fPIC -O3 -DMATLAB_MEXFILE -DHAVE_CSTDDEF ' ;
 CXXFLAGS = [CXXFLAGS '-DIPOPT_INTERFACE_MISSING_COPY_N '] ;
 
 % where are headers files and ipopt libraries
-PREFIX = '/usr/local2' ;
+PREFIX = '/opt/local2' ;
 
 INCL = [ '-I../src ' ...
          '-I' PREFIX '/include ' ...
@@ -47,12 +47,7 @@ LIBS = [ LIBS ' -L' MATLAB '/bin/glnxa64 -lmwma57' ] ;
 % library MA57 inside MATLAB
 
 % libraries linked statically (check for atlas)
-if exist('/usr/lib/atlas-base/atlas/libblas.a','file')
-  LIBS2 = '-Wl,-Bstatic -L/usr/lib/atlas-base/atlas -lipopt -lcoinmumps -llapack -lblas -Wl,-Bdynamic ';
-else
-  error( ['missing atlas version of blas/lapack libraries\n' ...
-          'to install run the command:\nsudo apt-get install libatlas-base-dev'] ) ;
-end
+LIBS2 = '-Wl,-Bstatic -L/opt/local2/lib -lipopt -lcoinmumps -lcoinlapack -lcoinblas -Wl,-Bdynamic ';
 
 % compiler options
 MEXFLAGS = [ '-v -cxx -largeArrayDims ' ...

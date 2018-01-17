@@ -61,9 +61,10 @@ function test_ipopt
   funcs.gradient          = @gradient;
   funcs.jacobian          = @jacobian;
   funcs.jacobianstructure = @jacobianstructure;
-  if false
+  if true
     funcs.hessian           = @hessian;
     funcs.hessianstructure  = @hessianstructure;
+    options.ipopt.derivative_test = 'second-order';
   else
     options.ipopt.hessian_approximation      = 'limited-memory';
     %options.ipopt.limited_memory_update_type = 'bfgs' ; % {bfgs}, sr1 = 6; % {6}

@@ -3,18 +3,16 @@
 
 **How to compile IPOPT on LINUX or OSX**
 
-The compilation of a mex file involving external 
-shared library is a difficult task cause Matlab
-has is internal copy of shared library which
-may conflict with the system or user defined
+The compilation of a mex file involving external shared library is a
+difficult task cause Matlab has is internal copy of shared library 
+which may conflict with the system or user defined
 shared library.
 
-In order to produce a working mex file for ipopt
-interface the better way is to use static library
-as long as you can.
+In order to produce a working mex file for ipopt interface the better
+way is to use static library as long as you can.
 
-The proposed installation procedure uses /usr/local2 as
-installation directory, so that, after generation of
+The proposed installation procedure uses `/opt/local2`
+as installation directory, so that, after generation of
 mex file you can delete /usr/local2 and free the memory.
 
 To make a working static library for IPOPT on my linux
@@ -37,10 +35,12 @@ cd ThirdParty/Mumps
 export ADD_CFLAGS="-fPIC -fno-common"
 export ADD_CXXFLAGS="-fPIC -fno-common"
 export ADD_FFLAGS="-fPIC -fno-common"
-./configure --prefix=/usr/local2 --enable-static --disable-shared --without-metis
+./configure --prefix=/opt/local2 --enable-static --disable-shared --without-metis
 make
 make install
 ~~~
+
+(note directory /opt/local2 can be written with the new OS)
 
 7) Configure for compile a static ipopt library:
 
@@ -66,20 +66,48 @@ to
 
 Undef all the other HSL interfaces unless you have the
 corresponding libraries.
-
-The configure script is set to produce **only** a static
-library and install the library at `/usr/local2/lib` with
-headers at `/usr/local2/include`:
+Change also in `ipopt/src/contrib/LinearSolverLoader/HSLLoader.cc` the line with
 
 ~~~
-./configure --enable-static --disable-shared \
-            --prefix=/usr/local2 --without-metis \
-             -enable-matlab-ma57
+#define HSLLIBNAME "libhsl." SHAREDLIBEXT
+~~~
+
+with
+
+~~~
+#define HSLLIBNAME "libmwma57." SHAREDLIBEXT
+~~~
+
+otherwise when load `ma57` the mex try to load the dynamic library `libhsl.EXT` where EXT = {dylib,so,dll} instead of the MATLAB version.
+
+The configure script must be set to produce **only** a static
+library and install the library at `/opt/local2/lib` with
+headers at `/opt/local2/include`:
+
+~~~
+./configure --enable-static --disable-shared --prefix=/opt/local2 --without-metis --enable-matlab-ma57
 ~~~
 
 notice that metis is disabled. I choose to disable metis and
 MPI otherwise IPOPT joined with mex interface crash
 in special circumstance.
+
+**On LINUX**
+On linux OSX if you want to use MATLAB `ma57` you must compile Blas/Lapack and use its static version
+
+~~~
+cd ThirdParty/Blas
+./get.Blas
+cd ../../ThirdParty/Lapack
+./get.Lapack
+~~~
+
+moreover the configure script must be change as 
+~~~
+./configure --enable-static --disable-shared --prefix=/opt/local2 --without-metis --enable-matlab-ma57 --with-pic --with-blas=BUILD --with-lapack=BUILD 
+~~~
+
+**Compile IPOPT**
 
 ~~~
 make

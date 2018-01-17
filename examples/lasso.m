@@ -12,7 +12,7 @@
 %         Dept. of Computer Science
 %         University of British Columbia
 %         September 18, 2008
-function w = lasso (A, y, lambda)
+function w = lasso(A, y, lambda)
   
   % Get the number of examples (n) and the number of regression
   % coefficients (m).
