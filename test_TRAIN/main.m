@@ -57,6 +57,7 @@ options.ipopt.tol              = 1e-10;%
 options.ipopt.linear_solver    = 'ma57';
 %options.ipopt.linear_solver    = 'mumps';
 %options.ipopt.linear_solver    = 'pardiso';
+options.ipopt.pardiso_msglvl   = 4 ;
 
 % The callback functions.
 funcs.objective         = @train_NLP_target;

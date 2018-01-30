@@ -74,10 +74,14 @@ LIBS2 = '-framework Accelerate ' ; % -Wl,-no_compact_unwind
 
 % compiler options -largeArrayDims 
 MEXFLAGS = [ '-v -cxx ' ...
+             'CXXFLAGS="' CXXFLAGS ' -mmacosx-version-min=10.9 " ' ...
              'CXXOPTIMFLAGS="' CXXFLAGS '" ' ...
-             'LDFLAGS=''$LDFLAGS ' LIBS2 ''''  ] ;
+             'LDFLAGS=''$LDFLAGS -Xlinker -rpath -Xlinker /opt/intel/mkl/lib ' LIBS2 ''''  ] ;
 
 % build and execute compilation command
+% LIBS = [ LIBS ' -L/usr/local/Cellar/gcc/7.2.0_1/lib/gcc/7/gcc/x86_64-apple-darwin17.3.0/7.2.0/../../../ -lgfortran -lquadmath '] ;
+% LIBS = [ LIBS ' -L/opt/intel/mkl/lib -lmkl_core -lmkl_intel -lmkl_sequential '] ;
+
 cmd = sprintf('mex %s %s %s %s',MEXFLAGS,INCL,files,LIBS) ;
 eval(cmd);
 

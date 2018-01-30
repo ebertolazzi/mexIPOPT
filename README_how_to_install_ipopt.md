@@ -32,9 +32,9 @@ cd ThirdParty/Mumps
 4) Configure for compile a static mumps library:
 
 ~~~
-export ADD_CFLAGS="-fPIC -fno-common"
-export ADD_CXXFLAGS="-fPIC -fno-common"
-export ADD_FFLAGS="-fPIC -fno-common"
+export ADD_CFLAGS="-fPIC -fno-common -mmacosx-version-min=10.9"
+export ADD_CXXFLAGS="-fPIC -fno-common -mmacosx-version-min=10.9"
+export ADD_FFLAGS="-fPIC -fno-common -mmacosx-version-min=10.9"
 ./configure --prefix=/opt/local2 --enable-static --disable-shared --without-metis
 make
 make install
@@ -50,9 +50,9 @@ Moreover `FUNNY_MA57_FINT` permits to produce a code
 that can link with MA57 solver contained in MATLAB.
 
 ~~~
-export ADD_CFLAGS="-fPIC -fno-common -DFUNNY_MA57_FINT"
-export ADD_CXXFLAGS="-fPIC -fno-common -DFUNNY_MA57_FINT"
-export ADD_FFLAGS="-fPIC -fno-common -DFUNNY_MA57_FINT"
+export ADD_CFLAGS="-fPIC -fno-common -DFUNNY_MA57_FINT -mmacosx-version-min=10.9"
+export ADD_CXXFLAGS="-fPIC -fno-common -DFUNNY_MA57_FINT -mmacosx-version-min=10.9"
+export ADD_FFLAGS="-fPIC -fno-common -DFUNNY_MA57_FINT -mmacosx-version-min=10.9"
 ~~~
 
 To enable the use of MA57 it is enught modify `config_coinhsl.h.in`
@@ -128,3 +128,16 @@ The command is build with the script
 `compile_linux.m` or `compile_osx.m`.
 
 Adapt it, if necessary, to meet the configuration of your system.
+
+**PARDISO NOTE**
+
+Also pardiso solver ('http://www.pardiso-project.org') can be used in alternative to `ma57`.
+Pardiso can be activated but normally libraries are linked with dylib located at `/usr/local/lib/` while with the new MacOS libraries are located at different location, for example at `/usr/local/Cellar/gcc/7.3.0/lib/gcc/7/`. In this case change the library search path using the command `install_name_tool` for example:
+
+~~~
+install_name_tool -change /usr/local/lib/libgfortran.3.dylib /usr/local/Cellar/gcc/7.3.0/lib/gcc/7/libgfortran.dylib libpardiso.dylib
+
+install_name_tool -change /usr/local/lib/libgomp.1.dylib /usr/local/Cellar/gcc/7.3.0/lib/gcc/7/libgomp.dylib libpardiso.dylib
+
+install_name_tool -change /usr/local/lib/libquadmath.0.dylib /usr/local/Cellar/gcc/7.3.0/lib/gcc/7/libquadmath.dylib libpardiso.dylib
+~~~
