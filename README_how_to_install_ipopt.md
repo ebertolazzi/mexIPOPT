@@ -50,9 +50,9 @@ Moreover `FUNNY_MA57_FINT` permits to produce a code
 that can link with MA57 solver contained in MATLAB.
 
 ~~~
-export ADD_CFLAGS="-fPIC -fno-common -DFUNNY_MA57_FINT -mmacosx-version-min=10.9"
-export ADD_CXXFLAGS="-fPIC -fno-common -DFUNNY_MA57_FINT -mmacosx-version-min=10.9"
-export ADD_FFLAGS="-fPIC -fno-common -DFUNNY_MA57_FINT -mmacosx-version-min=10.9"
+export ADD_CFLAGS="-fPIC -fno-common -DFUNNY_MA57_FINT -DHAVE_STDIO -DHAVE_STRING -mmacosx-version-min=10.9"
+export ADD_CXXFLAGS="-fPIC -fno-common -DFUNNY_MA57_FINT -DHAVE_STDIO -DHAVE_STRING -mmacosx-version-min=10.9"
+export ADD_FFLAGS="-fPIC -fno-common -DFUNNY_MA57_FINT -DHAVE_STDIO -DHAVE_STRING -mmacosx-version-min=10.9"
 ~~~
 
 To enable the use of MA57 it is enught modify `config_coinhsl.h.in`
@@ -102,7 +102,16 @@ cd ../../ThirdParty/Lapack
 ./get.Lapack
 ~~~
 
-moreover the configure script must be change as 
+moreover the configure scripts must be changed as 
+
+~~~
+export ADD_CFLAGS="-fpic -fno-common -DFUNNY_MA57_FINT -DHAVE_STDIO -DHAVE_STRING"
+export ADD_CXXFLAGS="-fpic -fno-common -DFUNNY_MA57_FINT -DHAVE_STDIO -DHAVE_STRING"
+export ADD_FFLAGS="-fpic -fno-common -DFUNNY_MA57_FINT -DHAVE_STDIO -DHAVE_STRING"
+~~~
+
+and
+
 ~~~
 ./configure --enable-static --disable-shared --prefix=/opt/local2 --without-metis --enable-matlab-ma57 --with-pic --with-blas=BUILD --with-lapack=BUILD 
 ~~~

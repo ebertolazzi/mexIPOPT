@@ -158,7 +158,17 @@ namespace IpoptInterface {
     f = mxDuplicateArray(p) ;
 
     mxArray *outputs[1] ;
-    mexCallMATLAB( 1, outputs, 1, &f, "func2str" );
+    mxArray *exception = mexCallMATLABWithTrap( 1, outputs, 1, &f, "func2str" );
+    
+    if ( exception != nullptr  ) {
+      mxArray *msg ;
+      mexCallMATLAB(1, &msg, 1, &exception, "getReport" );
+      char * c_msg = mxArrayToString(msg) ;
+      std::string cpp_msg = c_msg ;
+      mxFree(c_msg);
+      IPOPT_DO_ERROR("in function: func2str\n" << cpp_msg) ;
+    }
+
     char * c_msg = mxArrayToString(outputs[0]) ;
     f_name = c_msg ;
     mxFree(c_msg);
@@ -666,16 +676,15 @@ namespace IpoptInterface {
                   "The first return value of the objective callback function has " << mxGetNumberOfElements(ptr) <<
                   " elements, expected 1" );
 
-    Number f = 0 ;
-    if (mxIsSparse(ptr)) {
+    if ( mxIsSparse(ptr) ) {
       // convert sparse objective (unlikely but possible) to full
       mxArray * ptr1 ;
       mexCallMATLAB(1, &ptr1, 1, &ptr, "full");
-      f = *mxGetPr(ptr1);
-      mxDestroyArray(ptr1);
-    } else {
-      f = *mxGetPr(ptr);
+      std::swap(ptr,ptr1);
+      mxDestroyArray(ptr1); // destroy old sparse vector
     }
+
+    Number f = *mxGetPr(ptr);
 
     // Free the dynamically allocated memory.
     mxDestroyArray(ptr);
@@ -709,7 +718,7 @@ namespace IpoptInterface {
         // convert sparse gradient to full (simplest method, not fastest)
         mexCallMATLAB(1, &ptr1, 1, &ptr, "full");
         std::swap(ptr,ptr1) ;
-        mxDestroyArray(ptr1);
+        mxDestroyArray(ptr1); // destroy old sparse vector
       }
       IPOPT_ASSERT( mxGetNumberOfElements(ptr) == n,
                     "In MATLAB function " << grad_func.name() << "\n"
@@ -751,7 +760,7 @@ namespace IpoptInterface {
       // convert sparse constraint vector (unlikely but possible) to full
       mexCallMATLAB(1, &ptr1, 1, &ptr, "full");
       std::swap(ptr,ptr1) ;
-      mxDestroyArray(ptr);
+      mxDestroyArray(ptr1) ; // destroy old sparse vector
     }
     std::copy_n(mxGetPr(ptr),m,c);
 
