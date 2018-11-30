@@ -36,7 +36,8 @@ INCL = [ '-I../src ' ...
 GFORTRANCMD = '/usr/local/bin/gfortran' ;
 
 % full path MATLAB
-MATLAB = ['/Applications/MATLAB_R' version('-release') '.app'] ;
+%MATLAB = ['/Applications/MATLAB_R' version('-release') '.app'];
+MATLAB = matlabroot;
 
 % add list of static version of fortran libraries
 [status,GFORTRAN] = system([ GFORTRANCMD ' -print-file-name=libgfortran.a']) ;

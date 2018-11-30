@@ -16,23 +16,29 @@
 
 files = [ '../src/ipopt.cc ', '../src/IpoptInterfaceCommon.cc' ] ;
 
-COMPFLAGS  = [ '/O2 ' ] ;
-DEFINE     = [ '-DNDEBUG -DMATLAB_MEXFILE -DHAVE_CSTDDEF ' ] ;% -DHAVE_CONFIG_H
+%COMPFLAGS  = [ '-O2 -std=c++11 -shared-libgcc -shared-libstdc++ ' ] ;
+CXXFLAGS = [ '-O2 -static-libgfortran -lgfortran -lmwma57 ' ] ;
+DEFINE   = [ '-DNDEBUG -DMATLAB_MEXFILE' ] ;%  -static-libgcc -static-libstdc++ -lstdc++ -lgfortran  -DHAVE_CSTDDEF ' ] ;% -DHAVE_CONFIG_H -lmwlapack -lmwblas
 
-%IPOPTBASE = 'C:\Ipopt-3.11.0-Win32-Win64-dll' ;
-%IPOPTBASE = 'C:\Ipopt-3.10.1-win32-msvc12_mumps+metis+clapack' ;
-%IPOPTBASE = 'C:\Ipopt-3.10.1-Win32-Win64-dll' ;
-IPOPTBASE = 'C:\cygwin64\usr\local2' ;
+IPOPTBASE = [ '..\binary' ];
+DIRLIB    = [ IPOPTBASE '\lib' ];
+DLLLIB    = [ IPOPTBASE '\dll' ];
+HDR       = [ IPOPTBASE '\include\coin' ];
+INCL      = [' -I..\src -I' HDR  ];
 
+%ROOT      = [ matlabroot, '\extern\lib\win64\mingw64' ];
 
-ipoptlib = fullfile(IPOPTBASE,'lib','libipopt.lib');
-mumpslib = fullfile(IPOPTBASE,'lib','libcoinmumps.lib');
+LIBS       = [ DIRLIB, '\libipopt.a ', ...
+               DIRLIB, '\libipopt.dll.a ', ...
+               DIRLIB, '\libcoinmumps.dll.a ', ...
+               DIRLIB, '\libcoinmetis.dll.a ', ...
+               DIRLIB, '\libCoinUtils.dll.a ', ...
+               DIRLIB, '\libcoinlapack.dll.a ', ...
+               DIRLIB, '\libcoinblas.dll.a '];
 
-INCL     = ['-I"' pwd '\..\src" -I"' IPOPTBASE '\include\coin" '] ;
-
-LIBS     = [ '-L' IPOPTBASE '\lib -lipopt -lcoinmumps ' ] ;
-MEXFLAGS = [ '-v -cxx -largeArrayDims -outdir .. DEBUGFLAGS="" ' ...
-             'COMPFLAGS="$COMPFLAGS' COMPFLAGS '" ' ] ;
-cmd = sprintf('mex %s %s %s %s %s',MEXFLAGS,DEFINE,INCL,files,LIBS) ;
+MEXFLAGS = [ '-v -largeArrayDims -outdir ', DLLLIB, ' CXXFLAGS="$CXXFLAGS ' CXXFLAGS '" ' ] ;
+cmd = sprintf('mex %s %s %s %s %s ',MEXFLAGS,DEFINE,INCL,files,LIBS) ;
 disp(cmd);
 eval(cmd);
+addpath(DLLLIB);
+%

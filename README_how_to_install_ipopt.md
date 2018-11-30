@@ -124,7 +124,7 @@ sudo make install
 ~~~
 
 after that Ipopt is ready to be linked with the mex interface. 
-In `/usr/local2/lib` you shuold find the following library
+In `/usr/local2/lib` you should find the following library
 
 - libcoinmumps.a
 - libipopt.a
