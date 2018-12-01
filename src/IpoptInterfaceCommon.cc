@@ -53,42 +53,42 @@ namespace IpoptInterface {
     if ( mxIsCell(ptr) ) {
 
       // Compute the number of optimization variables.
-      size_t nv = 0 ;
-      for ( size_t i = 0 ; i < n; ++i ) {
+      size_t nv = 0;
+      for ( size_t i = 0; i < n; ++i ) {
         mxArray const * p = mxGetCell(ptr,i);  // Get the ith cell.
         IPOPT_ASSERT( p != nullptr,
-                      msg << " in from_matlab failed to access cell n. " << i ) ;
+                      msg << " in from_matlab failed to access cell n. " << i );
         IPOPT_ASSERT( mxIsDouble(p) && !mxIsComplex(p) && !mxIsSparse(p),
-                      msg << " in from_matlab needs a cell array in which each cell is a full real array in DOUBLE precision" ) ;
+                      msg << " in from_matlab needs a cell array in which each cell is a full real array in DOUBLE precision" );
         nv += mxGetNumberOfElements(p);
       }
 
-      data.clear() ;
-      data.reserve(nv) ;
+      data.clear();
+      data.reserve(nv);
 
-      for ( size_t i = 0 ; i < n ; ++i ) {
-        mxArray const * p = mxGetCell(ptr,i) ;
+      for ( size_t i = 0; i < n; ++i ) {
+        mxArray const * p = mxGetCell(ptr,i);
         IPOPT_ASSERT( p != nullptr,
-                      msg << " in from_matlab failed to access cell n. " << i ) ;
+                      msg << " in from_matlab failed to access cell n. " << i );
         nv = mxGetNumberOfElements(p);
-        Number const * pp = mxGetPr(p) ;
+        Number const * pp = mxGetPr(p);
         IPOPT_ASSERT( pp != nullptr,
-                      msg << " in from_matlab failed to access data for cell n. " << i ) ;
+                      msg << " in from_matlab failed to access data for cell n. " << i );
         std::copy( pp, pp+nv, std::back_inserter(data) );
       }
     } else {
       IPOPT_ASSERT( mxIsDouble(ptr) && !mxIsComplex(ptr) && !mxIsSparse(ptr),
-                    msg << " in from_matlab data must be a real double non sparse vector, found: " << mxGetClassName(ptr) ) ;
-      Number const * p = mxGetPr(ptr) ;
+                    msg << " in from_matlab data must be a real double non sparse vector, found: " << mxGetClassName(ptr) );
+      Number const * p = mxGetPr(ptr);
       IPOPT_ASSERT( p != nullptr,
-                    msg << " in from_matlab failed to access data from vector" ) ;
+                    msg << " in from_matlab failed to access data from vector" );
 
-      data.clear() ;
-      data.reserve(n) ;
+      data.clear();
+      data.reserve(n);
 
       std::copy( p, p+n, std::back_inserter(data) );
     }
-    return size_t(data.size()) ;
+    return size_t(data.size());
   }
 
   /*
@@ -116,11 +116,11 @@ namespace IpoptInterface {
     bool      ok = true;  // The return value.
     mwIndex * jc = mxGetJc(ptr);
     mwIndex * ir = mxGetIr(ptr);
-    mwIndex i = 0 ;
-    for ( mwIndex j = 0 ; j < ncol && ok ; ++j )
-      for ( ; i < jc[j+1] && ok ; ++i )
-        ok = (j <= ir[i]) ;
-    return ok ;
+    mwIndex i = 0;
+    for ( mwIndex j = 0; j < ncol && ok; ++j )
+      for (; i < jc[j+1] && ok; ++i )
+        ok = (j <= ir[i]);
+    return ok;
   }
 
   static
@@ -130,18 +130,18 @@ namespace IpoptInterface {
     mwIndex* jc   = mxGetJc(ptr);
     mwIndex* ir   = mxGetIr(ptr);
     bool     ok   = true;
-    for ( Index j = 0 ; j < ncol && ok ; ++j )
-      for ( mwIndex i = jc[j]+1 ; i < jc[j+1] && ok ; ++i )
+    for ( Index j = 0; j < ncol && ok; ++j )
+      for ( mwIndex i = jc[j]+1; i < jc[j+1] && ok; ++i )
         ok = ( ir[i-1] < ir[i] );
-    return ok ;
+    return ok;
   }
 
   static
   void
   mxToIpoptInf( std::vector<Number> & v, Number ipopt_inf ) {
-    for ( std::vector<Number>::iterator iv = v.begin() ; iv != v.end() ; ++iv )
+    for ( std::vector<Number>::iterator iv = v.begin(); iv != v.end(); ++iv )
       if ( mxIsInf(*iv) )
-        *iv = ipopt_inf ;
+        *iv = ipopt_inf;
   }
 
   // This constructor accepts as input a pointer to a MATLAB array. It
@@ -155,22 +155,22 @@ namespace IpoptInterface {
                   "You did not provide a valid function handle for computing " << error_msg );
 
     if ( f != nullptr ) mxDestroyArray(f);
-    f = mxDuplicateArray(p) ;
+    f = mxDuplicateArray(p);
 
-    mxArray *outputs[1] ;
+    mxArray *outputs[1];
     mxArray *exception = mexCallMATLABWithTrap( 1, outputs, 1, &f, "func2str" );
     
     if ( exception != nullptr  ) {
-      mxArray *msg ;
+      mxArray *msg;
       mexCallMATLAB(1, &msg, 1, &exception, "getReport" );
-      char * c_msg = mxArrayToString(msg) ;
-      std::string cpp_msg = c_msg ;
+      char * c_msg = mxArrayToString(msg);
+      std::string cpp_msg = c_msg;
       mxFree(c_msg);
-      IPOPT_DO_ERROR("in function: func2str\n" << cpp_msg) ;
+      IPOPT_DO_ERROR("in function: func2str\n" << cpp_msg);
     }
 
-    char * c_msg = mxArrayToString(outputs[0]) ;
-    f_name = c_msg ;
+    char * c_msg = mxArrayToString(outputs[0]);
+    f_name = c_msg;
     mxFree(c_msg);
   }
 
@@ -183,22 +183,22 @@ namespace IpoptInterface {
     // Construct the inputs to "feval".
     mxArray** finputs = new mxArray*[n_rhs+1];
     finputs[0] = f;
-    for ( Index i = 0 ; i < n_rhs ; ++i ) finputs[i+1] = mxDuplicateArray(rhs[i]);
+    for ( Index i = 0; i < n_rhs; ++i ) finputs[i+1] = mxDuplicateArray(rhs[i]);
 
     // Call "feval".
     mxArray *exception = mexCallMATLABWithTrap( n_lhs, lhs, n_rhs+1, finputs, "feval" );
 
     // Free the dynamically allocated memory.
-    for ( Index i = 1 ; i <= n_rhs ; ++i ) mxDestroyArray(finputs[i]);
+    for ( Index i = 1; i <= n_rhs; ++i ) mxDestroyArray(finputs[i]);
     delete[] finputs;
 
     if ( exception != nullptr  ) {
-      mxArray *msg ;
+      mxArray *msg;
       mexCallMATLAB(1, &msg, 1, &exception, "getReport" );
-      char * c_msg = mxArrayToString(msg) ;
-      std::string cpp_msg = c_msg ;
+      char * c_msg = mxArrayToString(msg);
+      std::string cpp_msg = c_msg;
       mxFree(c_msg);
-      IPOPT_DO_ERROR("in function: " << f_name << "\n" << cpp_msg) ;
+      IPOPT_DO_ERROR("in function: " << f_name << "\n" << cpp_msg);
     }
   }
 
@@ -216,11 +216,11 @@ namespace IpoptInterface {
 
     char const * fieldnames[9] = {
       "x", "status", "zl", "zu", "lambda", "iter", "cpu", "objective", "eval"
-    } ;
+    };
     this->ptr = ptr = mxCreateStructMatrix(1,1,9,fieldnames);
 
     // Initialize fields.
-    for ( Index i = 0 ; i < 8 ; ++i ) // do not initialize "eval"
+    for ( Index i = 0; i < 8; ++i ) // do not initialize "eval"
       mxSetField(ptr,0,fieldnames[i],mxCreateDoubleScalar(0));
 
     // Build Eval Structure
@@ -228,10 +228,10 @@ namespace IpoptInterface {
                                           "constraints",
                                           "gradient",
                                           "jacobian",
-                                          "hessian" } ;
+                                          "hessian" };
 
     mxArray *evalStruct = mxCreateStructMatrix(1,1,5,evalfields);
-    for ( Index i = 0 ; i < 5 ; ++i )
+    for ( Index i = 0; i < 5; ++i )
       mxSetField(evalStruct,0,evalfields[i],mxCreateDoubleScalar(0));
 
     mxSetField(ptr,0,"eval",evalStruct);
@@ -240,40 +240,40 @@ namespace IpoptInterface {
   void
   MatlabInfo::setfield( mxArray const * pin, char const * field ) {
     mxArray * p = mxGetField(ptr,0,field);
-    IPOPT_ASSERT( p != nullptr, "MatlabInfo::setfield missing field `" << field << "'" ) ;
+    IPOPT_ASSERT( p != nullptr, "MatlabInfo::setfield missing field `" << field << "'" );
     // First destroy any previous values.
-    mxDestroyArray(p) ;
+    mxDestroyArray(p);
     mxSetField(ptr,0,field,mxDuplicateArray( pin ));
   }
 
   void
   MatlabInfo::setfield( size_t n, Number const * x, char const * field ) {
     mxArray * p = mxGetField(ptr,0,field);
-    IPOPT_ASSERT( p != nullptr, "MatlabInfo::setfield missing field `" << field << "'" ) ;
+    IPOPT_ASSERT( p != nullptr, "MatlabInfo::setfield missing field `" << field << "'" );
     // First destroy any previous values.
-    mxDestroyArray(p) ;
-    p = mxCreateDoubleMatrix( n, 1, mxREAL ) ;
+    mxDestroyArray(p);
+    p = mxCreateDoubleMatrix( n, 1, mxREAL );
     std::copy_n(x,n,mxGetPr(p));
     mxSetField(ptr,0,field,p);
   }
 
   mxArray *
   MatlabInfo::getfield_mx( char const * field ) const {
-    mxArray * p = mxGetField(ptr,0,field) ;
-    IPOPT_ASSERT( p != nullptr, "MatlabInfo::getfield_mx missing field `" << field << "'" ) ;
-    return p ;
+    mxArray * p = mxGetField(ptr,0,field);
+    IPOPT_ASSERT( p != nullptr, "MatlabInfo::getfield_mx missing field `" << field << "'" );
+    return p;
   }
 
   Number const *
   MatlabInfo::getfield( char const * field ) const {
-    Number const * p = mxGetPr(getfield_mx(field)) ;
-    IPOPT_ASSERT( p != nullptr, "MatlabInfo::getfield('" << field <<  "') cant access values" ) ;
-    return p ;
+    Number const * p = mxGetPr(getfield_mx(field));
+    IPOPT_ASSERT( p != nullptr, "MatlabInfo::getfield('" << field <<  "') cant access values" );
+    return p;
   }
 
   ApplicationReturnStatus
   MatlabInfo::getExitStatus() const {
-    mxArray const * p = getfield_mx("status") ;
+    mxArray const * p = getfield_mx("status");
     return (ApplicationReturnStatus) (int) *mxGetPr(p);
   }
 
@@ -284,11 +284,11 @@ namespace IpoptInterface {
                             Index jac,
                             Index hess ) {
     mxArray* p = getfield_mx("eval");
-    *mxGetPr(mxGetField(p,0,"objective"))   = obj ;
-    *mxGetPr(mxGetField(p,0,"constraints")) = con ;
-    *mxGetPr(mxGetField(p,0,"gradient"))    = grad ;
-    *mxGetPr(mxGetField(p,0,"jacobian"))    = jac ;
-    *mxGetPr(mxGetField(p,0,"hessian"))     = hess ;
+    *mxGetPr(mxGetField(p,0,"objective"))   = obj;
+    *mxGetPr(mxGetField(p,0,"constraints")) = con;
+    *mxGetPr(mxGetField(p,0,"gradient"))    = grad;
+    *mxGetPr(mxGetField(p,0,"jacobian"))    = jac;
+    *mxGetPr(mxGetField(p,0,"hessian"))     = hess;
   }
 
   /*
@@ -313,7 +313,7 @@ namespace IpoptInterface {
       // Each field in the structure array should correspond to an option
       // in IPOPT. Repeat for each field.
       Index n = mxGetNumberOfFields(ptr);
-      for ( Index i = 0 ; i < n ; ++i ) {
+      for ( Index i = 0; i < n; ++i ) {
         char const * label = mxGetFieldNameByNumber(ptr,i);
         mxArray *    p     = mxGetFieldByNumber(ptr,0,i);
         setOption(label,p);
@@ -445,11 +445,11 @@ namespace IpoptInterface {
                     "Lower bounds array must have one element for each optimization variable, found a vector of N = " << N <<
                     " elements, expected n = " << n );
       // Convert MATLAB's convention of infinity to IPOPT's convention of infinity.
-      mxToIpoptInf( lb, neginfty ) ;
+      mxToIpoptInf( lb, neginfty );
     } else {
       // If the lower bounds have not been specified, set them to negative infinity.
       lb.resize(n);
-      std::fill( lb.begin(), lb.end(), neginfty ) ;
+      std::fill( lb.begin(), lb.end(), neginfty );
     }
   }
 
@@ -461,17 +461,17 @@ namespace IpoptInterface {
       Index N = from_matlab(p,ub,"Options::loadUpperBounds");
       IPOPT_ASSERT( N == n, "Upper bounds array must have one element for each optimization variable");
       // Convert MATLAB's convention of infinity to IPOPT's convention of infinity.
-      mxToIpoptInf( ub, posinfty ) ;
+      mxToIpoptInf( ub, posinfty );
     } else {
       // If the upper bounds have not been specified, set them to positive infinity.
       ub.resize(n);
-      std::fill( ub.begin(), ub.end(), posinfty ) ;
+      std::fill( ub.begin(), ub.end(), posinfty );
     }
   }
 
   void
   Options::loadConstraintBounds( mxArray const * ptr ) {
-    m = 0 ;  // The return value is the number of constraints.
+    m = 0;  // The return value is the number of constraints.
     // LOAD CONSTRAINT BOUNDS.
     // If the user has specified constraints bounds, then she must
     // specify *both* the lower and upper bounds.
@@ -492,8 +492,8 @@ namespace IpoptInterface {
       // Load the lower bounds on the constraints and convert MATLAB's
       // convention of infinity to IPOPT's convention of infinity.
       // Convert MATLAB's convention of infinity to IPOPT's convention of infinity.
-      cl.resize(m) ; std::copy_n(mxGetPr(pl),m,cl.begin()); mxToIpoptInf( cl, neginfty ) ;
-      cu.resize(m) ; std::copy_n(mxGetPr(pu),m,cu.begin()); mxToIpoptInf( cu, posinfty ) ;
+      cl.resize(m); std::copy_n(mxGetPr(pl),m,cl.begin()); mxToIpoptInf( cl, neginfty );
+      cu.resize(m); std::copy_n(mxGetPr(pu),m,cu.begin()); mxToIpoptInf( cu, posinfty );
     }
   }
 
@@ -501,38 +501,38 @@ namespace IpoptInterface {
   Options::loadMultipliers( mxArray const * ptr ) {
     // Load the Lagrange multipliers associated with the lower bounds.
     mxArray const * p = mxGetField(ptr,0,"zl");
-    static char const * msg1 = "must be a double-precision array with one element\nfor each optimization variable" ;
+    static char const * msg1 = "must be a double-precision array with one element\nfor each optimization variable";
     if ( p != nullptr ) {
-      static char const * msg = "The initial point for the Lagrange multipliers associated with the lower bounds\n" ;
+      static char const * msg = "The initial point for the Lagrange multipliers associated with the lower bounds\n";
       IPOPT_ASSERT( mxIsDouble(p) && !mxIsComplex(p), msg << msg1 );
       IPOPT_ASSERT( mxGetNumberOfElements(p) == n,
-                    msg << "must be a vector of length " << n << " found of lenght " << mxGetNumberOfElements(p) ) ;
-      zl.resize(n)  ;
+                    msg << "must be a vector of length " << n << " found of lenght " << mxGetNumberOfElements(p) );
+      zl.resize(n);
       std::copy_n(mxGetPr(p),n,zl.begin());
     } else {
-      zl.clear() ;
+      zl.clear();
     }
     // Load the Lagrange multipliers associated with the upper bounds.
     p = mxGetField(ptr,0,"zu");
     if ( p != nullptr ) {
-      static char const * msg = "The initial point for the Lagrange multipliers associated with the upper bounds\n" ;
+      static char const * msg = "The initial point for the Lagrange multipliers associated with the upper bounds\n";
       IPOPT_ASSERT( mxIsDouble(p) && !mxIsComplex(p), msg << msg1 );
       IPOPT_ASSERT( mxGetNumberOfElements(p) == n,
-                    msg << "must be a vector of length " << n << " found of lenght " << mxGetNumberOfElements(p) ) ;
-      zu.resize(n)  ;
+                    msg << "must be a vector of length " << n << " found of lenght " << mxGetNumberOfElements(p) );
+      zu.resize(n);
       std::copy_n(mxGetPr(p),n,zu.begin());
     } else {
-      zu.clear() ;
+      zu.clear();
     }
     // Load the Lagrange multipliers associated with the equality and inequality constraints.
     p = mxGetField(ptr,0,"lambda");
     if ( p != nullptr ) {
-      static char const * msg = "The initial point for the Lagrange multipliers associated with the constraints\n" ;
+      static char const * msg = "The initial point for the Lagrange multipliers associated with the constraints\n";
       IPOPT_ASSERT( mxIsDouble(p) && !mxIsComplex(p),
                     msg << "must be a double-precision array with one element for each constraint");
       IPOPT_ASSERT( mxGetNumberOfElements(p) == m,
-                    msg << "must be a vector of length " << n << " found of lenght " << mxGetNumberOfElements(p) ) ;
-      lambda.resize(m)  ;
+                    msg << "must be a vector of length " << n << " found of lenght " << mxGetNumberOfElements(p) );
+      lambda.resize(m);
       std::copy_n(mxGetPr(p),m,lambda.begin());
     } else {
       lambda.clear();
@@ -553,20 +553,20 @@ namespace IpoptInterface {
     from_matlab( mx_x0, x0, "in CallbackFunctions" );
 
     mxArray const * p;  // A pointer to a MATLAB array.
-    this -> x_is_cell_array = mxIsCell( mx_x0 ) ;
+    this -> x_is_cell_array = mxIsCell( mx_x0 );
     if ( this -> x_is_cell_array ) {
-      this -> mx_x_nv = 0 ;
+      this -> mx_x_nv = 0;
       this -> mx_x_nc = mxGetNumberOfElements( mx_x0 );
       this -> mx_x    = mxCreateCellMatrix( this -> mx_x_nc, 1 );
-      for ( Index i = 0 ; i < this -> mx_x_nc ; ++i ) {
-        mxArray const * p = mxGetCell( mx_x0, i ) ;
+      for ( Index i = 0; i < this -> mx_x_nc; ++i ) {
+        mxArray const * p = mxGetCell( mx_x0, i );
         this -> mx_x_nv += (Index) mxGetNumberOfElements(p);
-        mxSetCell( this -> mx_x, i, mxDuplicateArray(p) ) ;
+        mxSetCell( this -> mx_x, i, mxDuplicateArray(p) );
       }
     } else {
-      this -> mx_x    = mxDuplicateArray( mx_x0 ) ;
-      this -> mx_x_nv = mxGetNumberOfElements( mx_x ) ;
-      this -> mx_x_nc = 0 ;
+      this -> mx_x    = mxDuplicateArray( mx_x0 );
+      this -> mx_x_nv = mxGetNumberOfElements( mx_x );
+      this -> mx_x_nc = 0;
     }
     
     // Check whether we are provided with a structure array.
@@ -598,7 +598,7 @@ namespace IpoptInterface {
     // This function is necessary if the Jacobian is being computed.
     p = mxGetField(ptr,0,"jacobianstructure");
     if ( p != nullptr ) {
-      jacstruc_func.bind(p,"the sparsity structure of the Jacobian") ;
+      jacstruc_func.bind(p,"the sparsity structure of the Jacobian");
     } else {
       IPOPT_ASSERT( !jacobian_func,
                     "You must provide a function that returns the sparsity structure of the Jacobian");
@@ -606,13 +606,13 @@ namespace IpoptInterface {
 
     // Get the function handle for computing the Hessian. This function is always optional.
     p = mxGetField(ptr,0,"hessian");
-    if ( p != nullptr ) hessian_func.bind(p,"the Hessian of the Lagrangian") ;
+    if ( p != nullptr ) hessian_func.bind(p,"the Hessian of the Lagrangian");
 
     // Get the function handle for computing the sparsity structure of the Hessian of the Lagrangian.
     // This function is necessary if the Hessian is being computed.
     p = mxGetField(ptr,0,"hessianstructure");
     if ( p != nullptr ) {
-      hesstruc_func.bind(p,"the sparsity structure of the Hessian") ;
+      hesstruc_func.bind(p,"the sparsity structure of the Hessian");
     } else {
       IPOPT_ASSERT( !hessian_func,
                      "You must provide a function that returns the sparsity structure of the Hessian");
@@ -620,7 +620,7 @@ namespace IpoptInterface {
 
     // Get the iterative callback function handle. This function is always optional.
     p = mxGetField(ptr,0,"iterfunc");
-    if ( p != nullptr ) iter_func.bind( p, "the iterative callback" ) ;
+    if ( p != nullptr ) iter_func.bind( p, "the iterative callback" );
   }
 
   CallbackFunctions::~CallbackFunctions() {
@@ -630,40 +630,40 @@ namespace IpoptInterface {
   CallbackFunctions::from_cell_array( mxArray const * ptr,
                                       Index           n,
                                       Number        * x ) const {
-    if ( !x_is_cell_array ) return false ;
-    Index ntot = 0 ;
-    for ( Index i = 0 ; i < this -> mx_x_nc ; ++i ) {
-      mxArray const * p = mxGetCell(ptr,i) ;
+    if ( !x_is_cell_array ) return false;
+    Index ntot = 0;
+    for ( Index i = 0; i < this -> mx_x_nc; ++i ) {
+      mxArray const * p = mxGetCell(ptr,i);
       Index nn = (Index) mxGetNumberOfElements(p);
-      ntot += nn ;
-      if ( ntot > n ) return false ;
-      std::copy_n(mxGetPr(p),nn,x) ;
-      x += nn ;
+      ntot += nn;
+      if ( ntot > n ) return false;
+      std::copy_n(mxGetPr(p),nn,x);
+      x += nn;
     }
-    return ntot == n ;
+    return ntot == n;
   }
 
   void
   CallbackFunctions::fillx( Index n, Number const * x ) const {
      if ( x_is_cell_array ) {
-       for ( Index i = 0 ; i < this -> mx_x_nc ; ++i ) {
-         mxArray const * p = mxGetCell(mx_x,i) ;
+       for ( Index i = 0; i < this -> mx_x_nc; ++i ) {
+         mxArray const * p = mxGetCell(mx_x,i);
          Index nn = (Index) mxGetNumberOfElements(p);
          std::copy_n(x,nn,mxGetPr(p));
-         x += nn ;
+         x += nn;
        }
      } else {
-       std::copy_n( x, n, mxGetPr(mx_x) ) ;
+       std::copy_n( x, n, mxGetPr(mx_x) );
      }
   }
 
   Number
   CallbackFunctions::computeObjective( Index n, Number const x[] ) const {
 
-    fillx( n, x ) ;
+    fillx( n, x );
 
     // Call the MATLAB callback function.
-    mxArray * ptr ;
+    mxArray * ptr;
     obj_func.eval(1,&ptr,1,(mxArray const **)&mx_x);
 
     // Get the output from the MATLAB callback function, which is the
@@ -678,7 +678,7 @@ namespace IpoptInterface {
 
     if ( mxIsSparse(ptr) ) {
       // convert sparse objective (unlikely but possible) to full
-      mxArray * ptr1 ;
+      mxArray * ptr1;
       mexCallMATLAB(1, &ptr1, 1, &ptr, "full");
       std::swap(ptr,ptr1);
       mxDestroyArray(ptr1); // destroy old sparse vector
@@ -696,11 +696,11 @@ namespace IpoptInterface {
                                       Number const x[],
                                       Number       g[] ) const {
 
-    fillx( n, x ) ;
+    fillx( n, x );
 
     // Call the MATLAB callback function.
-    mxArray * ptr ;
-    grad_func.eval(1,&ptr,1,(mxArray const **)&mx_x) ;
+    mxArray * ptr;
+    grad_func.eval(1,&ptr,1,(mxArray const **)&mx_x);
 
     // se cell array converto
     if ( mxIsCell(ptr) ) {
@@ -714,10 +714,10 @@ namespace IpoptInterface {
                     "In MATLAB function " << grad_func.name() << "\n"
                     "The gradient callback must return a real double vector, found: " << mxGetClassName(ptr));
       if (mxIsSparse(ptr)) {
-        mxArray * ptr1 ;
+        mxArray * ptr1;
         // convert sparse gradient to full (simplest method, not fastest)
         mexCallMATLAB(1, &ptr1, 1, &ptr, "full");
-        std::swap(ptr,ptr1) ;
+        std::swap(ptr,ptr1);
         mxDestroyArray(ptr1); // destroy old sparse vector
       }
       IPOPT_ASSERT( mxGetNumberOfElements(ptr) == n,
@@ -725,7 +725,7 @@ namespace IpoptInterface {
                     "The gradient callback must return a real double vector of size = " << n <<
                     " while it return a vector of size = " << mxGetNumberOfElements(ptr) );
 
-      std::copy_n( mxGetPr(ptr), n, g ) ;
+      std::copy_n( mxGetPr(ptr), n, g );
     }
 
     // Free the dynamically allocated memory.
@@ -738,7 +738,7 @@ namespace IpoptInterface {
                                          Index        m,
                                          Number       c[] ) const {
 
-    fillx( n, x ) ;
+    fillx( n, x );
 
     // Call the MATLAB callback function.
     mxArray * ptr;
@@ -756,11 +756,11 @@ namespace IpoptInterface {
                   " while it return a vector of size = " << mxGetNumberOfElements(ptr) );
 
     if (mxIsSparse(ptr)) {
-      mxArray * ptr1 ;
+      mxArray * ptr1;
       // convert sparse constraint vector (unlikely but possible) to full
       mexCallMATLAB(1, &ptr1, 1, &ptr, "full");
-      std::swap(ptr,ptr1) ;
-      mxDestroyArray(ptr1) ; // destroy old sparse vector
+      std::swap(ptr,ptr1);
+      mxDestroyArray(ptr1); // destroy old sparse vector
     }
     std::copy_n(mxGetPr(ptr),m,c);
 
@@ -783,7 +783,7 @@ namespace IpoptInterface {
                   "In MATLAB function " << name << "\n"
                   "Jacobian must be an (m=" << m << ") x (n=" << n << ") sparse matrix\n"
                   "where m is the number of constraints and n is the number of variables,\n"
-                  "but found m=" << mxGetM(ptr) << " and n=" << mxGetN(ptr) ) ;
+                  "but found m=" << mxGetM(ptr) << " and n=" << mxGetN(ptr) );
     IPOPT_ASSERT( inIncOrder(ptr),
                   "In MATLAB function " << name << "\n"
                   "Jacobian must be a sparse matrix with row indices in increasing order" );
@@ -793,11 +793,11 @@ namespace IpoptInterface {
   CallbackFunctions::loadJacobianStructure( Index n, Index m ) const {
 
     // Call the MATLAB callback function.
-    mxArray * ptr ;
+    mxArray * ptr;
     jacstruc_func.eval(1,&ptr,0,(mxArray const **)nullptr);
 
-    checkJaconbian( jacstruc_func.name().c_str(), n, m, ptr ) ;
-    Jacobian.setup( ptr ) ;
+    checkJaconbian( jacstruc_func.name().c_str(), n, m, ptr );
+    Jacobian.setup( ptr );
 
     // Free the dynamically allocated memory.
     mxDestroyArray(ptr);
@@ -832,11 +832,11 @@ namespace IpoptInterface {
   CallbackFunctions::loadHessianStructure( Index n ) const {
 
     // Call the MATLAB callback function.
-    mxArray * ptr ;
+    mxArray * ptr;
     hesstruc_func.eval(1,&ptr,0,(mxArray const **)nullptr);
 
-    checkHessian( hesstruc_func.name().c_str(), n, ptr ) ;
-    Hessian.setup( ptr ) ;
+    checkHessian( hesstruc_func.name().c_str(), n, ptr );
+    Hessian.setup( ptr );
 
     // Free the dynamically allocated memory.
     mxDestroyArray(ptr);
@@ -847,23 +847,23 @@ namespace IpoptInterface {
                                       Index        n,
                                       Number const x[],
                                       Number       values[] ) const {
-    fillx( n, x ) ;
+    fillx( n, x );
 
     // Call the MATLAB callback function.
-    mxArray * ptr ;
+    mxArray * ptr;
     jacobian_func.eval(1,&ptr,1,(mxArray const **)&mx_x);
 
-    checkJaconbian( jacobian_func.name().c_str(), n, m, ptr ) ;
+    checkJaconbian( jacobian_func.name().c_str(), n, m, ptr );
 
     if (!mxIsDouble(ptr)) {
-      mxArray * ptr1 ;
+      mxArray * ptr1;
       // convert non-double Jacobian to double
       mexCallMATLAB(1, &ptr1, 1, &ptr, "double");
-      std::swap(ptr,ptr1) ;
+      std::swap(ptr,ptr1);
       mxDestroyArray(ptr1);
     }
 
-    Jacobian.getValues( jacobian_func.name().c_str(), ptr, values ) ;
+    Jacobian.getValues( jacobian_func.name().c_str(), ptr, values );
 
     // Free the dynamically allocated memory.
     mxDestroyArray(ptr);
@@ -876,7 +876,7 @@ namespace IpoptInterface {
                                      Index        m,
                                      Number const lambda[],
                                      Number       values[] ) const {
-    fillx( n, x ) ;
+    fillx( n, x );
 
     // Create the input arguments to the MATLAB routine, sigma and lambda.
     mxArray * psigma  = mxCreateDoubleScalar(sigma);
@@ -884,32 +884,32 @@ namespace IpoptInterface {
     std::copy_n( lambda, m, mxGetPr(plambda) );
 
     // Call the MATLAB callback function.
-    mxArray const * inputs[3] = { mx_x, psigma, plambda } ;
-    mxArray       * ptr ;
+    mxArray const * inputs[3] = { mx_x, psigma, plambda };
+    mxArray       * ptr;
     hessian_func.eval( 1, &ptr, 3, inputs );
 
-    checkHessian( hesstruc_func.name().c_str(), n, ptr ) ;
+    checkHessian( hesstruc_func.name().c_str(), n, ptr );
     /*
     if (!mxIsDouble(ptr)) {
-      mxArray * ptr1 ;
+      mxArray * ptr1;
       // convert non-double Hessian to double
       mexCallMATLAB( 1, &ptr1, 1, &ptr, "double" );
-      std::swap( ptr, ptr1 ) ;
-      mxDestroyArray( ptr1 ) ;
+      std::swap( ptr, ptr1 );
+      mxDestroyArray( ptr1 );
     }
     */
 
     IPOPT_ASSERT( mxIsDouble(ptr),
-                  "in computeHessian output data must be of type double, found: " << mxGetClassName(ptr) ) ;
+                  "in computeHessian output data must be of type double, found: " << mxGetClassName(ptr) );
     IPOPT_ASSERT( !mxIsComplex(ptr),
-                  "in computeHessian output data cannot be complex!" ) ;
+                  "in computeHessian output data cannot be complex!" );
     IPOPT_ASSERT( mxIsSparse(ptr),
-                  "in computeHessian output data must be a sparse matrix" ) ;
-    Number const * v = mxGetPr(ptr) ;
+                  "in computeHessian output data must be a sparse matrix" );
+    Number const * v = mxGetPr(ptr);
     IPOPT_ASSERT( v != nullptr,
-                  "in computeHessian failed to access data from vector" ) ;
+                  "in computeHessian failed to access data from vector" );
     
-    Hessian.getValues( jacobian_func.name().c_str(), ptr, values ) ;
+    Hessian.getValues( jacobian_func.name().c_str(), ptr, values );
 
     // Free the dynamically allocated memory.
     mxDestroyArray(ptr);
@@ -931,7 +931,7 @@ namespace IpoptInterface {
                                    Ipopt::IpoptData const * ip_data,
                                    Ipopt::IpoptCalculatedQuantities* ip_cq ) const {
 
-    if ( !iter_func ) return true ;
+    if ( !iter_func ) return true;
 
     // Create the input arguments to the MATLAB routine.
     mxArray* pt = mxCreateDoubleScalar(iter);
@@ -940,7 +940,7 @@ namespace IpoptInterface {
     // Create structure to hold extra IPOPT variables
     static char const * varfields[8] = { "inf_pr", "inf_du", "mu",
                                          "d_norm", "regularization_size",
-                                         "alpha_du", "alpha_pr", "ls_trials" } ;
+                                         "alpha_du", "alpha_pr", "ls_trials" };
 
     mxArray *varStruct = mxCreateStructMatrix(1,1,9,varfields);
     mxSetField(varStruct,0,"inf_pr",mxCreateDoubleScalar(inf_pr));
@@ -953,8 +953,8 @@ namespace IpoptInterface {
     mxSetField(varStruct,0,"ls_trials",mxCreateDoubleScalar(ls_trials));
 
     // Call the MATLAB callback function.
-    mxArray const * inputs[3] = { pt, pf, varStruct } ;
-    mxArray       * ptr ;
+    mxArray const * inputs[3] = { pt, pf, varStruct };
+    mxArray       * ptr;
     iter_func.eval(1,&ptr,3,inputs);
 
     // Get the output from the MATLAB callback function, which is a
@@ -1058,10 +1058,10 @@ namespace IpoptInterface {
 
     IPOPT_ASSERT( n == numvars(options),
                   "Bad number of variables required in get_starting_point, expected = "
-                  << numvars(options) << " required = " << n ) ;
+                  << numvars(options) << " required = " << n );
     IPOPT_ASSERT( m == numconstraints(options),
                   "Bad number of constraints required in get_starting_point, expected = "
-                  << numconstraints(options) << " required = " << m ) ;
+                  << numconstraints(options) << " required = " << m );
 
     // Check to see whether IPOPT is requesting the initial point for the primal variables.
     if ( initializeVars ) std::copy_n(funcs.getx0().begin(),n,vars);
@@ -1206,7 +1206,7 @@ namespace IpoptInterface {
     info.setfield(numConstraints,lambda,"lambda");
     info.setfield(objective,"objective");
     // se necessario converto in cell array
-    funcs.fillx( numVariables, variables ) ;
+    funcs.fillx( numVariables, variables );
     info.setfield(funcs.mx_getx(),"x");
   }
 
@@ -1272,13 +1272,13 @@ namespace Ipopt {
 
     Index const maxStrLen = 1024;
     char        s[maxStrLen];
-    int         nchar ;
+    int         nchar;
     #ifdef IPOPT_VSNPRINTF
       #ifdef HAVE_VA_COPY
       va_list apcopy;
       va_copy(apcopy, ap);
       #endif
-      nchar = IPOPT_VSNPRINTF(s,maxStrLen,pformat,VA_LIST_AP) ;
+      nchar = IPOPT_VSNPRINTF(s,maxStrLen,pformat,VA_LIST_AP);
       #ifdef HAVE_VA_COPY
       va_end(apcopy);
       #endif
@@ -1289,6 +1289,7 @@ namespace Ipopt {
     //mexEvalString("drawnow;"); // to dump string.
     mexEvalString("pause(.001);"); // to dump string.
 
-    IPOPT_ASSERT( nchar < maxStrLen, "String buffer it too short for all the characters to be printed to MATLAB console" ) ;
+    IPOPT_ASSERT( nchar < maxStrLen,
+                  "String buffer it too short for all the characters to be printed to MATLAB console" );
   }
 }

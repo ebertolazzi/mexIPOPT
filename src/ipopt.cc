@@ -120,7 +120,7 @@ namespace IpoptInterface {
     // Ask Ipopt to solve the problem.
     exitstatus = app.OptimizeTNLP(program);
     info.setExitStatus(exitstatus);
-    plhs[0] = mxDuplicateArray(info.getfield_mx("x")) ;
+    plhs[0] = mxDuplicateArray(info.getfield_mx("x"));
 
     // Collect statistics about Ipopt run
     if (IsValid(app.Statistics())) {
@@ -148,22 +148,22 @@ mexFunction( int nlhs, mxArray       *plhs[],
 
   #ifdef IPOPT_INTERFACE_USE_MPI
   // mumps use mpi
-  int flag ;
-  int ok = MPI_Initialized(&flag) ;
+  int flag;
+  int ok = MPI_Initialized(&flag);
   if ( !flag ) MPI_Init(nullptr,nullptr);
   #endif
 
   try {
-    IpoptInterface::mexFunction( nlhs, plhs, nrhs, prhs ) ;
+    IpoptInterface::mexFunction( nlhs, plhs, nrhs, prhs );
   } catch ( std::exception & error ) {
-    std::ostringstream ost ;
+    std::ostringstream ost;
     ost << "\n*** Error using Ipopt Matlab interface: ***\n\n"
         << error.what()
-        << "\n*******************************************\n" ;
+        << "\n*******************************************\n";
     mexErrMsgTxt(ost.str().c_str());
   } catch ( ... ) {
     mexErrMsgTxt("\n*** Error using Ipopt Matlab interface: ***\nUnknown error\n");
   }
-  mexPrintf("\n*** IPOPT DONE ***\n");
+  //mexPrintf("\n*** IPOPT DONE ***\n");
 
 }
