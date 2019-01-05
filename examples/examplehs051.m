@@ -17,6 +17,7 @@ function [x, info] = examplehs051
   options.cu = [ 4 0 0 ];             % Upper bounds on constraints.
 
   % Set the IPOPT options.
+  options.ipopt.print_level           = 3;
   options.ipopt.jac_c_constant        = 'yes';
   options.ipopt.hessian_approximation = 'limited-memory';
   options.ipopt.mu_strategy           = 'adaptive';

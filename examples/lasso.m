@@ -48,45 +48,52 @@ function w = lasso(A, y, lambda)
   % Run IPOPT.
   [x info] = ipopt_auxdata(x0,funcs,options);
   w        = x{1};
-  
+end
+
 % ------------------------------------------------------------------
 function f = objective (x, auxdata)
   [n m A y lambda] = deal(auxdata{:});
   [w u] = deal(x{:});
   f     = norm(y - A*w)^2/2 + lambda*sum(u);
-  
+end
+
 % ------------------------------------------------------------------
 function c = constraints (x, auxdata)
   [w u] = deal(x{:});
   c     = [ w + u; u - w ];
-  
+end
+
 % ------------------------------------------------------------------
 function g = gradient (x, auxdata)
   [n m A y lambda] = deal(auxdata{:});
   w = x{1};
   g = { -A'*(y - A*w) 
         repmat(lambda,m,1) };
-  
+end
+
 % ------------------------------------------------------------------
 function J = jacobianstructure (auxdata)  
   m = auxdata{2};
   I = speye(m);
   J = [ I I
         I I ];
-  
+end
+
 % ------------------------------------------------------------------
 function J = jacobian (x, auxdata)  
   m = auxdata{2};
   I = speye(m);
   J = [  I  I
         -I  I ];
-  
+end
+
 % ------------------------------------------------------------------
 function H = hessianstructure (auxdata)
   m = auxdata{2};
   H = [ tril(ones(m))  zeros(m)
           zeros(m)     zeros(m) ];
   H = sparse(H);
+end
 
 % ------------------------------------------------------------------
 function H = hessian (x, sigma, lambda, auxdata)  
@@ -94,4 +101,4 @@ function H = hessian (x, sigma, lambda, auxdata)
   H = [ tril(A'*A)  zeros(m)
          zeros(m)   zeros(m) ];
   H = sparse(sigma * H);
-  
+end

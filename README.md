@@ -30,24 +30,18 @@ Compilation is not an easy task, I try to be
 as clear as possibile, in any case things may
 change from different version of OS.
 
-The interface is written in C++. 
+The interface is written in C++.
 To compile the mex file
 
 - change the working directory to the `lib` directory.
-- run the script `compile_osx` or `compile_linux`
+- run the script `compile_osx` or `compile_linux` or `compile_win`. 
 
 To compile the mex interface you need a static IPOPT library
 installed in your system. To install the library read
-`README_how_to_install_ipopt.md`.
-
-On linux system make sure that atlas versioni of blas/lapack
-libraries are available. If it is missing use the command
-
-~~~
-sudo apt-get install libatlas-base-dev
-~~~
-
-to install it.
+`README_osx_how_to_compile_ipopt.md` or
+`README_linux_how_to_compile_ipopt.md`.
+For windows system in the `binary` directory I copied precompiled
+dll of ipopt + dependecties taken from `https://github.com/JuliaOpt`.
 
 For the usage of the mex file use `addpath` to add `lib` directory
 in the search path or move the contents of `lib` to a directory 

@@ -21,8 +21,8 @@ function test_BartholomewBiggs
   options.ipopt.mu_strategy      = 'adaptive';
   options.ipopt.max_iter         = 400;
   options.ipopt.tol              = 1e-10;
-  options.ipopt.linear_solver    = 'ma57';
-  %options.ipopt.linear_solver    = 'mumps';
+  %options.ipopt.linear_solver    = 'ma57';
+  options.ipopt.linear_solver    = 'mumps';
   %options.ipopt.linear_solver    = 'pardiso';
   
   % The callback functions.
