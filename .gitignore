@@ -1,3 +1,4 @@
 *.o
 *.mw
 src/.vscode
+*.DS_Store
