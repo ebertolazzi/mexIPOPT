@@ -1,6 +1,6 @@
 % IPOPT Call the IPOPT constrained, nonlinear solver. 
 %   The basic function call is
-%   
+%
 %     [x, info] = IPOPT(x0,funcs,options)
 %
 %   The first input is either a matrix or a cell array of matrices. It
@@ -19,10 +19,10 @@
 %     point, the current iterate x. For example, the definition of the
 %     objective function for the Hock & Schittkowski (H&S) test problem #71
 %     (with 4 optimization variables) would be
-% 
+%
 %         function f = objective (x)
 %           f = x(1)*x(4)*sum(x(1:3)) + x(3);
-%         
+%
 %     funcs.gradient (required)
 %
 %     Computes the gradient of the objective at the current point. It takes
@@ -33,7 +33,7 @@
 %           g = [ x(1)*x(4) + x(4)*sum(x(1:3))
 %                 x(1)*x(4)
 %                 x(1)*x(4) + 1
-%                 x(1)*sum(x(1:3)) ]; 
+%                 x(1)*sum(x(1:3)) ];
 %
 %     funcs.constraints (optional)
 %
@@ -71,7 +71,7 @@
 %     the H&S test problem #71 simply returns a 2 x 4 matrix of ones in
 %     the sparse matrix format:
 %
-%         function J = jacobianstructure() 
+%         function J = jacobianstructure()
 %           J = sparse(ones(2,4));
 %
 %     funcs.hessian (optional)
@@ -79,12 +79,12 @@
 %     Evaluates the Hessian of the Lagrangian at the current point. It
 %     must be specified unless you choose to use the limited-memory
 %     quasi-Newton approximation to the Hessian (see below).
-% 
+%
 %     The callback function has three inputs: the current point (x), a
 %     scalar factor on the objective (sigma), and the Lagrange multipliers
 %     (lambda), a vector of length equal to the number of constraints. The
 %     function should compute
-%                  
+%
 %        sigma*H + lambda(1)*G1 + ... + lambda(M)*GM
 %
 %     where M is the number of constraints, H is the Hessian of the
@@ -106,9 +106,9 @@
 %                               x(2)*x(4) x(1)*x(4)     0         0;
 %                               x(2)*x(3) x(1)*x(3) x(1)*x(2)     0  ];
 %           H = sparse(H + lambda(2)*diag([2 2 2 2]));
-%  
+%
 %     funcs.hessianstructure (optional)
-% 
+%
 %     This function serves the same purpose as funcs.jacobianstructure, but
 %     for the Hessian matrix. Again, it is not needed if you are using the
 %     limited-memory quasi-Newton approximation to the Hessian. It takes no
@@ -116,7 +116,7 @@
 %     test problem #71, the MATLAB callback routine is fairly
 %     straightforward:
 %
-%         function H = hessianstructure() 
+%         function H = hessianstructure()
 %           H = sparse(tril(ones(4)));
 %
 %     funcs.iterfunc (optional)
@@ -212,7 +212,7 @@
 %         3  search direction becomes too small
 %         4  diverging iterates
 %         5  user requested stop
-%     
+%
 %        -1  maximum number of iterations exceeded
 %        -2  restoration phase failed
 %        -3  error in step computation

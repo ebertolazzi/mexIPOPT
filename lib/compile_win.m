@@ -14,31 +14,33 @@
 %        Original code is published under the Eclipse Public License.      %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+clc
+
+fprintf('\n\nAttention, to compile ipopt mex you must use mingw on WINDOWS\n\n');
+
 files = [ '../src/ipopt.cc ', '../src/IpoptInterfaceCommon.cc' ] ;
 
-%COMPFLAGS  = [ '-O2 -std=c++11 -shared-libgcc -shared-libstdc++ ' ] ;
-CXXFLAGS = [ '-O2 -static-libgfortran -lgfortran -lmwma57 ' ] ;
 DEFINE   = [ '-DNDEBUG -DMATLAB_MEXFILE' ] ;%  -static-libgcc -static-libstdc++ -lstdc++ -lgfortran  -DHAVE_CSTDDEF ' ] ;% -DHAVE_CONFIG_H -lmwlapack -lmwblas
 
 IPOPTBASE = [ '..\binary' ];
 DIRLIB    = [ IPOPTBASE '\lib' ];
 DLLLIB    = [ IPOPTBASE '\dll' ];
-HDR       = [ IPOPTBASE '\include\coin' ];
-INCL      = [' -I..\src -I' HDR  ];
+INCL      = [' -I..\src -I' IPOPTBASE '\include\coin'  ];
+addpath(DLLLIB);
 
 %ROOT      = [ matlabroot, '\extern\lib\win64\mingw64' ];
 
-LIBS       = [ DIRLIB, '\libipopt.a ', ...
-               DIRLIB, '\libipopt.dll.a ', ...
-               DIRLIB, '\libcoinmumps.dll.a ', ...
-               DIRLIB, '\libcoinmetis.dll.a ', ...
-               DIRLIB, '\libCoinUtils.dll.a ', ...
-               DIRLIB, '\libcoinlapack.dll.a ', ...
-               DIRLIB, '\libcoinblas.dll.a '];
+LIBS = [                           ...
+  DIRLIB, '\libipopt.dll.a ',      ...
+  DIRLIB, '\libcoinmumps.dll.a ',  ...
+  DIRLIB, '\libcoinmetis.dll.a ',  ...
+  DIRLIB, '\libCoinUtils.dll.a ',  ...
+  DIRLIB, '\libcoinlapack.dll.a ', ...
+  DIRLIB, '\libcoinblas.dll.a '    ...
+];
 
-MEXFLAGS = [ '-v -largeArrayDims -outdir ', DLLLIB, ' CXXFLAGS="$CXXFLAGS ' CXXFLAGS '" ' ] ;
-cmd = sprintf('mex %s %s %s %s %s ',MEXFLAGS,DEFINE,INCL,files,LIBS) ;
+MEXFLAGS = [ '-v -largeArrayDims -outdir ' DLLLIB ' ' ];
+cmd = sprintf( 'mex %s %s %s %s %s ', MEXFLAGS, DEFINE, INCL, files, LIBS );
 disp(cmd);
 eval(cmd);
-addpath(DLLLIB);
 %

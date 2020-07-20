@@ -30,13 +30,11 @@ if isOctave
 else
   MEX = 'mex';
 end
-% if you follow the proposed installation instruction 
-% the ipopt library is located at /usr/local2
-PREFIX = '/opt/local2';
 
-INCL = [ '-I../src ' ...
-         '-I' PREFIX '/include ' ...
-         '-I' PREFIX '/include/coin ' ];
+% where ipopot is located
+PREFIX = '/usr/local';
+
+INCL = [ '-I../src -I' PREFIX '/include -I' PREFIX '/include/coin ' ];
 
 % full path where gfortran is installed, MATLAB do not known where is
 GFORTRANCMD = '/usr/local/bin/gfortran';
@@ -56,15 +54,15 @@ files = sprintf('%s %s %s %s',files, ...
 % libraries for MUMPS
 % check if it is installed coinmumps library or mumps from homebrew
 if exist([ PREFIX '/lib/libcoinmumps.a'],'file') || ...
-   exist([ PREFIX '/lib/libcoinmumps.dylib'],'file') 
+   exist([ PREFIX '/lib/libcoinmumps.dylib'],'file')
   LIBS = [ LIBS '-L' PREFIX '/lib -lipopt -lcoinmumps ' ] ;
-  % assume that ipopt is compiled with support for ma57 
+  % assume that ipopt is compiled with support for ma57
   % library MA57 inside MATLAB
   if ~isOctave
     LIBS = [ LIBS ' -L' MATLAB '/bin/maci64 -lmwma57 -lmwblas ' ] ;
   end
 elseif exist('/usr/local/lib/libmumps_common.dylib','file')
-  LIBS = '-L/usr/local/lib -lipopt -lmumps_common -lsmumps -ldmumps -lcmumps -lzmumps -lpord -lscalapack' ;
+  LIBS = '-L/usr/local/lib -lipopt -lmumps_common -ldmumps -lpord' ;
   % redefine include headers search path
   INCL = '-I../src -I/usr/local/include -I/usr/local/include/coin ' ;
 
@@ -78,23 +76,19 @@ elseif exist('/usr/local/lib/libmumps_common.dylib','file')
 end
 
 % frameworks
-LIBS2 = '-framework Accelerate ' ; % -Wl,-no_compact_unwind
+LIBS2 = '-framework Accelerate ';
 
 % compiler options -largeArrayDims
 if isOctave
-  MEXFLAGS = [ '-v "-Wl,-framework,Accelerate"' ] ;
+  MEXFLAGS = [ '-v "-Wl,-framework,Accelerate"' ];
 else
   MEXFLAGS = [ '-v -cxx ' ...
                'CXXFLAGS="' CXXFLAGS ' -mmacosx-version-min=10.9 " ' ...
                'CXXOPTIMFLAGS="' CXXFLAGS '" ' ...
-               'LDFLAGS=''$LDFLAGS -Xlinker -rpath -Xlinker /opt/intel/mkl/lib ' LIBS2 ''''  ] ;
+               'LDFLAGS=''$LDFLAGS ' LIBS2 ''''  ] ;
 end
 
-% build and execute compilation command
-% LIBS = [ LIBS ' -L/usr/local/Cellar/gcc/7.2.0_1/lib/gcc/7/gcc/x86_64-apple-darwin17.3.0/7.2.0/../../../ -lgfortran -lquadmath '] ;
-% LIBS = [ LIBS ' -L/opt/intel/mkl/lib -lmkl_core -lmkl_intel -lmkl_sequential '] ;
-
-cmd = sprintf('%s %s %s %s %s',MEX,MEXFLAGS,INCL,files,LIBS) ;
+cmd = sprintf( '%s %s %s %s %s', MEX, MEXFLAGS, INCL, files, LIBS );
 eval(cmd);
 
 disp(cmd);

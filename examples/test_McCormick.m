@@ -1,7 +1,8 @@
 
 function test_McCormick
-  
+
   addpath('../lib') ;
+  addpath('../binary/dll') ;
 
   auxdata = {} ;
 
@@ -11,10 +12,10 @@ function test_McCormick
   % The constraint functions are bounded to zero
   options.cl = []; %  constraints
   options.cu = [];
-  
+
   % Set up the auxiliary data.
   options.auxdata = auxdata ;
-  
+
   % Set the IPOPT options.
   options.ipopt.jac_d_constant   = 'no';
   options.ipopt.hessian_constant = 'no';
@@ -22,7 +23,7 @@ function test_McCormick
   options.ipopt.max_iter         = 400;
   options.ipopt.tol              = 1e-10;
   options.ipopt.linear_solver    = 'mumps'; % ma57, pardiso
-  
+
   % The callback functions.
   funcs.objective         = @objective;
   funcs.constraints       = @constraints;
@@ -41,11 +42,11 @@ function test_McCormick
   end
 
   % Run IPOPT.
-  x0 = [ 0, 0 ] ; 
+  x0 = [ 0, 0 ];
 
   tic
   [x, info] = ipopt_auxdata(x0,funcs,options);
-  elapsed = toc ;
+  elapsed = toc;
 
   info;
 
@@ -61,7 +62,7 @@ function f = objective( x, auxdata )
   f  = sin(x1+x2)+(x1-x2)^2-1.5*x1+2.5*x2+1 ;
 end
 
-%% 
+%%
 % map the indices with the corresponding index in the spase matrix
 function g = gradient(x,auxdata)
   x1 = x(1) ;

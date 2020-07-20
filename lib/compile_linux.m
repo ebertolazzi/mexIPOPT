@@ -39,7 +39,7 @@ INCL = [ '-I../src ' ...
 % -lgfortran -lquadmath -lstdc++ -lblas -llapack  should be installed statically
 % But on some linux this cannot be done cause the library is not 
 % compiled with the switch `-fno-common`
-% 
+%
 LIBS = [ '-L' PREFIX '/lib -L/usr/lib -lgfortran -lquadmath -lstdc++ -ldl -lm -lc' ] ; 
 
 % If you implementation of IPOPT do not use ma57 comment the next line.

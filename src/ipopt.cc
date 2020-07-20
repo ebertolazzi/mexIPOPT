@@ -56,10 +56,14 @@ namespace IpoptInterface {
 
     // Check to see if we have the correct number of input and output
     // arguments.
-    IPOPT_ASSERT( nrhs == 3,
-                  "Incorrect number of input arguments, expected 3 found " << nrhs );
-    IPOPT_ASSERT( nlhs == 2,
-                  "Incorrect number of output arguments, expected 2 found " << nlhs );
+    IPOPT_ASSERT(
+      nrhs == 3,
+      "Incorrect number of input arguments, expected 3 found " << nrhs
+    );
+    IPOPT_ASSERT(
+      nlhs == 2,
+      "Incorrect number of output arguments, expected 2 found " << nlhs
+    );
 
     // Get the second input which specifies the callback functions.
     CallbackFunctions funcs(prhs[0],prhs[1]);
@@ -84,14 +88,18 @@ namespace IpoptInterface {
     // Check to see whether the user provided a callback function for
     // computing the Hessian. This is not needed in the special case
     // when a quasi-Newton approximation to the Hessian is being used.
-    IPOPT_ASSERT( options.ipoptOptions().useQuasiNewton() ||
-                  funcs.hessianFuncIsAvailable(),
-                  "You must supply a callback function for computing the Hessian "
-                  "unless you decide to use a quasi-Newton approximation to the Hessian" );
+    IPOPT_ASSERT(
+      options.ipoptOptions().useQuasiNewton() ||
+      funcs.hessianFuncIsAvailable(),
+      "You must supply a callback function for computing the Hessian "
+      "unless you decide to use a quasi-Newton approximation to the Hessian"
+    );
 
     // If the user tried to use her own scaling, report an error.
-    IPOPT_ASSERT( !options.ipoptOptions().userScaling(),
-                  "The user-defined scaling option does not work in the MATLAB interface for IPOPT");
+    IPOPT_ASSERT(
+      !options.ipoptOptions().userScaling(),
+      "The user-defined scaling option does not work in the MATLAB interface for IPOPT"
+    );
 
     // If the user supplied initial values for the Lagrange
     // multipliers, activate the "warm start" option in IPOPT.
@@ -110,8 +118,10 @@ namespace IpoptInterface {
     // Intialize the IpoptApplication object and process the options.
     ApplicationReturnStatus exitstatus;
     exitstatus = app.Initialize();
-    IPOPT_ASSERT( exitstatus == Ipopt::Solve_Succeeded,
-                  "IPOPT solver initialization failed" );
+    IPOPT_ASSERT(
+      exitstatus == Ipopt::Solve_Succeeded,
+      "IPOPT solver initialization failed"
+    );
 
     // Create a new instance of the constrained, nonlinear program.
     MatlabProgram* matlabProgram = new MatlabProgram(funcs,options,info);
@@ -143,8 +153,10 @@ namespace IpoptInterface {
 // Function definitions.
 // -----------------------------------------------------------------
 void
-mexFunction( int nlhs, mxArray       *plhs[],
-		         int nrhs, mxArray const *prhs[] ) {
+mexFunction(
+  int nlhs, mxArray       *plhs[],
+  int nrhs, mxArray const *prhs[]
+) {
 
   #ifdef IPOPT_INTERFACE_USE_MPI
   // mumps use mpi

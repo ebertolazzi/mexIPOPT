@@ -26,21 +26,24 @@
 #ifndef IPOPT_INTERFACE_COMMON_HH
 #define IPOPT_INTERFACE_COMMON_HH
 
-#include "mex.h"
-
-#include "IpUtils.hpp"
-#include "IpIpoptApplication.hpp"
-#include "IpTNLP.hpp"
+#pragma once
 
 #include <stdexcept> // for unix system
 #include <exception>
 #include <cstdio>
+#include <string>
 #include <sstream>
 
 // STL
 #include <algorithm>
 #include <vector>
 #include <iterator>
+
+#include "mex.h"
+
+#include "IpUtils.hpp"
+#include "IpIpoptApplication.hpp"
+#include "IpTNLP.hpp"
 
 #if IPOPT_VERSION_MAJOR < 3
   #error "Ipopt Matlab Interface need IPOPT version >= 3.11"
@@ -126,10 +129,12 @@ namespace IpoptInterface {
     // outputs array is of the appropriate size. It is up to the user to
     // properly deallocate the outputs.
     void
-    eval( Index           n_lhs,
-          mxArray       * lhs[],
-          Index           n_rhs,
-          mxArray const * rhs[] ) const;
+    eval(
+      Index           n_lhs,
+      mxArray       * lhs[],
+      Index           n_rhs,
+      mxArray const * rhs[]
+    ) const;
 
     // Returns true if and only if the function handle is not null.
     operator bool() const { return f != nullptr; };
@@ -151,55 +156,9 @@ namespace IpoptInterface {
     std::vector<Index> Jc;      // See mxSetJc in the MATLAB documentation.
     std::vector<Index> Ir;      // See mxSetIr in the MATLAB documentation.
 
-    // get the pattern if the sparse matrix in ptr and store in the structure.
-    void
-    setup( mxArray * ptr ) {
-      // Get the height, width and number of non-zeros.
-      numRows = (Index) mxGetM(ptr);
-      numCols = (Index) mxGetN(ptr);
-      // The precise number of non-zero elements is contained in the
-      // last entry of the jc array. (There is one jc entry for each
-      // column in the matrix, plus an extra one.)
-      Jc.resize(numCols+1);
-      std::copy_n(mxGetJc(ptr),numCols+1,Jc.begin());
-      // Copy the row and column indices, and the values of the nonzero entries.
-      nnz = Jc.back();
-      Ir.resize(nnz);
-      std::copy_n(mxGetIr(ptr),nnz,Ir.begin());
-    }
-
-    // extract the pattern of the sparse matrix in the ipopt format
-    void
-    getStructure( Index rows[], Index cols[] ) const {
-      for ( Index c = 0, i = 0; c < numCols; ++c ) {
-        for (; i < Jc[c+1]; ++i ) { cols[i] = c; rows[i] = Ir[i]; }
-      }
-    }
-
-    // extyract values from the sparse matrix in ptr and store in values
-    // which correspond to nonzeros of the sparse matrix described by
-    // Ir and Jc. The nonzeros of sparse matrix in ptr must be a subset of the
-    // nonzeros of the pattern described by Ir and Jc.
-    void
-    getValues( char const * func, mxArray * ptr, Number values[] ) const {
-      // il patterm può essere un sottoinsieme
-      mwIndex const * mxJc = mxGetJc(ptr);
-      mwIndex const * mxIr = mxGetIr(ptr);
-      double  const * v    = mxGetPr(ptr);
-
-      std::fill_n(values,nnz,0);
-      Index k = 0;
-      for ( Index c = 0, i = 0; c < numCols; ++c ) {
-        for ( i = mxJc[c], k = Jc[c]; i < mxJc[c+1]; ++i, ++k ) {
-          while ( Ir[k] < mxIr[i] && k < Jc[c+1] ) ++k; // skip not set elements
-          IPOPT_ASSERT( Ir[k] == mxIr[i],
-                        "In MATLAB function " << func << 
-                        "\nelement (" << mxIr[i]+1 << "," << c+1 << 
-                        ") not found in pattern" );
-          values[k] = v[i];
-        }
-      }
-    }
+    void setup( mxArray * ptr );
+    void getStructure( Index rows[], Index cols[] ) const;
+    void getValues( char const * func, mxArray * ptr, Number values[] ) const;
   } SparseMatrix;
 
   /*
@@ -306,35 +265,41 @@ namespace IpoptInterface {
 
     // This function computes the Jacobian of the constraints at x.
     void
-    computeJacobian( Index        m,
-                     Index        n,
-                     Number const x[],
-                     Number       values[] ) const;
+    computeJacobian(
+      Index        m,
+      Index        n,
+      Number const x[],
+      Number       values[]
+    ) const;
 
     // This function computes the Hessian of the Lagrangian at x.
     void
-    computeHessian( Index        n,
-                    Number const x[],
-                    Number       sigma,
-                    Index        m,
-                    Number const lambda[],
-                    Number       values[] ) const;
+    computeHessian(
+      Index        n,
+      Number const x[],
+      Number       sigma,
+      Index        m,
+      Number const lambda[],
+      Number       values[]
+    ) const;
 
     // Call the intermediate callback function. A return value of false
     // tells IPOPT to terminate.
     bool
-    iterCallback ( Index  iter,
-                   Number f,
-		               Number inf_pr,
-                   Number inf_du,
-		               Number mu,
-                   Number d_norm,
-	  	             Number regularization_size,
-		               Number alpha_du,
-                   Number alpha_pr,
-                   Index  ls_trials,
-                   Ipopt::IpoptData const           * ip_data,
-			             Ipopt::IpoptCalculatedQuantities * ip_cq ) const;
+    iterCallback(
+      Index  iter,
+      Number f,
+      Number inf_pr,
+      Number inf_du,
+      Number mu,
+      Number d_norm,
+      Number regularization_size,
+      Number alpha_du,
+      Number alpha_pr,
+      Index  ls_trials,
+      Ipopt::IpoptData const           * ip_data,
+      Ipopt::IpoptCalculatedQuantities * ip_cq
+    ) const;
   };
 
   /*
@@ -507,9 +472,11 @@ namespace IpoptInterface {
   public:
 
     // The constructor.
-    MatlabProgram( CallbackFunctions const & funcs,
-		           Options           const & options,
-                   MatlabInfo              & info );
+    MatlabProgram(
+      CallbackFunctions const & funcs,
+      Options           const & options,
+      MatlabInfo              & info
+    );
 
     // The destructor.
     virtual ~MatlabProgram();
@@ -517,34 +484,40 @@ namespace IpoptInterface {
     // Method to return some info about the nonlinear program.
     virtual
     bool
-    get_nlp_info ( Index & n,
-                   Index & m,
-                   Index & sizeOfJ,
-                   Index & sizeOfH,
-		               IndexStyleEnum & indexStyle );
+    get_nlp_info(
+      Index          & n,
+      Index          & m,
+      Index          & sizeOfJ,
+      Index          & sizeOfH,
+      IndexStyleEnum & indexStyle
+    );
 
     // Return the bounds for the problem.
     virtual
     bool
-    get_bounds_info( Index    n,
-                     Number * lb,
-                     Number * ub,
-                     Index    m,
-				             Number * cl,
-                     Number * cu );
+    get_bounds_info(
+      Index    n,
+      Number * lb,
+      Number * ub,
+      Index    m,
+      Number * cl,
+      Number * cu
+    );
 
     // Return the starting point for the algorithm.
     virtual
     bool
-    get_starting_point( Index    n,
-                        bool     initializeVars,
-                        Number * vars,
-		                    bool     initializez,
-                        Number * zl,
-                        Number * zu,
-		                    Index    m,
-                        bool     initializeLambda,
-                        Number * lambda );
+    get_starting_point(
+      Index    n,
+      bool     initializeVars,
+      Number * vars,
+      bool     initializez,
+      Number * zl,
+      Number * zu,
+      Index    m,
+      bool     initializeLambda,
+      Number * lambda
+    );
 
     // Compute the value of the objective.
     virtual
@@ -566,64 +539,72 @@ namespace IpoptInterface {
     // "Jacobian" is not zero).
     virtual
     bool
-    eval_jac_g( Index          numVariables,
-                Number const * variables,
-			          bool           ignoreThis,
-                Index          numConstraints,
-			          Index          Jx_nnz,
-                Index        * rows,
-                Index        * cols,
-                Number       * Jx );
+    eval_jac_g(
+      Index          numVariables,
+      Number const * variables,
+      bool           ignoreThis,
+      Index          numConstraints,
+      Index          Jx_nnz,
+      Index        * rows,
+      Index        * cols,
+      Number       * Jx
+    );
 
     // This method either returns: 1.) the structure of the Hessian of
     // the Lagrangian (if "Hessian" is zero), or 2.) the values of the
     // Hessian of the Lagrangian (if "Hesson" is not zero).
     virtual
     bool
-    eval_h( Index          n,
-            Number const * vars,
-            bool           ignore,
-            Number         sigma,
-		        Index          m,
-            Number const * lambda,
-            bool           ignoretoo,
-		        Index          Hx_nnz,
-            Index        * rows,
-            Index        * cols,
-            Number       * Hx );
+    eval_h(
+      Index          n,
+      Number const * vars,
+      bool           ignore,
+      Number         sigma,
+      Index          m,
+      Number const * lambda,
+      bool           ignoretoo,
+      Index          Hx_nnz,
+      Index        * rows,
+      Index        * cols,
+      Number       * Hx
+    );
 
     // This method is called when the algorithm is complete.
     virtual
     void
-    finalize_solution( SolverReturn      status,
-                       Index             numVariables,
-                       Number const    * variables,
-                       Number const    * zl,
-                       Number const    * zu,
-                       Index             numConstraints,
-                       Number const    * constraints,
-		                   Number const    * lambda,
-                       Number            objective,
-                       IpoptData const * ip_data,
-                       IpoptCalculatedQuantities* ip_cq );
+    finalize_solution(
+      SolverReturn                status,
+      Index                       numVariables,
+      Number const              * variables,
+      Number const              * zl,
+      Number const              * zu,
+      Index                       numConstraints,
+      Number const              * constraints,
+      Number const              * lambda,
+      Number                      objective,
+      IpoptData const           * ip_data,
+      IpoptCalculatedQuantities * ip_cq
+    );
 
     // Intermediate callback method. It is called once per iteration
     // of the IPOPT algorithm.
     virtual
     bool
-    intermediate_callback( AlgorithmMode mode,
-                           Index         t,
-                           Number        f,
-				                   Number        inf_pr,
-                           Number        inf_du,
-				                   Number        mu,
-                           Number        d_norm,
-				                   Number        regularization_size,
-				                   Number        alpha_du,
-                           Number        alpha_pr,
-				                   Index         ls_trials,
-				                   IpoptData const * ip_data,
-				                   IpoptCalculatedQuantities* ip_cq );
+    intermediate_callback(
+      AlgorithmMode               mode,
+      Index                       t,
+      Number                      f,
+      Number                      inf_pr,
+      Number                      inf_du,
+      Number                      mu,
+      Number                      d_norm,
+      Number                      regularization_size,
+      Number                      alpha_du,
+      Number                      alpha_pr,
+      Index                       ls_trials,
+      IpoptData const           * ip_data,
+      IpoptCalculatedQuantities * ip_cq
+    );
 
   };
 
@@ -658,18 +639,22 @@ namespace Ipopt {
     // These functions override the functions in the Journal class.
     virtual
     void
-    PrintImpl( EJournalCategory category,
-               EJournalLevel    level,
-               char const *     str) {
+    PrintImpl(
+      EJournalCategory category,
+      EJournalLevel    level,
+      char const *     str
+    ) {
       mexPrintf(str);
     }
 
     virtual
     void
-    PrintfImpl( EJournalCategory category,
-                EJournalLevel    level,
-                char const *     pformat,
-                va_list ap );
+    PrintfImpl(
+      EJournalCategory category,
+      EJournalLevel    level,
+      char const *     pformat,
+      va_list          ap
+    );
 
     virtual
     void FlushBufferImpl()

@@ -36,7 +36,7 @@ To compile the mex file
 - change the working directory to the `lib` directory.
 - run the script `compile_osx` or `compile_linux` or `compile_win`. 
 
-To compile the mex interface you need a static IPOPT library
+To compile the mex interface you need a valid IPOPT library
 installed in your system. To install the library read
 `README_osx_how_to_compile_ipopt.md` or
 `README_linux_how_to_compile_ipopt.md`.
