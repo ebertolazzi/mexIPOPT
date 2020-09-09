@@ -90,15 +90,15 @@ namespace IpoptInterface {
     double  const * v    = mxGetPr(ptr);
 
     std::fill_n( values, nnz, 0 );
-    for ( Index c = 0; c < numCols; ++c ) {
+    for ( mwIndex c = 0; c < mwIndex(numCols); ++c ) {
       mwIndex i  = mxJc[c];
       mwIndex k  = Jc[c];
       mwIndex i1 = mxJc[c+1];
       mwIndex k1 = Jc[c+1];
       for (; i < i1; ++i, ++k ) {
-        while ( Ir[k] < mxIr[i] && k < k1 ) ++k; // skip not set elements
+        while ( mwIndex(Ir[k]) < mxIr[i] && k < k1 ) ++k; // skip not set elements
         IPOPT_ASSERT(
-          Ir[k] == mxIr[i],
+          mwIndex(Ir[k]) == mxIr[i],
           "In MATLAB function " << func <<
           "\nelement (" << mxIr[i]+1 << "," << c+1 <<
           ") not found in pattern"
@@ -116,12 +116,12 @@ namespace IpoptInterface {
     char const            msg[]
   ) {
 
-    size_t n = mxGetNumberOfElements(ptr);
+    mwIndex n = mxGetNumberOfElements(ptr);
     if ( mxIsCell(ptr) ) {
 
       // Compute the number of optimization variables.
-      size_t nv = 0;
-      for ( size_t i = 0; i < n; ++i ) {
+      mwIndex nv = 0;
+      for ( mwIndex i = 0; i < n; ++i ) {
         mxArray const * p = mxGetCell(ptr,i);  // Get the ith cell.
         IPOPT_ASSERT(
           p != nullptr,
@@ -138,7 +138,7 @@ namespace IpoptInterface {
       data.clear();
       data.reserve(nv);
 
-      for ( size_t i = 0; i < n; ++i ) {
+      for ( mwIndex i = 0; i < n; ++i ) {
         mxArray const * p = mxGetCell(ptr,i);
         IPOPT_ASSERT(
           p != nullptr,
@@ -643,7 +643,7 @@ namespace IpoptInterface {
       static char const * msg = "The initial point for the Lagrange multipliers associated with the lower bounds\n";
       IPOPT_ASSERT( mxIsDouble(p) && !mxIsComplex(p), msg << msg1 );
       IPOPT_ASSERT(
-        mxGetNumberOfElements(p) == n,
+        mxGetNumberOfElements(p) == mwIndex(n),
         msg << "must be a vector of length " << n <<
         " found of lenght " << mxGetNumberOfElements(p)
       );
@@ -658,7 +658,7 @@ namespace IpoptInterface {
       static char const * msg = "The initial point for the Lagrange multipliers associated with the upper bounds\n";
       IPOPT_ASSERT( mxIsDouble(p) && !mxIsComplex(p), msg << msg1 );
       IPOPT_ASSERT(
-        mxGetNumberOfElements(p) == n,
+        mxGetNumberOfElements(p) == mwIndex(n),
         msg << "must be a vector of length " << n <<
         " found of lenght " << mxGetNumberOfElements(p)
       );
@@ -676,7 +676,7 @@ namespace IpoptInterface {
         msg << "must be a double-precision array with one element for each constraint"
       );
       IPOPT_ASSERT(
-        mxGetNumberOfElements(p) == m,
+        mxGetNumberOfElements(p) == mwIndex(m),
         msg << "must be a vector of length " << n <<
         " found of length " << mxGetNumberOfElements(p)
       );
@@ -899,7 +899,7 @@ namespace IpoptInterface {
         mxDestroyArray(ptr1); // destroy old sparse vector
       }
       IPOPT_ASSERT(
-        mxGetNumberOfElements(ptr) == n,
+        mxGetNumberOfElements(ptr) == mwIndex(n),
         "In MATLAB function " << grad_func.name() << "\n"
         "The gradient callback must return a real double vector of size = " << n <<
         " while it return a vector of size = " << mxGetNumberOfElements(ptr)
@@ -936,7 +936,7 @@ namespace IpoptInterface {
     );
 
     IPOPT_ASSERT(
-      m == mxGetNumberOfElements(ptr),
+      mxGetNumberOfElements(ptr) == mwIndex(m),
       "In MATLAB function " << constraint_func.name() << "\n"
       "The contraints callback must return a real double vector of size = " << m <<
       " while it return a vector of size = " << mxGetNumberOfElements(ptr)
@@ -972,7 +972,7 @@ namespace IpoptInterface {
       "Jacobian must be a real sparse matrix, found complex sparse matrix"
     );
     IPOPT_ASSERT(
-      mxGetM(ptr) == m && mxGetN(ptr) == n,
+      mxGetM(ptr) == mwIndex(m) && mxGetN(ptr) == mwIndex(n),
       "In MATLAB function " << name << "\n"
       "Jacobian must be an (m=" << m << ") x (n=" << n << ") sparse matrix\n"
       "where m is the number of constraints and n is the number of variables,\n"
@@ -1014,7 +1014,7 @@ namespace IpoptInterface {
       "In MATLAB function " << name << " Hessian must be a sparse matrix"
     );
     IPOPT_ASSERT(
-      mxGetM(ptr) == n && mxGetN(ptr) == n,
+      mxGetM(ptr) == mwIndex(n) && mxGetN(ptr) == mwIndex(n),
       "In MATLAB function " << name << "\n"
       "Hessian must be a " << n << " x " << n << " matrix\n"
       "found an " << mxGetM(ptr)  << " x " <<  mxGetN(ptr) << " matrix"

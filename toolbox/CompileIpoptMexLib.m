@@ -5,23 +5,32 @@ old_dir = cd(fileparts(which(mfilename)));
 
 MROOT      = matlabroot;
 IPOPT_HOME = '../Ipopt-3.13.2-win64-msvs2019-md';
+IPOPT_HOME = '../work/coinbrew/dist';
 
 [~,mexLoaded] = inmem('-completenames');
 eval('while mislocked(''ipopt''); munlock(''ipopt''); end;');
 
 disp('---------------------------------------------------------');
 
-CMD = [ 'mex -largeArrayDims -Isrc -I' IPOPT_HOME '/include/coin-or ' IPOPT_HOME '/lib/ipopt.dll.lib ' ] ;
-if isunix
-  CMD = [CMD, 'CXXFLAGS="\$CXXFLAGS -Wall -O2 -g" '];
-elseif ispc
-end
-if ispc
-  CMD = [ CMD, '-output bin/windows/ipopt_win ' ];
-elseif ismac
-  CMD = [ CMD, '-output bin/osx/ipopt_osx ' ];
+CMD = [ 'mex -largeArrayDims -Isrc -I' IPOPT_HOME '/include/coin-or ' ] ;
+if ismac
+  CMD = [ CMD ...
+    '-output bin/osx/ipopt_osx ' ...
+    IPOPT_HOME '/lib/libipopt.so ' ...
+    'CXXFLAGS=''$CXXFLAGS -Wall -O2 -g'' ' ...
+  ];
 elseif isunix
-  CMD = [ CMD, '-output bin/linux/ipopt_linux ' ];
+  CMD = [ CMD ...
+    '-output bin/linux/ipopt_linux ' ...
+    'CXXFLAGS=''$CXXFLAGS -Wall -O2 -g'' ' ...
+    'LDFLAGS=''$LDFLAGS -static-libgcc -static-libstdc++'' ' ...
+    'LINKLIBS=''-Lbin/linux -L$MATLABROOT/bin/$ARCH -Wl,-rpath,$MATLABROOT/bin/$ARCH -lipopt -lcoinmumps -lgfortran -llapack -lblas -ldl -lMatlabDataArray -lmx -lmex -lmat -lm '' ' ...
+  ];
+elseif ispc
+  CMD = [ CMD ...
+    '-output bin/windows/ipopt_win ' ...
+    IPOPT_HOME '/lib/ipopt.dll.lib ' ...
+  ];
 else
   error('architecture not supported');
 end
