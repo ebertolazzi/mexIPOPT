@@ -242,6 +242,10 @@
 %           Dept. of Computer Science
 %           University of British Columbia
 %           September 19, 2008
+%
+%   Interface modified and corrected for MATLAB >= 2020a
+%   by Enrico Bertolazzi.
+%
 function [x,info] = ipopt( varargin )
   if ispc
     [x,info] = ipopt_win(varargin{:});
