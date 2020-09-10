@@ -1,12 +1,12 @@
 <deployment-project plugin="plugin.toolbox" plugin-version="1.0">
-  <configuration file="/home/enrico/mexIPOPT/IPOPT-toolbox.prj" location="/home/enrico/mexIPOPT" name="IPOPT-toolbox" target="target.toolbox" target-name="Package Toolbox">
+  <configuration file="/Users/enrico/Ricerca/develop/myReposProjects/IpoptMatlabInterface/IPOPT-toolbox.prj" location="/Users/enrico/Ricerca/develop/myReposProjects/IpoptMatlabInterface" name="IPOPT-toolbox" target="target.toolbox" target-name="Package Toolbox">
     <param.appname>IPOPT-toolbox</param.appname>
     <param.authnamewatermark>Enrico Bertolazzi</param.authnamewatermark>
     <param.email>enrico.bertolazzi@unitn.it</param.email>
     <param.company>University of Trento</param.company>
     <param.summary>Toolbox for MATLAB interfacing with IPOPT</param.summary>
     <param.description />
-    <param.screenshot />
+    <param.screenshot>${PROJECT_ROOT}/toolbox/screenshot.png</param.screenshot>
     <param.version>1.0</param.version>
     <param.output>${PROJECT_ROOT}/IPOPT-toolbox.mltbx</param.output>
     <param.products.name />
@@ -14,14 +14,82 @@
     <param.products.version />
     <param.platforms />
     <param.guid>8c6151e5-a3ca-48c3-a927-1ae106541ff6</param.guid>
-    <param.exclude.filters />
+    <param.exclude.filters>% List files contained in your toolbox folder that you would like to exclude
+% from packaging.  Excludes should be listed relative to the toolbox folder.
+% Some examples of how to specify excludes are provided below:
+%
+% A single file in the toolbox folder:
+% .svn
+%
+% A single file in a subfolder of the toolbox folder:
+% example/.svn
+%
+% All files in a subfolder of the toolbox folder:
+% example/*
+%
+% All files of a certain name in all subfolders of the toolbox folder:
+% **/.svn
+%
+% All files matching a pattern in all subfolders of the toolbox folder:
+% **/*.bak
+%
+.DS_Store</param.exclude.filters>
     <param.exclude.pcodedmfiles>true</param.exclude.pcodedmfiles>
-    <param.examples />
+    <param.examples>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;examples&gt;
+   &lt;exampleCategory name="examples"&gt;
+      &lt;example name="examplehs038" type="html"&gt;
+         &lt;file type="source"&gt;/examples/html/examplehs038.html&lt;/file&gt;
+         &lt;file type="main"&gt;/examples/examplehs038.m&lt;/file&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+      &lt;example name="examplehs051" type="html"&gt;
+         &lt;file type="source"&gt;/examples/html/examplehs051.html&lt;/file&gt;
+         &lt;file type="main"&gt;/examples/examplehs051.m&lt;/file&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+      &lt;example name="examplehs071" type="html"&gt;
+         &lt;file type="source"&gt;/examples/html/examplehs071.html&lt;/file&gt;
+         &lt;file type="main"&gt;/examples/examplehs071.m&lt;/file&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+      &lt;example name="examplelasso" type="html"&gt;
+         &lt;file type="source"&gt;/examples/html/examplelasso.html&lt;/file&gt;
+         &lt;file type="main"&gt;/examples/examplelasso.m&lt;/file&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+      &lt;example name="test_BartholomewBiggs" type="html"&gt;
+         &lt;file type="source"&gt;/examples/html/test_BartholomewBiggs.html&lt;/file&gt;
+         &lt;file type="main"&gt;/examples/test_BartholomewBiggs.m&lt;/file&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+      &lt;example name="test_McCormick" type="html"&gt;
+         &lt;file type="source"&gt;/examples/html/test_McCormick.html&lt;/file&gt;
+         &lt;file type="main"&gt;/examples/test_McCormick.m&lt;/file&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+      &lt;example name="test_alkyl" type="html"&gt;
+         &lt;file type="source"&gt;/examples/html/test_alkyl.html&lt;/file&gt;
+         &lt;file type="main"&gt;/examples/test_alkyl.m&lt;/file&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+      &lt;example name="test_ipopt" type="html"&gt;
+         &lt;file type="source"&gt;/examples/html/test_ipopt.html&lt;/file&gt;
+         &lt;file type="main"&gt;/examples/test_ipopt.m&lt;/file&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+      &lt;example name="test_ipopt2" type="html"&gt;
+         &lt;file type="source"&gt;/examples/html/test_ipopt2.html&lt;/file&gt;
+         &lt;file type="main"&gt;/examples/test_ipopt2.m&lt;/file&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+   &lt;/exampleCategory&gt;
+&lt;/examples&gt;</param.examples>
     <param.demosxml />
     <param.apps />
     <param.registered.apps />
     <param.docs />
-    <param.getting.started.guide />
+    <param.getting.started.guide>${PROJECT_ROOT}/toolbox/doc/GettingStarted.mlx</param.getting.started.guide>
     <param.matlabpath.excludes />
     <param.javaclasspath.excludes />
     <param.exported.on.package>false</param.exported.on.package>
@@ -42,22 +110,20 @@
     <param.additional.sw.mac.url />
     <param.additional.sw.linux.url />
     <unset>
+      <param.authnamewatermark />
+      <param.email />
       <param.description />
-      <param.screenshot />
       <param.version />
       <param.output />
       <param.products.name />
       <param.products.id />
       <param.products.version />
       <param.platforms />
-      <param.exclude.filters />
       <param.exclude.pcodedmfiles />
-      <param.examples />
       <param.demosxml />
       <param.apps />
       <param.registered.apps />
       <param.docs />
-      <param.getting.started.guide />
       <param.matlabpath.excludes />
       <param.javaclasspath.excludes />
       <param.exported.on.package />
@@ -83,10 +149,14 @@
     </fileset.rootdir>
     <fileset.rootfiles>
       <file>${PROJECT_ROOT}/toolbox/CompileIpoptMexLib.m</file>
+      <file>${PROJECT_ROOT}/toolbox/README.md</file>
       <file>${PROJECT_ROOT}/toolbox/bin</file>
+      <file>${PROJECT_ROOT}/toolbox/demos.xml</file>
+      <file>${PROJECT_ROOT}/toolbox/doc</file>
       <file>${PROJECT_ROOT}/toolbox/examples</file>
       <file>${PROJECT_ROOT}/toolbox/lib</file>
       <file>${PROJECT_ROOT}/toolbox/license.txt</file>
+      <file>${PROJECT_ROOT}/toolbox/screenshot.png</file>
       <file>${PROJECT_ROOT}/toolbox/setup.m</file>
       <file>${PROJECT_ROOT}/toolbox/src</file>
     </fileset.rootfiles>
@@ -94,26 +164,26 @@
     <fileset.depfun.excluded />
     <fileset.package />
     <build-deliverables>
-      <file location="${PROJECT_ROOT}" name="IPOPT-toolbox.mltbx" optional="false">/home/enrico/mexIPOPT/IPOPT-toolbox.mltbx</file>
+      <file location="${PROJECT_ROOT}" name="IPOPT-toolbox.mltbx" optional="false">/Users/enrico/Ricerca/develop/myReposProjects/IpoptMatlabInterface/IPOPT-toolbox.mltbx</file>
     </build-deliverables>
     <workflow />
     <matlab>
-      <root>/usr/local/MATLAB/R2020a</root>
+      <root>/Applications/MATLAB_R2020a.app</root>
       <toolboxes />
     </matlab>
     <platform>
       <unix>true</unix>
-      <mac>false</mac>
+      <mac>true</mac>
       <windows>false</windows>
       <win2k>false</win2k>
       <winxp>false</winxp>
       <vista>false</vista>
-      <linux>true</linux>
+      <linux>false</linux>
       <solaris>false</solaris>
-      <osver>5.4.0-47-generic</osver>
+      <osver>10.15.6</osver>
       <os32>false</os32>
       <os64>true</os64>
-      <arch>glnxa64</arch>
+      <arch>maci64</arch>
       <matlab>true</matlab>
     </platform>
   </configuration>
