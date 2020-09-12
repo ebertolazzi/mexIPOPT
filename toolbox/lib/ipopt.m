@@ -253,8 +253,10 @@ function [x,info] = ipopt( varargin )
     [x,info] = ipopt_osx(varargin{:});
   elseif isunix
     myCCompiler = mex.getCompilerConfigurations('C','Selected');
-    switch myCCompiler.Version
-    case {'4','5','6'}
+    switch myCCompiler.Version(1:1)
+    case {'1','2'','3','4','5'}
+      error('mexIPOPT do not support gcc < gcc6');
+    case {'6'}
       [x,info] = ipopt_linux_3(varargin{:});
     case {'7','8'}
       [x,info] = ipopt_linux_4(varargin{:});
