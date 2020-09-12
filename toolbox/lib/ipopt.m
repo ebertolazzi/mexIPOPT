@@ -252,8 +252,14 @@ function [x,info] = ipopt( varargin )
   elseif ismac
     [x,info] = ipopt_osx(varargin{:});
   elseif isunix
-    [x,info] = ipopt_linux(varargin{:});
-  else
-    error('iunsupported architecture');
+    myCCompiler = mex.getCompilerConfigurations('C','Selected');
+    switch myCCompiler.Version
+    case {'4','5','6'}
+      [x,info] = ipopt_linux_3(varargin{:});
+    case {'7','8'}
+      [x,info] = ipopt_linux_4(varargin{:});
+    otherwise
+      [x,info] = ipopt_linux_5(varargin{:});
+    end
   end
 end
