@@ -1,3 +1,5 @@
+[![View ebertolazzi/mexIPOPT on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://it.mathworks.com/matlabcentral/fileexchange/53040-ebertolazzi-mexipopt)
+
 ### mexIPOPT
 **by Enrico Bertolazzi**
 
