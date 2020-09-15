@@ -6,13 +6,13 @@ a software package for large-scale ​nonlinear optimization.
 
 Source code and documentation for IPOPT can be downloaded from:
 
-`https://projects.coin-or.org/Ipopt`
+https://projects.coin-or.org/Ipopt
 
 On OSX IPOPT can be installed using Homebrew (`http://brew.sh`).
 
 **Why do a job already done?**
 
-The original MATLAB interface (`https://projects.coin-or.org/Ipopt/wiki/MatlabInterface`) seems not maintained for OSX and do not work with recent MATLAB distributions.
+The original MATLAB interface (https://projects.coin-or.org/Ipopt/wiki/MatlabInterface) seems not maintained for OSX and do not work with recent MATLAB distributions.
 I have reorganized and simplified the original interface (only internally) and eliminated the bug (due to MATLAB change 
 in the managing of sparse pattern) in the interfacing
 of sparse pattern between MATLAB and IPOPT.
@@ -22,7 +22,7 @@ Moreover I tried to improve error catching.
 
 Use the toobox installer at
 
-- `https://github.com/ebertolazzi/mexIPOPT/releases`
+- https://github.com/ebertolazzi/mexIPOPT/releases
 
 download and run in MATLAB to install following the instruction.
 
@@ -52,7 +52,7 @@ of an Optimal Control Problem solved using direct trascription
 and transformed to an NLP solved using IPOPT.
 The descriptin of the problem is at
 
-- `https://vanderbei.princeton.edu/tex/trajopt/trajopt.pdf`.
+- https://vanderbei.princeton.edu/tex/trajopt/trajopt.pdf.
 
 **Author:**
 	
