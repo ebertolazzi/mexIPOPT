@@ -1,6 +1,8 @@
 *.o
 *.mw
-src/.vscode
 *.DS_Store
-work
+.vscode
 IPOPT-toolbox.mltbx
+/doc
+/coinbrew
+

@@ -101,12 +101,12 @@ namespace IpoptInterface {
     );
 
     // Get the second input which specifies the callback functions.
-    CallbackFunctions funcs(prhs[0],prhs[1]);
+    CallbackFunctions funcs( prhs[0], prhs[1] );
 
     // Get the third input which specifies the options.
     // Create a new IPOPT application object and process the options.
     IpoptApplication app(false);
-    Options          options(funcs.numVariables(),app,prhs[2]); // app, options
+    Options          options( funcs.numVariables(), app, prhs[2] ); // app, options
 
     #if IPOPT_VERSION_MINOR > 11
     app.RethrowNonIpoptException(true);
@@ -118,7 +118,7 @@ namespace IpoptInterface {
     // The second output argument stores other information, such as
     // the exit status, the value of the Lagrange multipliers upon
     // termination, the final state of the auxiliary data, and so on.
-    MatlabInfo info(plhs[1]);
+    MatlabInfo info( plhs[1] );
 
     // Check to see whether the user provided a callback function for
     // computing the Hessian. This is not needed in the special case
@@ -145,21 +145,20 @@ namespace IpoptInterface {
 
     // Set up the IPOPT console.
     EJournalLevel printLevel = (EJournalLevel) options.ipoptOptions().printLevel();
-    if (printLevel > 0) { //prevents IPOPT display if we don't want it
+    if ( printLevel > 0 ) { //prevents IPOPT display if we don't want it
       SmartPtr<Journal> console = new MatlabJournal(printLevel);
       app.Jnlst()->AddJournal(console);
     }
 
     // Intialize the IpoptApplication object and process the options.
-    ApplicationReturnStatus exitstatus;
-    exitstatus = app.Initialize();
+    ApplicationReturnStatus exitstatus = app.Initialize();
     IPOPT_ASSERT(
       exitstatus == Ipopt::Solve_Succeeded,
       "IPOPT solver initialization failed"
     );
 
     // Create a new instance of the constrained, nonlinear program.
-    MatlabProgram* matlabProgram = new MatlabProgram(funcs,options,info);
+    MatlabProgram* matlabProgram = new MatlabProgram( funcs, options, info );
     SmartPtr<TNLP> program = matlabProgram;
 
     // Ask Ipopt to solve the problem.
@@ -168,21 +167,21 @@ namespace IpoptInterface {
     plhs[0] = mxDuplicateArray(info.getfield_mx("x"));
 
     // Collect statistics about Ipopt run
-    if (IsValid(app.Statistics())) {
+    if ( IsValid(app.Statistics()) ) {
       SmartPtr<SolveStatistics> stats = app.Statistics();
       info.setIterationCount(stats->IterationCount());
       //Get Function Calls
-      int obj, con, grad, jac, hess;
-      stats->NumberOfEvaluations(obj,con,grad,jac,hess);
-      info.setFuncEvals(obj, con, grad, jac, hess);
+      Index obj, con, grad, jac, hess;
+      stats->NumberOfEvaluations( obj, con, grad, jac, hess );
+      info.setFuncEvals( obj, con, grad, jac, hess );
       //CPU Time
-      info.setCpuTime(stats->TotalCpuTime());
+      info.setCpuTime( stats->TotalCpuTime() );
     }
 
     // Free the dynamically allocated memory.
     //mxDestroyArray(x0.mx_ptr());
   }
-  
+
 }
 
 // Function definitions.
@@ -201,15 +200,21 @@ mexFunction(
   #endif
 
   try {
+
     IpoptInterface::mexFunction( nlhs, plhs, nrhs, prhs );
+
   } catch ( std::exception & error ) {
+
     std::ostringstream ost;
     ost << "\n*** Error using Ipopt Matlab interface: ***\n\n"
         << error.what()
         << "\n*******************************************\n";
     mexErrMsgTxt(ost.str().c_str());
+
   } catch ( ... ) {
+
     mexErrMsgTxt("\n*** Error using Ipopt Matlab interface: ***\nUnknown error\n");
+
   }
   //mexPrintf("\n*** IPOPT DONE ***\n");
 

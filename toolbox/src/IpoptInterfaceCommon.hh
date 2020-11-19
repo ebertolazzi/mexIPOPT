@@ -105,24 +105,24 @@ namespace IpoptInterface {
   // function.
   class MatlabFunctionHandle {
   protected:
-    mxArray   * f;  // The MATLAB function handle.
-    std::string f_name;
+    mxArray   * m_f;  // The MATLAB function handle.
+    std::string m_name;
   public:
 
     // The default constructor creates a null function handle.
-    MatlabFunctionHandle() : f(nullptr) { }
+    MatlabFunctionHandle() : m_f(nullptr) { }
 
     // The destructor.
     ~MatlabFunctionHandle()
-    { if ( f != nullptr ) mxDestroyArray(f); f = nullptr; }
+    { if ( m_f != nullptr ) mxDestroyArray( m_f ); m_f = nullptr; }
 
-    std::string const & name() const { return f_name; }
+    std::string const & name() const { return m_name; }
 
     // This constructor accepts as input a pointer to a MATLAB array.
     // It is up to the user to ensure that the MATLAB array is a valid
     // function handle.
     void
-    bind( mxArray const * p, char const * error_msg );
+    bind( mxArray const p[], char const error_msg[] );
 
     // This method is used to call the MATLAB function, provided inputs
     // to the function. It is up to the user to make sure that the
@@ -137,7 +137,7 @@ namespace IpoptInterface {
     ) const;
 
     // Returns true if and only if the function handle is not null.
-    operator bool() const { return f != nullptr; };
+    bool ok() const { return m_f != nullptr; };
   };
 
   /*
@@ -158,7 +158,7 @@ namespace IpoptInterface {
 
     void setup( mxArray * ptr );
     void getStructure( Index rows[], Index cols[] ) const;
-    void getValues( char const * func, mxArray * ptr, Number values[] ) const;
+    void getValues( std::string const & func, mxArray ptr[], Number values[] ) const;
   } SparseMatrix;
 
   /*
@@ -178,23 +178,23 @@ namespace IpoptInterface {
   // routines for calling these functions with the necessary inputs and
   // outputs.
   class CallbackFunctions {
-    MatlabFunctionHandle obj_func;        // Objective callback function.
-    MatlabFunctionHandle grad_func;       // Gradient callback function.
-    MatlabFunctionHandle constraint_func; // Constraint callback function.
-    MatlabFunctionHandle jacobian_func;   // Jacobian callback function.
-    MatlabFunctionHandle jacstruc_func;   // Jacobian structure function.
-    MatlabFunctionHandle hessian_func;    // Hessian callback function.
-    MatlabFunctionHandle hesstruc_func;   // Hessian structure function.
-    MatlabFunctionHandle iter_func;       // Iterative callback function.
+    MatlabFunctionHandle m_obj;        // Objective callback function.
+    MatlabFunctionHandle m_grad;       // Gradient callback function.
+    MatlabFunctionHandle m_constraint; // Constraint callback function.
+    MatlabFunctionHandle m_jacobian;   // Jacobian callback function.
+    MatlabFunctionHandle m_jacstruc;   // Jacobian structure function.
+    MatlabFunctionHandle m_hessian;    // Hessian callback function.
+    MatlabFunctionHandle m_hesstruc;   // Hessian structure function.
+    MatlabFunctionHandle m_iter;       // Iterative callback function.
 
     Index     mx_x_nc, mx_x_nv;
     mxArray * mx_x;
-    bool      x_is_cell_array; // true if x is a cell array
+    bool      m_x_is_cell_array; // true if x is a cell array
 
-    std::vector<Number> x0;
+    std::vector<Number> m_x0;
 
-    mutable SparseMatrix Jacobian;
-    mutable SparseMatrix Hessian;
+    mutable SparseMatrix m_Jacobian;
+    mutable SparseMatrix m_Hessian;
 
   public:
 
@@ -202,7 +202,7 @@ namespace IpoptInterface {
     // this MATLAB array must be a structure array in which each field
     // is a function handle.
     explicit
-    CallbackFunctions( mxArray const * mx_x0, mxArray const * ptr );
+    CallbackFunctions( mxArray const mx_x0[], mxArray const ptr[] );
 
     // The destructor.
     ~CallbackFunctions();
@@ -210,19 +210,19 @@ namespace IpoptInterface {
     void fillx( Index n, Number const x[] ) const;
     mxArray const * mx_getx() const { return mx_x; }
 
-    std::vector<Number> const & getx0() const { return x0; }
+    std::vector<Number> const & getx0() const { return m_x0; }
 
     bool
-    from_cell_array( mxArray const * ptr, Index n, Number * x ) const;
+    from_cell_array( mxArray const ptr[], Index n, Number * x ) const;
 
     Index numVariables() const { return this->mx_x_nv; }
 
     // These functions return true if the respective callback functions
     // are available.
-    bool constraintFuncIsAvailable () const { return constraint_func; }
-    bool jacobianFuncIsAvailable   () const { return jacobian_func; }
-    bool hessianFuncIsAvailable    () const { return hessian_func; }
-    bool iterFuncIsAvailable       () const { return iter_func; }
+    bool constraintFuncIsAvailable () const { return m_constraint.ok(); }
+    bool jacobianFuncIsAvailable   () const { return m_jacobian.ok(); }
+    bool hessianFuncIsAvailable    () const { return m_hessian.ok(); }
+    bool iterFuncIsAvailable       () const { return m_iter.ok(); }
 
     // These functions execute the various callback functions with the
     // appropriate inputs and outputs. Here, m is the number of constraints.
@@ -242,26 +242,26 @@ namespace IpoptInterface {
     // This function gets the structure of the sparse m x n Jacobian matrix.
     Index
     getJacobianNnz( ) const
-    { return Jacobian.nnz; }
+    { return m_Jacobian.nnz; }
 
     void
     loadJacobianStructure( Index n, Index m ) const;
 
     void
     getJacobianStructure(  Index rows[], Index cols[] ) const
-    { Jacobian.getStructure(rows,cols); }
+    { m_Jacobian.getStructure( rows, cols ); }
 
     // This function gets the structure of the sparse n x n Hessian matrix.
     Index
     getHessianNnz( ) const
-    { return Hessian.nnz; }
+    { return m_Hessian.nnz; }
 
     void
     loadHessianStructure( Index n ) const;
 
     void
     getHessianStructure( Index rows[], Index cols[] ) const
-    { Hessian.getStructure(rows,cols); }
+    { m_Hessian.getStructure( rows, cols ); }
 
     // This function computes the Jacobian of the constraints at x.
     void
@@ -315,7 +315,7 @@ namespace IpoptInterface {
   // back to MATLAB upon termination of IPOPT.
   class MatlabInfo {
   protected:
-    mxArray * ptr;  // All the information is stored in a MATLAB array.
+    mxArray * m_info_ptr;  // All the information is stored in a MATLAB array.
 
   public:
 
@@ -330,7 +330,7 @@ namespace IpoptInterface {
     // The destructor.
     ~MatlabInfo() { };
 
-    void setfield( mxArray const *  ptr, char const * field );
+    void setfield( mxArray const * ptr, char const * field );
     void setfield( size_t n, Number const * x, char const * field );
     void setfield( Number x, char const * field ) { setfield( 1, &x, field ); }
 
@@ -343,7 +343,7 @@ namespace IpoptInterface {
     // Access and modify the exit status and solution statistics.
     ApplicationReturnStatus getExitStatus() const;
     void setExitStatus( ApplicationReturnStatus status ) { setfield( (Number)status, "status"); }
-    void setFuncEvals(Index obj, Index con, Index grad, Index jac, Index hess);
+    void setFuncEvals( Index obj, Index con, Index grad, Index jac, Index hess );
     void setIterationCount( Index iter ) { setfield( iter, "iter"); }
     void setCpuTime( Number cpu ) { setfield( cpu, "cpu"); }
   };
@@ -364,7 +364,7 @@ namespace IpoptInterface {
   */
   class IpoptOptions {
   protected:
-    Ipopt::IpoptApplication & app;  // The IPOPT application object.
+    Ipopt::IpoptApplication & m_app;  // The IPOPT application object.
 
     // These three functions are used by the class constructor.
     void setOption        ( char const * label, mxArray const * ptr );
@@ -402,19 +402,19 @@ namespace IpoptInterface {
   // This class processes the options input from MATLAB.
   class Options {
   protected:
-    Index               n;       // The number of optimization variables.
-    Index               m;       // The number of constraints.
-    std::vector<Number> lb;      // Lower bounds on the variables.
-    std::vector<Number> ub;      // Upper bounds on the variables.
-    std::vector<Number> cl;      // Lower bounds on constraints.
-    std::vector<Number> cu;      // Upper bounds on constraints.
-    std::vector<Number> zl;      // Lagrange multipliers for lower bounds.
-    std::vector<Number> zu;      // Lagrange multipliers for upper bounds.
-    std::vector<Number> lambda;  // Lagrange multipliers for constraints.
+    Index               m_n;       // The number of optimization variables.
+    Index               m_m;       // The number of constraints.
+    std::vector<Number> m_lb;      // Lower bounds on the variables.
+    std::vector<Number> m_ub;      // Upper bounds on the variables.
+    std::vector<Number> m_cl;      // Lower bounds on constraints.
+    std::vector<Number> m_cu;      // Upper bounds on constraints.
+    std::vector<Number> m_zl;      // Lagrange multipliers for lower bounds.
+    std::vector<Number> m_zu;      // Lagrange multipliers for upper bounds.
+    std::vector<Number> m_lambda;  // Lagrange multipliers for constraints.
 
-    Number neginfty, posinfty;
+    Number m_neginfty, m_posinfty;
 
-    IpoptOptions ipopt;   // The IPOPT options.
+    IpoptOptions m_ipopt;   // The IPOPT options.
 
     // These are helper functions used by the class constructor.
     void loadLowerBounds( mxArray const * ptr );
@@ -434,22 +434,22 @@ namespace IpoptInterface {
     ~Options();
 
     // Get the number of variables and the number of constraints.
-    friend Index numvars        ( Options const & options ) { return options.n; }
-    friend Index numconstraints ( Options const & options ) { return options.m; }
+    friend Index numvars        ( Options const & options ) { return options.m_n; }
+    friend Index numconstraints ( Options const & options ) { return options.m_m; }
 
     // Access the lower and upper bounds on the variables and constraints.
-    std::vector<Number> const & lowerbounds () const { return lb; }
-    std::vector<Number> const & upperbounds () const { return ub; }
-    std::vector<Number> const & constraintlb() const { return cl; }
-    std::vector<Number> const & constraintub() const { return cu; }
+    std::vector<Number> const & lowerbounds () const { return m_lb; }
+    std::vector<Number> const & upperbounds () const { return m_ub; }
+    std::vector<Number> const & constraintlb() const { return m_cl; }
+    std::vector<Number> const & constraintub() const { return m_cu; }
 
     // Access the IPOPT options object.
-    IpoptOptions const ipoptOptions() const { return ipopt; }
+    IpoptOptions const & ipoptOptions() const { return m_ipopt; }
 
     // Access the Lagrange multpliers.
-    std::vector<Number> const & multlb    () const { return zl; }
-    std::vector<Number> const & multub    () const { return zu; }
-    std::vector<Number> const & multconstr() const { return lambda; }
+    std::vector<Number> const & multlb    () const { return m_zl; }
+    std::vector<Number> const & multub    () const { return m_zu; }
+    std::vector<Number> const & multconstr() const { return m_lambda; }
 
   };
 
@@ -465,9 +465,9 @@ namespace IpoptInterface {
   // -----------------------------------------------------------------
   class MatlabProgram : public TNLP {
   protected:
-    CallbackFunctions const & funcs;    // Callback routines.
-    Options const &           options;  // Further program info.
-    MatlabInfo &              info;     // Info passed back to MATLAB.
+    CallbackFunctions const & m_funcs;    // Callback routines.
+    Options const &           m_options;  // Further program info.
+    MatlabInfo &              m_info;     // Info passed back to MATLAB.
 
   public:
 

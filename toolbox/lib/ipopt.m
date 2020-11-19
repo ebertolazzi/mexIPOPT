@@ -247,21 +247,34 @@
 %   by Enrico Bertolazzi.
 %
 function [x,info] = ipopt( varargin )
+  cmp = computer;
   if ispc
-    [x,info] = ipopt_win(varargin{:});
+    if strcmp( cmp, 'PCWIN64') == 1
+      [x,info] = ipopt_win(varargin{:});
+    else
+      error('IPOPT: No support for architecture %s\n', cmp );
+    end
   elseif ismac
-    [x,info] = ipopt_osx(varargin{:});
+    if strcmp( cmp, 'MACI64') == 1
+      [x,info] = ipopt_osx(varargin{:});
+    else
+      error('IPOPT: No support for architecture %s\n', cmp );
+    end
   elseif isunix
-    myCCompiler = mex.getCompilerConfigurations('C','Selected');
-    switch myCCompiler.Version(1:1)
-    case {'1','2','3','4','5'}
-      error('mexIPOPT do not support gcc < gcc6');
-    case {'6'}
-      [x,info] = ipopt_linux_3(varargin{:});
-    case {'7','8'}
-      [x,info] = ipopt_linux_4(varargin{:});
-    otherwise
-      [x,info] = ipopt_linux_5(varargin{:});
+    if strcmp( cmp, 'GLNXA64') == 1
+      myCCompiler = mex.getCompilerConfigurations('C','Selected');
+      switch myCCompiler.Version(1:1)
+      case {'1','2','3','4','5'}
+        error('mexIPOPT do not support gcc < gcc6');
+      case {'6'}
+        [x,info] = ipopt_linux_3(varargin{:});
+      case {'7','8'}
+        [x,info] = ipopt_linux_4(varargin{:});
+      otherwise
+        [x,info] = ipopt_linux_5(varargin{:});
+      end
+    else
+      error('IPOPT: No support for architecture %s\n', cmp );
     end
   end
 end
