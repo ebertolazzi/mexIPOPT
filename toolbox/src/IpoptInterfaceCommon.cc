@@ -934,7 +934,7 @@ namespace IpoptInterface {
     IPOPT_ASSERT(
       mxGetNumberOfElements(ptr) == mwIndex(m),
       "In MATLAB function " << m_constraint.name() << "\n"
-      "The contraints callback must return a real double vector of size = " << m <<
+      "The constraints callback must return a real double vector of size = " << m <<
       " while it return a vector of size = " << mxGetNumberOfElements(ptr)
     );
 
