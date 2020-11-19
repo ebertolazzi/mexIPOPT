@@ -742,33 +742,17 @@ namespace IpoptInterface {
 
     // Get the function handle for computing the constraints, if such a function was specified.
     p = mxGetField( ptr, 0, "constraints" );
-    if ( p != nullptr )
-      m_constraint.bind( p, "the response of the constraints" );
+    if ( p != nullptr ) m_constraint.bind( p, "the response of the constraints" );
 
     // Get the function handle for computing the Jacobian.
     // This function is necessary if there are constraints.
     p = mxGetField( ptr, 0, "jacobian" );
-    if ( p != nullptr ) {
-      m_jacobian.bind( p, "the first derivatives (Jacobian) of the constraints" );
-    } else {
-      IPOPT_ASSERT(
-        m_constraint.ok(),
-        "You must provide a function that returns the first derivatives"
-        " (Jacobian) of the constraints"
-      );
-    }
+    if ( p != nullptr ) m_jacobian.bind( p, "the first derivatives (Jacobian) of the constraints" );
 
     // Get the function handle for computing the sparsity structure of the Jacobian.
     // This function is necessary if the Jacobian is being computed.
     p = mxGetField( ptr, 0, "jacobianstructure" );
-    if ( p != nullptr ) {
-      m_jacstruc.bind(p,"the sparsity structure of the Jacobian");
-    } else {
-      IPOPT_ASSERT(
-        m_jacobian.ok(),
-        "You must provide a function that returns the sparsity structure of the Jacobian"
-      );
-    }
+    if ( p != nullptr ) m_jacstruc.bind(p,"the sparsity structure of the Jacobian");
 
     // Get the function handle for computing the Hessian. This function is always optional.
     p = mxGetField( ptr, 0, "hessian" );
@@ -777,19 +761,11 @@ namespace IpoptInterface {
     // Get the function handle for computing the sparsity structure of the Hessian of the Lagrangian.
     // This function is necessary if the Hessian is being computed.
     p = mxGetField( ptr, 0, "hessianstructure" );
-    if ( p != nullptr ) {
-      m_hesstruc.bind( p,"the sparsity structure of the Hessian" );
-    } else {
-      IPOPT_ASSERT(
-        m_hessian.ok(),
-        "You must provide a function that returns the sparsity structure of the Hessian"
-      );
-    }
+    if ( p != nullptr ) m_hesstruc.bind( p,"the sparsity structure of the Hessian" );
 
     // Get the iterative callback function handle. This function is always optional.
     p = mxGetField( ptr, 0, "iterfunc" );
-    if ( p != nullptr )
-      m_iter.bind( p, "the iterative callback" );
+    if ( p != nullptr ) m_iter.bind( p, "the iterative callback" );
   }
 
   CallbackFunctions::~CallbackFunctions() {
@@ -830,6 +806,11 @@ namespace IpoptInterface {
 
   Number
   CallbackFunctions::computeObjective( Index n, Number const x[] ) const {
+
+    IPOPT_ASSERT(
+      m_obj.ok(),
+      "You must provide a function that compute the objective function"
+    );
 
     fillx( n, x );
 
@@ -873,6 +854,11 @@ namespace IpoptInterface {
     Number const x[],
     Number       g[]
   ) const {
+
+    IPOPT_ASSERT(
+      m_grad.ok(),
+      "You must provide a function that compute the gradient of the objective function"
+    );
 
     fillx( n, x );
 
@@ -924,6 +910,11 @@ namespace IpoptInterface {
     Index        m,
     Number       c[]
   ) const {
+
+    IPOPT_ASSERT(
+      m_grad.ok(),
+      "You must provide a function that compute the constraints"
+    );
 
     fillx( n, x );
 
@@ -993,6 +984,11 @@ namespace IpoptInterface {
   void
   CallbackFunctions::loadJacobianStructure( Index n, Index m ) const {
 
+    IPOPT_ASSERT(
+      m_jacstruc.ok(),
+      "You must provide a function that returns the sparsity structure of the Jacobian"
+    );
+
     // Call the MATLAB callback function.
     mxArray * ptr;
     m_jacstruc.eval( 1, &ptr, 0, (mxArray const **)nullptr );
@@ -1042,6 +1038,11 @@ namespace IpoptInterface {
   void
   CallbackFunctions::loadHessianStructure( Index n ) const {
 
+    IPOPT_ASSERT(
+      m_hesstruc.ok(),
+      "You must provide a function that returns the sparsity structure of the Hessian"
+    );
+
     // Call the MATLAB callback function.
     mxArray * ptr;
     m_hesstruc.eval( 1, &ptr, 0, (mxArray const **)nullptr );
@@ -1060,6 +1061,12 @@ namespace IpoptInterface {
     Number const x[],
     Number       values[]
   ) const {
+
+    IPOPT_ASSERT(
+      m_jacobian.ok(),
+      "You must provide a function that returns the first derivatives"
+      " (Jacobian) of the constraints"
+    );
 
     fillx( n, x );
 
@@ -1093,6 +1100,11 @@ namespace IpoptInterface {
     Number       values[]
   ) const {
 
+    IPOPT_ASSERT(
+      m_hessian.ok(),
+      "You must provide a function that returns the Hessian"
+    );
+
     fillx( n, x );
 
     // Create the input arguments to the MATLAB routine, sigma and lambda.
@@ -1105,7 +1117,7 @@ namespace IpoptInterface {
     mxArray       * ptr;
     m_hessian.eval( 1, &ptr, 3, inputs );
 
-    checkHessian( m_hesstruc.name(), n, ptr );
+    checkHessian( m_hessian.name(), n, ptr );
     /*
     if (!mxIsDouble(ptr)) {
       mxArray * ptr1;
@@ -1134,7 +1146,7 @@ namespace IpoptInterface {
       v != nullptr, "in computeHessian failed to access data from vector"
     );
 
-    m_Hessian.getValues( m_jacobian.name(), ptr, values );
+    m_Hessian.getValues( m_hessian.name(), ptr, values );
 
     // Free the dynamically allocated memory.
     mxDestroyArray(ptr);

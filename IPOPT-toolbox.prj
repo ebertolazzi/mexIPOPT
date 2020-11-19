@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.toolbox" plugin-version="1.0">
-  <configuration file="/Users/enrico/Ricerca/develop/myReposProjects/IpoptMatlabInterface/IPOPT-toolbox.prj" location="/Users/enrico/Ricerca/develop/myReposProjects/IpoptMatlabInterface" name="IPOPT-toolbox" target="target.toolbox" target-name="Package Toolbox">
+  <configuration build-checksum="1108983496" file="/Users/enrico/Ricerca/develop/myReposProjects/mexIPOPT/IPOPT-toolbox.prj" location="/Users/enrico/Ricerca/develop/myReposProjects/mexIPOPT" name="IPOPT-toolbox" target="target.toolbox" target-name="Package Toolbox">
     <param.appname>IPOPT-toolbox</param.appname>
     <param.authnamewatermark>Enrico Bertolazzi</param.authnamewatermark>
     <param.email>enrico.bertolazzi@unitn.it</param.email>
@@ -7,7 +7,7 @@
     <param.summary>Toolbox for MATLAB interfacing with IPOPT</param.summary>
     <param.description />
     <param.screenshot>${PROJECT_ROOT}/toolbox/screenshot.png</param.screenshot>
-    <param.version>1.0</param.version>
+    <param.version>1.1.2</param.version>
     <param.output>${PROJECT_ROOT}/IPOPT-toolbox.mltbx</param.output>
     <param.products.name />
     <param.products.id />
@@ -35,56 +35,7 @@
 %
 .DS_Store</param.exclude.filters>
     <param.exclude.pcodedmfiles>true</param.exclude.pcodedmfiles>
-    <param.examples>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;examples&gt;
-   &lt;exampleCategory name="examples"&gt;
-      &lt;example name="examplehs038" type="html"&gt;
-         &lt;file type="source"&gt;/examples/html/examplehs038.html&lt;/file&gt;
-         &lt;file type="main"&gt;/examples/examplehs038.m&lt;/file&gt;
-         &lt;file type="thumbnail"/&gt;
-      &lt;/example&gt;
-      &lt;example name="examplehs051" type="html"&gt;
-         &lt;file type="source"&gt;/examples/html/examplehs051.html&lt;/file&gt;
-         &lt;file type="main"&gt;/examples/examplehs051.m&lt;/file&gt;
-         &lt;file type="thumbnail"/&gt;
-      &lt;/example&gt;
-      &lt;example name="examplehs071" type="html"&gt;
-         &lt;file type="source"&gt;/examples/html/examplehs071.html&lt;/file&gt;
-         &lt;file type="main"&gt;/examples/examplehs071.m&lt;/file&gt;
-         &lt;file type="thumbnail"/&gt;
-      &lt;/example&gt;
-      &lt;example name="examplelasso" type="html"&gt;
-         &lt;file type="source"&gt;/examples/html/examplelasso.html&lt;/file&gt;
-         &lt;file type="main"&gt;/examples/examplelasso.m&lt;/file&gt;
-         &lt;file type="thumbnail"/&gt;
-      &lt;/example&gt;
-      &lt;example name="test_BartholomewBiggs" type="html"&gt;
-         &lt;file type="source"&gt;/examples/html/test_BartholomewBiggs.html&lt;/file&gt;
-         &lt;file type="main"&gt;/examples/test_BartholomewBiggs.m&lt;/file&gt;
-         &lt;file type="thumbnail"/&gt;
-      &lt;/example&gt;
-      &lt;example name="test_McCormick" type="html"&gt;
-         &lt;file type="source"&gt;/examples/html/test_McCormick.html&lt;/file&gt;
-         &lt;file type="main"&gt;/examples/test_McCormick.m&lt;/file&gt;
-         &lt;file type="thumbnail"/&gt;
-      &lt;/example&gt;
-      &lt;example name="test_alkyl" type="html"&gt;
-         &lt;file type="source"&gt;/examples/html/test_alkyl.html&lt;/file&gt;
-         &lt;file type="main"&gt;/examples/test_alkyl.m&lt;/file&gt;
-         &lt;file type="thumbnail"/&gt;
-      &lt;/example&gt;
-      &lt;example name="test_ipopt" type="html"&gt;
-         &lt;file type="source"&gt;/examples/html/test_ipopt.html&lt;/file&gt;
-         &lt;file type="main"&gt;/examples/test_ipopt.m&lt;/file&gt;
-         &lt;file type="thumbnail"/&gt;
-      &lt;/example&gt;
-      &lt;example name="test_ipopt2" type="html"&gt;
-         &lt;file type="source"&gt;/examples/html/test_ipopt2.html&lt;/file&gt;
-         &lt;file type="main"&gt;/examples/test_ipopt2.m&lt;/file&gt;
-         &lt;file type="thumbnail"/&gt;
-      &lt;/example&gt;
-   &lt;/exampleCategory&gt;
-&lt;/examples&gt;</param.examples>
+    <param.examples />
     <param.demosxml />
     <param.apps />
     <param.registered.apps />
@@ -113,13 +64,13 @@
       <param.authnamewatermark />
       <param.email />
       <param.description />
-      <param.version />
       <param.output />
       <param.products.name />
       <param.products.id />
       <param.products.version />
       <param.platforms />
       <param.exclude.pcodedmfiles />
+      <param.examples />
       <param.demosxml />
       <param.apps />
       <param.registered.apps />
@@ -163,11 +114,11 @@
     <fileset.depfun.excluded />
     <fileset.package />
     <build-deliverables>
-      <file location="${PROJECT_ROOT}" name="IPOPT-toolbox.mltbx" optional="false">/Users/enrico/Ricerca/develop/myReposProjects/IpoptMatlabInterface/IPOPT-toolbox.mltbx</file>
+      <file location="${PROJECT_ROOT}" name="IPOPT-toolbox.mltbx" optional="false">/Users/enrico/Ricerca/develop/myReposProjects/mexIPOPT/IPOPT-toolbox.mltbx</file>
     </build-deliverables>
     <workflow />
     <matlab>
-      <root>/Applications/MATLAB_R2020a.app</root>
+      <root>/Applications/MATLAB_R2020b.app</root>
       <toolboxes />
     </matlab>
     <platform>
@@ -179,7 +130,7 @@
       <vista>false</vista>
       <linux>false</linux>
       <solaris>false</solaris>
-      <osver>10.15.6</osver>
+      <osver>10.15.7</osver>
       <os32>false</os32>
       <os64>true</os64>
       <arch>maci64</arch>
