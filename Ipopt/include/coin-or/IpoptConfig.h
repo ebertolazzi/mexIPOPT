@@ -5,7 +5,7 @@
 #define __CONFIG_IPOPT_H__
 
 /* Version number of project */
-#define IPOPT_VERSION "3.13.2"
+#define IPOPT_VERSION "3.13.3"
 
 /* Major Version number of project */
 #define IPOPT_VERSION_MAJOR 3
@@ -14,7 +14,7 @@
 #define IPOPT_VERSION_MINOR 13
 
 /* Release Version number of project */
-#define IPOPT_VERSION_RELEASE 2
+#define IPOPT_VERSION_RELEASE 3
 
 /* Define to the debug sanity check level (0 is no test) */
 #define IPOPT_CHECKLEVEL 0
@@ -26,10 +26,10 @@
 #define IPOPT_FORTRAN_INTEGER_TYPE int
 
 /* Library Visibility Attribute */
-#define IPOPTAMPLINTERFACELIB_EXPORT 
+#define IPOPTAMPLINTERFACELIB_EXPORT __declspec(dllimport)
 
 /* Library Visibility Attribute */
-#define IPOPTLIB_EXPORT 
+#define IPOPTLIB_EXPORT __declspec(dllimport)
 
 /* for backward compatibility: will be removed in Ipopt 3.14 */
 #define FORTRAN_INTEGER_TYPE  IPOPT_FORTRAN_INTEGER_TYPE
