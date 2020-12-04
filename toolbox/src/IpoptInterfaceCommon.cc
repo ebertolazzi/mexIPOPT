@@ -90,13 +90,12 @@ namespace IpoptInterface {
     double  const * v    = mxGetPr(ptr);
 
     std::fill_n( values, nnz, 0 );
+    mwIndex i, k, i1, k1;
     for ( mwIndex c = 0; c < mwIndex(numCols); ++c ) {
-      mwIndex i  = mxJc[c];
-      mwIndex k  = Jc[c];
-      mwIndex i1 = mxJc[c+1];
-      mwIndex k1 = Jc[c+1];
+      i = mxJc[c], i1 = mxJc[c+1];
+      k = Jc[c];   k1 = Jc[c+1];
       for (; i < i1; ++i, ++k ) {
-        while ( mwIndex(Ir[k]) < mxIr[i] && k < k1 ) ++k; // skip not set elements
+        while ( k < k1 && mwIndex(Ir[k]) < mxIr[i] ) ++k; // skip not set elements
         IPOPT_ASSERT(
           mwIndex(Ir[k]) == mxIr[i],
           "In MATLAB function " << func <<
