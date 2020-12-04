@@ -52,7 +52,7 @@ using Ipopt::SolveStatistics;
 // https://it.mathworks.com/matlabcentral/answers/132527-in-mex-files-where-does-output-to-stdout-and-stderr-go
 */
 
-#ifdef OS_LINUX
+#if defined(OS_LINUX) || defined(OS_MAC)
 class mystream : public std::streambuf {
 protected:
   virtual
@@ -63,7 +63,7 @@ protected:
   virtual
   int
   overflow(int c=EOF) override
-  { if (c != EOF) { mexPrintf("%.1s", &c); } return 1; }
+  { if (c != EOF) { mexPrintf("%.1s", &c); mexEvalString("drawnow;"); } return 1; }
 
 };
 
@@ -86,8 +86,8 @@ namespace IpoptInterface {
 
   static
   void
-  mexFunction( int nlhs, mxArray       *plhs[],
-	  	         int nrhs, mxArray const *prhs[] ) {
+  mexFunction_internal( int nlhs, mxArray       *plhs[],
+	  	                  int nrhs, mxArray const *prhs[] ) {
 
     // Check to see if we have the correct number of input and output
     // arguments.
@@ -201,7 +201,7 @@ mexFunction(
 
   try {
 
-    IpoptInterface::mexFunction( nlhs, plhs, nrhs, prhs );
+    IpoptInterface::mexFunction_internal( nlhs, plhs, nrhs, prhs );
 
   } catch ( std::exception & error ) {
 

@@ -58,6 +58,17 @@
   #define IPOPT_ASSERT(COND,MSG) if ( !(COND) ) IPOPT_DO_ERROR(MSG)
 #endif
 
+//#define DEBUG
+#ifdef DEBUG
+  #define IPOPT_DEBUG(MSG) {             \
+    std::ostringstream ost; ost << MSG;  \
+    mexPrintf("%s\n",ost.str().c_str()); \
+    mexEvalString("drawnow;");           \
+  }
+#else
+  #define IPOPT_DEBUG(MSG)
+#endif
+
 // if C++ < C++11 define nullptr
 #if __cplusplus <= 199711L
   #ifndef nullptr
@@ -150,11 +161,11 @@ namespace IpoptInterface {
   */
 
   typedef struct {
-    Index              nnz;     // The height of the matrix.
-    Index              numRows; // The height of the matrix.
-    Index              numCols; // The width of the matrix.
-    std::vector<Index> Jc;      // See mxSetJc in the MATLAB documentation.
-    std::vector<Index> Ir;      // See mxSetIr in the MATLAB documentation.
+    Index              m_nnz;     // The height of the matrix.
+    Index              m_numRows; // The height of the matrix.
+    Index              m_numCols; // The width of the matrix.
+    std::vector<Index> m_Jc;      // See mxSetJc in the MATLAB documentation.
+    std::vector<Index> m_Ir;      // See mxSetIr in the MATLAB documentation.
 
     void setup( mxArray * ptr );
     void getStructure( Index rows[], Index cols[] ) const;
@@ -215,7 +226,7 @@ namespace IpoptInterface {
     bool
     from_cell_array( mxArray const ptr[], Index n, Number * x ) const;
 
-    Index numVariables() const { return this->mx_x_nv; }
+    Index numVariables() const { return mx_x_nv; }
 
     // These functions return true if the respective callback functions
     // are available.
@@ -242,7 +253,7 @@ namespace IpoptInterface {
     // This function gets the structure of the sparse m x n Jacobian matrix.
     Index
     getJacobianNnz( ) const
-    { return m_Jacobian.nnz; }
+    { return m_Jacobian.m_nnz; }
 
     void
     loadJacobianStructure( Index n, Index m ) const;
@@ -254,7 +265,7 @@ namespace IpoptInterface {
     // This function gets the structure of the sparse n x n Hessian matrix.
     Index
     getHessianNnz( ) const
-    { return m_Hessian.nnz; }
+    { return m_Hessian.m_nnz; }
 
     void
     loadHessianStructure( Index n ) const;
@@ -643,9 +654,7 @@ namespace Ipopt {
       EJournalCategory category,
       EJournalLevel    level,
       char const *     str
-    ) {
-      mexPrintf(str);
-    }
+    );
 
     virtual
     void

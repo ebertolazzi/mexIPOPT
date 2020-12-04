@@ -2,7 +2,6 @@
 function test_McCormick
 
   addpath('../lib') ;
-  addpath('../binary/dll') ;
 
   auxdata = {} ;
 
