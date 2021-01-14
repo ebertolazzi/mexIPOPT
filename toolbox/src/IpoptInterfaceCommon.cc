@@ -119,7 +119,7 @@ namespace IpoptInterface {
         while ( k < k1 && mwIndex(m_Ir[k]) < mxi ) ++k; // skip not set elements
         if ( k < k1 && mwIndex(m_Ir[k]) == mxi ) {
           IPOPT_ASSERT(
-            isfinite(v[i]),
+            std::isfinite(v[i]),
             "In MATLAB function " << func << 
             "\nelement (" << mxi+1 << "," << c+1 << ") is NaN\n"
           );

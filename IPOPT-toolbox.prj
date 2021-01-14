@@ -5,7 +5,7 @@
     <param.email>enrico.bertolazzi@unitn.it</param.email>
     <param.company>University of Trento</param.company>
     <param.summary>Toolbox for MATLAB interfacing with IPOPT</param.summary>
-    <param.description />
+    <param.description>Toolbox for MATLAB interfacing with IPOPT</param.description>
     <param.screenshot>${PROJECT_ROOT}/toolbox/screenshot.png</param.screenshot>
     <param.version>1.1.2</param.version>
     <param.output>${PROJECT_ROOT}/IPOPT-toolbox.mltbx</param.output>
@@ -63,7 +63,6 @@
     <unset>
       <param.authnamewatermark />
       <param.email />
-      <param.description />
       <param.output />
       <param.products.name />
       <param.products.id />

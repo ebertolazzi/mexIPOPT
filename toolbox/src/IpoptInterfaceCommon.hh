@@ -31,6 +31,7 @@
 #include <stdexcept> // for unix system
 #include <exception>
 #include <cstdio>
+#include <cmath>
 #include <string>
 #include <sstream>
 
