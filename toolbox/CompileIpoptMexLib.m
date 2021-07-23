@@ -8,6 +8,7 @@ eval('while mislocked(''ipopt''); munlock(''ipopt''); end;');
 
 disp('---------------------------------------------------------');
 CMD = 'mex -largeArrayDims -Isrc ';
+CMD = [ CMD ' ./src/ipopt.cc ./src/IpoptInterfaceCommon.cc '];
 
 if ismac
   %
@@ -50,18 +51,17 @@ elseif isunix
               '-lMatlabDataArray -lmx -lmex -lmat -lm '' ' ...
   ];
 elseif ispc
-  IPOPT_HOME = '../Ipopt';
+  % use ipopt precompiled with visual studio
+  IPOPT_HOME = '../Ipopt/include_vs/';
+  IPOPT_BIN  = 'bin/windows/';
   CMD = [ CMD ...
-    '-DOS_WIN -I' IPOPT_HOME '/include_win/coin-or ' ...
-    '-output bin/windows/ipopt_win ' ...
-    './bin/windows/libipopt.dll.a ' ...
-    './bin/windows/libcoinmumps.dll.a ' ...
+    '-DOS_WIN -I' IPOPT_HOME '/coin-or ' ...
+    '-output ' IPOPT_BIN 'ipopt_win -L' IPOPT_BIN ...
+    ' -lipopt -lipoptfort -lomp -lopenblas -lflang -lflangmain -lflangrti ' ...
   ];
 else
   error('architecture not supported');
 end
-
-CMD = [ CMD ' ./src/ipopt.cc ./src/IpoptInterfaceCommon.cc '];
 
 disp(CMD);
 eval(CMD);

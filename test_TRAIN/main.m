@@ -1,4 +1,4 @@
-addpath('../lib');
+addpath('../toolbox/lib');
 
 x_i   = 0;
 x_f   = 6;
