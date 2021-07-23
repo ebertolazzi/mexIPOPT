@@ -263,12 +263,12 @@ function [x,info] = ipopt( varargin )
   elseif isunix
     if strcmp( cmp, 'GLNXA64') == 1
       myCCompiler = mex.getCompilerConfigurations('C','Selected');
-      switch myCCompiler.Version(1:1)
-      case {'1','2','3','4','5'}
+      switch str2num(myCCompiler.Version)
+      case {1,2,3,4,5}
         error('mexIPOPT do not support gcc < gcc6');
-      case {'6'}
+      case {6}
         [x,info] = ipopt_linux_3(varargin{:});
-      case {'7','8'}
+      case {7,8}
         [x,info] = ipopt_linux_4(varargin{:});
       otherwise
         [x,info] = ipopt_linux_5(varargin{:});
