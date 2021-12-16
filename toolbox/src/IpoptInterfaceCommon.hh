@@ -134,7 +134,7 @@ namespace IpoptInterface {
     // It is up to the user to ensure that the MATLAB array is a valid
     // function handle.
     void
-    bind( mxArray const p[], char const error_msg[] );
+    bind( mxArray const * p, char const error_msg[] );
 
     // This method is used to call the MATLAB function, provided inputs
     // to the function. It is up to the user to make sure that the
@@ -143,9 +143,9 @@ namespace IpoptInterface {
     void
     eval(
       Index           n_lhs,
-      mxArray       * lhs[],
+      mxArray       ** lhs,
       Index           n_rhs,
-      mxArray const * rhs[]
+      mxArray const ** rhs
     ) const;
 
     // Returns true if and only if the function handle is not null.
@@ -170,7 +170,7 @@ namespace IpoptInterface {
 
     void setup( mxArray * ptr );
     void getStructure( Index rows[], Index cols[] ) const;
-    void getValues( std::string const & func, mxArray ptr[], Number values[] ) const;
+    void getValues( std::string const & func, mxArray * ptr, Number values[] ) const;
   } SparseMatrix;
 
   /*
@@ -214,7 +214,7 @@ namespace IpoptInterface {
     // this MATLAB array must be a structure array in which each field
     // is a function handle.
     explicit
-    CallbackFunctions( mxArray const mx_x0[], mxArray const ptr[] );
+    CallbackFunctions( mxArray const * mx_x0, mxArray const * ptr );
 
     // The destructor.
     ~CallbackFunctions();
@@ -225,7 +225,7 @@ namespace IpoptInterface {
     std::vector<Number> const & getx0() const { return m_x0; }
 
     bool
-    from_cell_array( mxArray const ptr[], Index n, Number * x ) const;
+    from_cell_array( mxArray const * ptr, Index n, Number * x ) const;
 
     Index numVariables() const { return mx_x_nv; }
 
