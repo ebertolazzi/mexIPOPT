@@ -261,7 +261,7 @@ function [x,info] = ipopt( varargin )
       error('IPOPT: No support for architecture %s\n', cmp );
     end
   elseif isunix
-    if strcmp( cmp, 'GLNXA64') == 1 || strcmp( cmp, 'x86_64-pc-linux-gnu') == 1
+    if strcmp( cmp, 'GLNXA64') == 1
       myCCompiler = mex.getCompilerConfigurations('C','Selected');
       switch myCCompiler.Version(1:1)
       case {'1','2','3','4','5'}
@@ -273,6 +273,8 @@ function [x,info] = ipopt( varargin )
       otherwise
         [x,info] = ipopt_linux_5(varargin{:});
       end
+    elseif strcmp( cmp, 'x86_64-pc-linux-gnu') == 1     % Octave
+        [x,info] = ipopt_linux_5(varargin{:});
     else
       error('IPOPT: No support for architecture %s\n', cmp );
     end
