@@ -3,8 +3,12 @@ clear functions;
 
 old_dir = cd(fileparts(which(mfilename)));
 
-[~,mexLoaded] = inmem('-completenames');
-eval('while mislocked(''ipopt''); munlock(''ipopt''); end;');
+isOctave = isempty(ver('matlab'));
+
+if ~isOctave    % skip for Octave (which doesn't yet have INMEM)
+  [~,mexLoaded] = inmem('-completenames');
+  eval('while mislocked(''ipopt''); munlock(''ipopt''); end;');
+end
 
 disp('---------------------------------------------------------');
 CMD = 'mex -largeArrayDims -Isrc ';
