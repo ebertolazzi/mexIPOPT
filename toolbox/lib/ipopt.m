@@ -255,13 +255,13 @@ function [x,info] = ipopt( varargin )
       error('IPOPT: No support for architecture %s\n', cmp );
     end
   elseif ismac
-    if strcmp( cmp, 'MACI64') == 1
+    if strcmp( cmp, 'MACI64') == 1 || regexp( cmp, 'x86_64-apple-darwin') == 1
       [x,info] = ipopt_osx(varargin{:});
     else
       error('IPOPT: No support for architecture %s\n', cmp );
     end
   elseif isunix
-    if strcmp( cmp, 'GLNXA64') == 1
+    if strcmp( cmp, 'GLNXA64') == 1 || strcmp( cmp, 'x86_64-pc-linux-gnu') == 1
       myCCompiler = mex.getCompilerConfigurations('C','Selected');
       switch myCCompiler.Version(1:1)
       case {'1','2','3','4','5'}
