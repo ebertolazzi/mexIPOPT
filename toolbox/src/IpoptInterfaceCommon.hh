@@ -161,7 +161,7 @@ namespace IpoptInterface {
   //        |_|
   */
 
-  typedef struct {
+  typedef struct SparseMatrix {
     Index              m_nnz;     // The height of the matrix.
     Index              m_numRows; // The height of the matrix.
     Index              m_numCols; // The width of the matrix.

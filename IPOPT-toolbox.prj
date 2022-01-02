@@ -1,14 +1,14 @@
 <deployment-project plugin="plugin.toolbox" plugin-version="1.0">
-  <configuration build-checksum="1276318946" file="C:\Users\NUC2\mexIPOPT\IPOPT-toolbox.prj" location="C:\Users\NUC2\mexIPOPT" name="IPOPT-toolbox" target="target.toolbox" target-name="Package Toolbox">
+  <configuration build-checksum="1276318946" file="/Users/enrico/Ricerca/Software/REPOS/myReposProjects/mexIPOPT/IPOPT-toolbox.prj" location="/Users/enrico/Ricerca/Software/REPOS/myReposProjects/mexIPOPT" name="IPOPT-toolbox" target="target.toolbox" target-name="Package Toolbox">
     <param.appname>IPOPT-toolbox</param.appname>
     <param.authnamewatermark>Enrico Bertolazzi</param.authnamewatermark>
     <param.email>enrico.bertolazzi@unitn.it</param.email>
     <param.company>University of Trento</param.company>
     <param.summary>Toolbox for MATLAB interfacing with IPOPT</param.summary>
     <param.description>Toolbox for MATLAB interfacing with IPOPT</param.description>
-    <param.screenshot>${PROJECT_ROOT}\toolbox\screenshot.png</param.screenshot>
+    <param.screenshot>${PROJECT_ROOT}/toolbox/screenshot.png</param.screenshot>
     <param.version>1.1.3</param.version>
-    <param.output>${PROJECT_ROOT}\IPOPT-toolbox.mltbx</param.output>
+    <param.output>${PROJECT_ROOT}/IPOPT-toolbox.mltbx</param.output>
     <param.products.name />
     <param.products.id />
     <param.products.version />
@@ -40,7 +40,7 @@
     <param.apps />
     <param.registered.apps />
     <param.docs />
-    <param.getting.started.guide>${PROJECT_ROOT}\toolbox\doc\GettingStarted.mlx</param.getting.started.guide>
+    <param.getting.started.guide>${PROJECT_ROOT}/toolbox/doc/GettingStarted.mlx</param.getting.started.guide>
     <param.matlabpath.excludes />
     <param.javaclasspath.excludes />
     <param.exported.on.package>false</param.exported.on.package>
@@ -61,6 +61,8 @@
     <param.additional.sw.mac.url />
     <param.additional.sw.linux.url />
     <unset>
+      <param.authnamewatermark />
+      <param.email />
       <param.output />
       <param.products.name />
       <param.products.id />
@@ -93,44 +95,75 @@
       <param.additional.sw.linux.url />
     </unset>
     <fileset.rootdir>
-      <file>${PROJECT_ROOT}\toolbox</file>
+      <file>${PROJECT_ROOT}/toolbox</file>
     </fileset.rootdir>
     <fileset.rootfiles>
-      <file>${PROJECT_ROOT}\toolbox\bin</file>
-      <file>${PROJECT_ROOT}\toolbox\CompileIpoptMexLib.m</file>
-      <file>${PROJECT_ROOT}\toolbox\demos.xml</file>
-      <file>${PROJECT_ROOT}\toolbox\doc</file>
-      <file>${PROJECT_ROOT}\toolbox\examples</file>
-      <file>${PROJECT_ROOT}\toolbox\lib</file>
-      <file>${PROJECT_ROOT}\toolbox\license.txt</file>
-      <file>${PROJECT_ROOT}\toolbox\screenshot.png</file>
-      <file>${PROJECT_ROOT}\toolbox\setupIpoptPath.m</file>
-      <file>${PROJECT_ROOT}\toolbox\src</file>
+      <file>${PROJECT_ROOT}/toolbox/CompileIpoptMexLib.m</file>
+      <file>${PROJECT_ROOT}/toolbox/bin</file>
+      <file>${PROJECT_ROOT}/toolbox/demos.xml</file>
+      <file>${PROJECT_ROOT}/toolbox/doc</file>
+      <file>${PROJECT_ROOT}/toolbox/examples</file>
+      <file>${PROJECT_ROOT}/toolbox/lib</file>
+      <file>${PROJECT_ROOT}/toolbox/license.txt</file>
+      <file>${PROJECT_ROOT}/toolbox/screenshot.png</file>
+      <file>${PROJECT_ROOT}/toolbox/setupIpoptPath.m</file>
+      <file>${PROJECT_ROOT}/toolbox/src</file>
     </fileset.rootfiles>
     <fileset.depfun.included />
     <fileset.depfun.excluded />
     <fileset.package />
     <build-deliverables>
-      <file location="${PROJECT_ROOT}" name="IPOPT-toolbox.mltbx" optional="false">C:\Users\NUC2\mexIPOPT\IPOPT-toolbox.mltbx</file>
+      <file location="${PROJECT_ROOT}" name="IPOPT-toolbox.mltbx" optional="false">/Users/enrico/Ricerca/Software/REPOS/myReposProjects/mexIPOPT/IPOPT-toolbox.mltbx</file>
     </build-deliverables>
     <workflow />
     <matlab>
-      <root>C:\Program Files\MATLAB\R2020a</root>
-      <toolboxes />
+      <root>/Applications/MATLAB_R2021b.app</root>
+      <toolboxes>
+        <toolbox name="matlabcoder" />
+        <toolbox name="embeddedcoder" />
+        <toolbox name="fixedpoint" />
+        <toolbox name="matlabhdlcoder" />
+        <toolbox name="neuralnetwork" />
+      </toolboxes>
+      <toolbox>
+        <matlabcoder>
+          <enabled>true</enabled>
+        </matlabcoder>
+      </toolbox>
+      <toolbox>
+        <embeddedcoder>
+          <enabled>true</enabled>
+        </embeddedcoder>
+      </toolbox>
+      <toolbox>
+        <fixedpoint>
+          <enabled>true</enabled>
+        </fixedpoint>
+      </toolbox>
+      <toolbox>
+        <matlabhdlcoder>
+          <enabled>true</enabled>
+        </matlabhdlcoder>
+      </toolbox>
+      <toolbox>
+        <neuralnetwork>
+          <enabled>true</enabled>
+        </neuralnetwork>
+      </toolbox>
     </matlab>
     <platform>
-      <unix>false</unix>
-      <mac>false</mac>
-      <windows>true</windows>
+      <unix>true</unix>
+      <mac>true</mac>
+      <windows>false</windows>
       <win2k>false</win2k>
       <winxp>false</winxp>
       <vista>false</vista>
       <linux>false</linux>
       <solaris>false</solaris>
-      <osver>10.0</osver>
+      <osver>11.6</osver>
       <os32>false</os32>
       <os64>true</os64>
-      <arch>win64</arch>
+      <arch>maci64</arch>
       <matlab>true</matlab>
     </platform>
   </configuration>
