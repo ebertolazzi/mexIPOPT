@@ -3,8 +3,12 @@ clear functions;
 
 old_dir = cd(fileparts(which(mfilename)));
 
-[~,mexLoaded] = inmem('-completenames');
-eval('while mislocked(''ipopt''); munlock(''ipopt''); end;');
+isOctave = isempty(ver('matlab'));
+
+if ~isOctave    % skip for Octave (which doesn't yet have INMEM)
+  [~,mexLoaded] = inmem('-completenames');
+  eval('while mislocked(''ipopt''); munlock(''ipopt''); end;');
+end
 
 disp('---------------------------------------------------------');
 CMD = 'mex -largeArrayDims -Isrc ';
@@ -29,27 +33,37 @@ if ismac
   %%  '-output bin/osx/ipopt_osx bin/osx/libgcc_s.1.dylib ' ...
 elseif isunix
   IPOPT_HOME = '../Ipopt';
-  myCCompiler = mex.getCompilerConfigurations('C','Selected');
-  switch myCCompiler.Version
-  case {'4','5','6'}
-    BIN_DIR = 'bin/linux_3';
-    MEX_EXE = 'bin/linux_3/ipopt_linux_3';
-  case {'7','8'}
-    BIN_DIR = 'bin/linux_4';
-    MEX_EXE = 'bin/linux_4/ipopt_linux_4';
-  otherwise
+  if isOctave
     BIN_DIR = 'bin/linux_5';
     MEX_EXE = 'bin/linux_5/ipopt_linux_5';
+    [status, IPOPT_INCL] = system('pkg-config --cflags ipopt', 1);
+    CMD = [ CMD ' ' IPOPT_INCL(1:end-1) ...
+      '  -output ' MEX_EXE '  -Wall -O2 -g' ...
+      ' -lipopt -lcoinmumps -lopenblas -lgfortran -lgomp -ldl ' ...
+    ];
+  else
+    myCCompiler = mex.getCompilerConfigurations('C','Selected');
+    switch myCCompiler.Version
+    case {'4','5','6'}
+      BIN_DIR = 'bin/linux_3';
+      MEX_EXE = 'bin/linux_3/ipopt_linux_3';
+    case {'7','8'}
+      BIN_DIR = 'bin/linux_4';
+      MEX_EXE = 'bin/linux_4/ipopt_linux_4';
+    otherwise
+      BIN_DIR = 'bin/linux_5';
+      MEX_EXE = 'bin/linux_5/ipopt_linux_5';
+    end
+    CMD = [ CMD ...
+      '-I' IPOPT_HOME '/include_linux/coin-or ' ...
+      '-DOS_LINUX -output ' MEX_EXE ' '...
+      'CXXFLAGS=''$CXXFLAGS -Wall -O2 -g'' ' ...
+      'LDFLAGS=''$LDFLAGS -static-libgcc -static-libstdc++'' ' ...
+      'LINKLIBS=''-L' BIN_DIR ' -L$MATLABROOT/bin/$ARCH -Wl,-rpath,$MATLABROOT/bin/$ARCH ' ...
+                '-Wl,-rpath,. -lipopt -lcoinmumps -lopenblas -lgfortran -lgomp -ldl ' ...
+                '-lMatlabDataArray -lmx -lmex -lmat -lm '' ' ...
+    ];
   end
-  CMD = [ CMD ...
-    '-I' IPOPT_HOME '/include_linux/coin-or ' ...
-    '-DOS_LINUX -output ' MEX_EXE ' '...
-    'CXXFLAGS=''$CXXFLAGS -Wall -O2 -g'' ' ...
-    'LDFLAGS=''$LDFLAGS -static-libgcc -static-libstdc++'' ' ...
-    'LINKLIBS=''-L' BIN_DIR ' -L$MATLABROOT/bin/$ARCH -Wl,-rpath,$MATLABROOT/bin/$ARCH ' ...
-              '-Wl,-rpath,. -lipopt -lcoinmumps -lopenblas -lgfortran -lgomp -ldl ' ...
-              '-lMatlabDataArray -lmx -lmex -lmat -lm '' ' ...
-  ];
 elseif ispc
   % use ipopt precompiled with visual studio
   IPOPT_HOME = '../Ipopt/include_vs/';

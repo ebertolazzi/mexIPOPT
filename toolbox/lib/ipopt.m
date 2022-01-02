@@ -249,13 +249,13 @@
 function [x,info] = ipopt( varargin )
   cmp = computer;
   if ispc
-    if strcmp( cmp, 'PCWIN64') == 1
+    if strcmp( cmp, 'PCWIN64') == 1 || strcmp( cmp, 'x86_64-w64-mingw32') == 1 || strcmp( cmp, 'i686-w64-mingw32') == 1
       [x,info] = ipopt_win(varargin{:});
     else
       error('IPOPT: No support for architecture %s\n', cmp );
     end
   elseif ismac
-    if strcmp( cmp, 'MACI64') == 1
+    if strcmp( cmp, 'MACI64') == 1 || regexp( cmp, 'x86_64-apple-darwin') == 1
       [x,info] = ipopt_osx(varargin{:});
     else
       error('IPOPT: No support for architecture %s\n', cmp );
@@ -263,16 +263,18 @@ function [x,info] = ipopt( varargin )
   elseif isunix
     if strcmp( cmp, 'GLNXA64') == 1
       myCCompiler = mex.getCompilerConfigurations('C','Selected');
-      switch str2num(myCCompiler.Version)
-      case {1,2,3,4,5}
+      switch myCCompiler.Version(1:1)
+      case {'1','2','3','4','5'}
         error('mexIPOPT do not support gcc < gcc6');
-      case {6}
+      case {'6'}
         [x,info] = ipopt_linux_3(varargin{:});
-      case {7,8}
+      case {'7','8'}
         [x,info] = ipopt_linux_4(varargin{:});
       otherwise
         [x,info] = ipopt_linux_5(varargin{:});
       end
+    elseif strcmp( cmp, 'x86_64-pc-linux-gnu') == 1     % Octave
+        [x,info] = ipopt_linux_5(varargin{:});
     else
       error('IPOPT: No support for architecture %s\n', cmp );
     end

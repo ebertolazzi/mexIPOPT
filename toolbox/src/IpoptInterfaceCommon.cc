@@ -286,7 +286,7 @@ namespace IpoptInterface {
   // is up to the user to ensure that the MATLAB array is a valid
   // function handle.
   void
-  MatlabFunctionHandle::bind( mxArray const p[], char const error_msg[] ) {
+  MatlabFunctionHandle::bind( mxArray const * p, char const error_msg[] ) {
 
     IPOPT_DEBUG("In MatlabFunctionHandle::bind");
 
@@ -324,9 +324,9 @@ namespace IpoptInterface {
   void
   MatlabFunctionHandle::eval(
     Index           n_lhs,
-    mxArray       * lhs[],
+    mxArray       ** lhs,
     Index           n_rhs,
-    mxArray const * rhs[]
+    mxArray const ** rhs
   ) const {
 
     IPOPT_DEBUG("In MatlabFunctionHandle::eval");
