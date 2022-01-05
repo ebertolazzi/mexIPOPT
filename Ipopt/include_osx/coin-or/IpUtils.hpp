@@ -11,133 +11,72 @@
 #include "IpTypes.hpp"
 #include "IpDebug.hpp"
 
+#include <algorithm>
+#include <limits>
+#include <stdexcept>
+#include <sstream>
+
 namespace Ipopt
 {
 
-inline Index Max(
-   Index a,
-   Index b
+template<typename T>
+inline T Max(
+   T a,
+   T b
 )
 {
-   return ((a) > (b) ? (a) : (b));
+   return std::max(a, b);
 }
 
-inline Index Max(
-   Index a,
-   Index b,
-   Index c
+template<typename T>
+inline T Max(
+   T a,
+   T b,
+   T c
 )
 {
-   Index max = Max(a, b);
-   max = Max(max, c);
-   return max;
+   return std::max(std::max(a, b), c);
 }
 
-inline Index Max(
-   Index a,
-   Index b,
-   Index c,
-   Index d
+template<typename T>
+inline T Max(
+   T a,
+   T b,
+   T c,
+   T d
 )
 {
-   Index max = Max(a, b, c);
-   max = Max(max, d);
-   return max;
+   return std::max(std::max(a, b), std::max(c, d));
 }
 
-inline Index Min(
-   Index a,
-   Index b
+template<typename T>
+inline T Min(
+   T a,
+   T b
 )
 {
-   return ((a) < (b) ? (a) : (b));
+   return std::min(a, b);
 }
 
-inline Index Min(
-   Index a,
-   Index b,
-   Index c
+template<typename T>
+inline T Min(
+   T a,
+   T b,
+   T c
 )
 {
-   Index min = Min(a, b);
-   min = Min(min, c);
-   return min;
+   return std::min(std::min(a, b), c);
 }
 
-inline Index Min(
-   Index a,
-   Index b,
-   Index c,
-   Index d
+template<typename T>
+inline T Min(
+   T a,
+   T b,
+   T c,
+   T d
 )
 {
-   Index min = Min(a, b, c);
-   min = Min(min, d);
-   return min;
-}
-
-///////////////////////////////////////////
-
-inline Number Max(
-   Number a,
-   Number b
-)
-{
-   return ((a) > (b) ? (a) : (b));
-}
-
-inline Number Max(
-   Number a,
-   Number b,
-   Number c
-)
-{
-   Number max = Max(a, b);
-   max = Max(max, c);
-   return max;
-}
-
-inline Number Max(
-   Number a,
-   Number b,
-   Number c,
-   Number d
-)
-{
-   Number max = Max(a, b, c);
-   max = Max(max, d);
-   return max;
-}
-
-inline Number Min(
-   Number a,
-   Number b
-)
-{
-   return ((a) < (b) ? (a) : (b));
-}
-
-inline Number Min(
-   Number a,
-   Number b,
-   Number c
-)
-{
-   Number min = Min(a, b);
-   min = Min(min, c);
-   return min;
-}
-
-inline Number Min(
-   Number a,
-   Number b,
-   Number c,
-   Number d
-)
-{
-   Number min = Min(a, b, c);
-   min = Min(min, d);
-   return min;
+   return std::min(std::min(a, b), std::min(c, d));
 }
 
 /** Function returning true iff the argument is a valid double number
@@ -174,12 +113,53 @@ IPOPTLIB_EXPORT bool Compare_le(
 );
 
 /** Method for printing a formatted output to a string with given size. */
+#ifdef __GNUC__
+__attribute__((format(printf, 3, 4)))
+#endif
 IPOPTLIB_EXPORT int Snprintf(
    char*       str,
    long        size,
    const char* format,
    ...
 );
+
+/** Method to calculate new length for a memory increase based on a recommendation and limits in integer type.
+ *
+ * Checks whether recommended can be represented by T.
+ * If so, sets len to min of recommendation and min.
+ * If not, sets len to maximal value available for T, if this is larger than current value for len.
+ * If not, throws a std::overflow_error exception.
+ *
+ * @since 3.14.0
+ */
+template<typename T>
+inline void ComputeMemIncrease(
+   T&          len,          ///< current length on input, new length on output
+   double      recommended,  ///< recommended size
+   T           min,          ///< minimal size that should ensured
+   const char* context       ///< context from where this function is called - used to setup message for exception
+)
+{
+   if( recommended >= std::numeric_limits<T>::max() )
+   {
+      // increase len to the maximum possible, if that is still an increase
+      if( len < std::numeric_limits<T>::max() )
+      {
+         len = std::numeric_limits<T>::max();
+      }
+      else
+      {
+         DBG_ASSERT(context != NULL);
+         std::stringstream what;
+         what << "Cannot allocate more than " << std::numeric_limits<T>::max()*sizeof(T) << " bytes for " << context << " due to limitation on integer type";
+         throw std::overflow_error(what.str());
+      }
+   }
+   else
+   {
+      len = Max(min, (T) recommended);
+   }
+}
 
 } //namespace Ipopt
 

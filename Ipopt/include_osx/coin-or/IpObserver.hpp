@@ -43,7 +43,7 @@ public:
 #endif
 
    /**@name Constructors/Destructors */
-   //@{
+   ///@{
    /** Default Constructor */
    Observer()
    { }
@@ -51,7 +51,7 @@ public:
    /** Destructor */
    inline
    virtual ~Observer();
-   //@}
+   ///@}
 
    /** Enumeration specifying the type of notification */
    enum NotifyType
@@ -105,7 +105,7 @@ private:
     * and do not define them. This ensures that
     * they will not be implicitly created/called.
     */
-   //@{
+   ///@{
    /** Copy Constructor */
    Observer(
       const Observer&
@@ -115,7 +115,7 @@ private:
    void operator=(
       const Observer&
    );
-   //@}
+   ///@}
 
    /** A list of the subjects currently being observed. */
    std::vector<const Subject*> subjects_;
@@ -154,7 +154,7 @@ public:
 #endif
 
    /**@name Constructors/Destructors */
-   //@{
+   ///@{
    /** Default Constructor */
    Subject()
    { }
@@ -162,7 +162,7 @@ public:
    /** Destructor */
    inline
    virtual ~Subject();
-   //@}
+   ///@}
 
    /**@name Methods to Add and Remove Observers.
     *
@@ -176,7 +176,7 @@ public:
     *  depending on type could be implemented later if
     *  necessary.
     */
-   //@{
+   ///@{
    /** Attach the specified observer
     *  (i.e., begin receiving notifications). */
    inline
@@ -192,7 +192,7 @@ public:
       Observer::NotifyType notify_type,
       Observer*            observer
    ) const;
-   //@}
+   ///@}
 
 protected:
 
@@ -211,7 +211,7 @@ private:
     * and do not define them. This ensures that
     * they will not be implicitly created/called.
     */
-   //@{
+   ///@{
    /** Copy Constructor */
    Subject(
       const Subject&
@@ -221,7 +221,7 @@ private:
    void operator=(
       const Subject&
    );
-   //@}
+   ///@}
 
    mutable std::vector<Observer*> observers_;
 };
@@ -233,20 +233,20 @@ inline Observer::~Observer()
    DBG_START_METH("Observer::~Observer", dbg_verbosity);
    if (DBG_VERBOSITY() >= 1)
    {
-      for (Index i = 0; i < (Index)subjects_.size(); i++)
+      for( size_t i = 0; i < subjects_.size(); ++i )
       {
-         DBG_PRINT((1, "subjects_[%d] = 0x%x\n", i, subjects_[i]));
+         DBG_PRINT((1, "subjects_[%zd] = %p\n", i, (const void*)subjects_[i]));
       }
    }
 #endif
    // Detach all subjects
-   for( Int i = (Int) (subjects_.size() - 1); i >= 0; i-- )
+   for( size_t i = subjects_.size(); i > 0; --i )
    {
 #ifdef IP_DEBUG_OBSERVER
-      DBG_PRINT((1, "About to detach subjects_[%d] = 0x%x\n", i, subjects_[i]));
+      DBG_PRINT((1, "About to detach subjects_[%zd] = %p\n", i, (const void*)subjects_[i - 1]));
 #endif
 
-      RequestDetach(NT_All, subjects_[i]);
+      RequestDetach(NT_All, subjects_[i - 1]);
    }
 }
 
@@ -280,7 +280,7 @@ void Observer::RequestDetach(
 {
 #ifdef IP_DEBUG_OBSERVER
    DBG_START_METH("Observer::RequestDetach", dbg_verbosity);
-   DBG_PRINT((1, "Requesting detach of subject: 0x%x\n", subject));
+   DBG_PRINT((1, "Requesting detach of subject: %p\n", (const void*)subject));
    DBG_ASSERT(subject);
 #endif
 
@@ -296,7 +296,7 @@ void Observer::RequestDetach(
       if( attached_subject != subjects_.end() )
       {
 #ifdef IP_DEBUG_OBSERVER
-         DBG_PRINT((1, "Removing subject: 0x%x from the list\n", subject));
+         DBG_PRINT((1, "Removing subject: %p from the list\n", (const void*)subject));
 #endif
 
          subjects_.erase(attached_subject);
@@ -346,8 +346,7 @@ inline Subject::~Subject()
    DBG_START_METH("Subject::~Subject", dbg_verbosity);
 #endif
 
-   std::vector<Observer*>::iterator iter;
-   for( iter = observers_.begin(); iter != observers_.end(); iter++ )
+   for( std::vector<Observer*>::iterator iter = observers_.begin(); iter != observers_.end(); ++iter )
    {
       (*iter)->ProcessNotification(Observer::NT_BeingDestroyed, this);
    }
@@ -412,8 +411,7 @@ void Subject::Notify(
    DBG_START_METH("Subject::Notify", dbg_verbosity);
 #endif
 
-   std::vector<Observer*>::iterator iter;
-   for( iter = observers_.begin(); iter != observers_.end(); iter++ )
+   for( std::vector<Observer*>::iterator iter = observers_.begin(); iter != observers_.end(); ++iter )
    {
       (*iter)->ProcessNotification(notify_type, this);
    }

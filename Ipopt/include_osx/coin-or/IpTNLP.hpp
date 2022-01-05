@@ -7,6 +7,7 @@
 #ifndef __IPTNLP_HPP__
 #define __IPTNLP_HPP__
 
+#include "IpoptConfig.h"
 #include "IpUtils.hpp"
 #include "IpReferenced.hpp"
 #include "IpException.hpp"
@@ -27,20 +28,19 @@ class IteratesVector;
  *  This is the standard base class for all NLP's that use the standard triplet matrix
  *  form and dense vectors.
  *  The class TNLPAdapter then converts this interface to an interface that can be used
- *  directly by \Ipopt.
+ *  directly by %Ipopt.
  *
  *  This interface presents the problem form:
- *
- *     min f(x)
- *
- *     s.t. gL <= g(x) <= gU
- *
- *          xL <=  x   <= xU
- *
- *  In order to specify an equality constraint, set gL_i = gU_i = rhs.
+ *  \f{eqnarray*}
+ *     \mathrm{min}  && f(x) \\
+ *     \mathrm{s.t.} && g_L \leq g(x) \leq g_U \\
+ *                   && x_L \leq  x   \leq x_U
+ *  \f}
+ *  In order to specify an equality constraint, set \f$g_{L,i} = g_{U,i}\f$.
  *  The value that indicates "infinity" for the bounds
  *  (i.e. the variable or constraint has no lower bound (-infinity) or upper bound (+infinity))
- *  is set through the option nlp_lower_bound_inf and nlp_upper_bound_inf, respectively.
+ *  is set through the option \ref OPT_nlp_lower_bound_inf "nlp_lower_bound_inf" and
+ *  \ref OPT_nlp_upper_bound_inf "nlp_upper_bound_inf", respectively.
  *  To indicate that a variable has no upper or lower bound, set the bound to
  *  -ipopt_inf or +ipopt_inf, respectively.
  */
@@ -56,19 +56,20 @@ public:
    };
 
    /**@name Constructors/Destructors */
-   //@{
+   ///@{
    TNLP()
    { }
 
    /** Default destructor */
    virtual ~TNLP()
    { }
-   //@}
+   ///@}
 
    DECLARE_STD_EXCEPTION(INVALID_TNLP);
 
-   /**@name methods to gather information about the NLP */
-   //@{
+   typedef std::map<std::string, std::vector<std::string> > StringMetaDataMapType;
+   typedef std::map<std::string, std::vector<Index> > IntegerMetaDataMapType;
+   typedef std::map<std::string, std::vector<Number> > NumericMetaDataMapType;
 
    enum IndexStyleEnum
    {
@@ -76,9 +77,12 @@ public:
       FORTRAN_STYLE = 1
    };
 
+   /**@name Methods to gather information about the NLP */
+   ///@{
+
    /** Method to request the initial information about the problem.
     *
-    *  \Ipopt uses this information when allocating the arrays
+    *  %Ipopt uses this information when allocating the arrays
     *  that it will later ask you to fill with values. Be careful in this
     *  method since incorrect values will cause memory bugs which may be very
     *  difficult to find.
@@ -101,22 +105,18 @@ public:
    ) = 0;
    // [TNLP_get_nlp_info]
 
-   typedef std::map<std::string, std::vector<std::string> > StringMetaDataMapType;
-   typedef std::map<std::string, std::vector<Index> > IntegerMetaDataMapType;
-   typedef std::map<std::string, std::vector<Number> > NumericMetaDataMapType;
-
    /** Method to request meta data for the variables and the constraints.
     *
     * This method is used to pass meta data about variables or constraints to
-    * \Ipopt. The data can be either of integer, numeric, or string type.
-    * \Ipopt passes this data on to its internal problem representation.
+    * %Ipopt. The data can be either of integer, numeric, or string type.
+    * %Ipopt passes this data on to its internal problem representation.
     * The meta data type is a std::map with std::string as key type and
-    * a std::vector as value type. So far, \Ipopt itself makes only use of
+    * a std::vector as value type. So far, %Ipopt itself makes only use of
     * string meta data under the key idx_names. With this key, variable
-    * and constraint names can be passed to \Ipopt, which are shown when
-    * printing internal vector or matrix data structures if \Ipopt is run
+    * and constraint names can be passed to %Ipopt, which are shown when
+    * printing internal vector or matrix data structures if %Ipopt is run
     * with a high value for the option. This allows a user to identify
-    * the original variables and constraints corresponding to \Ipopt's
+    * the original variables and constraints corresponding to %Ipopt's
     * internal problem representation.
     *
     * If this method is not overloaded, the default implementation does
@@ -160,9 +160,9 @@ public:
     * The values of `n` and `m` that were specified in TNLP::get_nlp_info are passed
     * here for debug checking. Setting a lower bound to a value less than or
     * equal to the value of the option \ref OPT_nlp_lower_bound_inf "nlp_lower_bound_inf"
-    * will cause \Ipopt to assume no lower bound. Likewise, specifying the upper bound above or
+    * will cause %Ipopt to assume no lower bound. Likewise, specifying the upper bound above or
     * equal to the value of the option \ref OPT_nlp_upper_bound_inf "nlp_upper_bound_inf"
-    * will cause \Ipopt to assume no upper bound. These options are set to -10<sup>19</sup> and
+    * will cause %Ipopt to assume no upper bound. These options are set to -10<sup>19</sup> and
     * 10<sup>19</sup>, respectively, by default, but may be modified by changing these
     * options.
     */
@@ -186,18 +186,18 @@ public:
     * The return value should be true, unless an error occurred, and the
     * program is to be aborted.
     *
-    * The value returned in obj_scaling determines, how \Ipopt
+    * The value returned in obj_scaling determines, how %Ipopt
     * should internally scale the objective function. For example, if this
-    * number is chosen to be 10, then \Ipopt solves internally an
+    * number is chosen to be 10, then %Ipopt solves internally an
     * optimization problem that has 10 times the value of the original
     * objective function provided by the TNLP. In particular, if this value
-    * is negative, then \Ipopt will maximize the objective function instead
+    * is negative, then %Ipopt will maximize the objective function instead
     * of minimizing it.
     *
     * The scaling factors for the variables can be returned in x_scaling,
     * which has the same length as x in the other TNLP methods, and the
     * factors are ordered like x. use_x_scaling needs to be set to true,
-    * if \Ipopt should scale the variables. If it is false, no internal
+    * if %Ipopt should scale the variables. If it is false, no internal
     * scaling of the variables is done. Similarly, the scaling factors
     * for the constraints can be returned in g_scaling, and this
     * scaling is activated by setting use_g_scaling to true.
@@ -231,9 +231,9 @@ public:
 
    /** Method to request the variables linearity.
     *
-    * This method is never called by \Ipopt, but is used by Bonmin
+    * This method is never called by %Ipopt, but is used by Bonmin
     * to get information about which variables occur only in linear terms.
-    * \Ipopt passes the array var_types of length at least n, which should
+    * %Ipopt passes the array var_types of length at least n, which should
     * be filled with the appropriate linearity type of the variables
     * (TNLP::LINEAR or TNLP::NON_LINEAR).
     *
@@ -253,9 +253,9 @@ public:
 
    /** Method to request the constraints linearity.
     *
-    * This method is never called by \Ipopt, but is used by Bonmin
+    * This method is never called by %Ipopt, but is used by Bonmin
     * to get information about which constraints are linear.
-    * \Ipopt passes the array const_types of size m, which should be filled
+    * %Ipopt passes the array const_types of size m, which should be filled
     * with the appropriate linearity type of the constraints
     * (TNLP::LINEAR or TNLP::NON_LINEAR).
     *
@@ -290,7 +290,7 @@ public:
     *  The boolean variables indicate whether the algorithm requires to
     *  have x, z_L/z_u, and lambda initialized, respectively.  If, for some
     *  reason, the algorithm requires initializations that cannot be
-    *  provided, false should be returned and \Ipopt will stop.
+    *  provided, false should be returned and %Ipopt will stop.
     *  The default options only require initial values for the primal
     *  variables \f$x\f$.
     *
@@ -311,8 +311,8 @@ public:
    ) = 0;
    // [TNLP_get_starting_point]
 
-   /** Method to provide an \Ipopt warm start iterate which is already in the
-    * form \Ipopt requires it internally for warm starts.
+   /** Method to provide an %Ipopt warm start iterate which is already in the
+    * form %Ipopt requires it internally for warm starts.
     *
     * This method is only for expert users.
     * The default implementation does not provide a warm start iterate
@@ -320,7 +320,7 @@ public:
     */
    // [TNLP_get_warm_start_iterate]
    virtual bool get_warm_start_iterate(
-      IteratesVector& warm_start_iterate /**< storage for warm start iterate in the form \Ipopt requires it internally */
+      IteratesVector& warm_start_iterate /**< storage for warm start iterate in the form %Ipopt requires it internally */
    )
    {
       (void) warm_start_iterate;
@@ -334,7 +334,7 @@ public:
     *  @param x     (in) the values for the primal variables \f$x\f$ at which the objective function \f$f(x)\f$ is to be evaluated
     *  @param new_x (in) false if any evaluation method (`eval_*`) was previously called with the same values in x, true otherwise.
     *                    This can be helpful when users have efficient implementations that calculate multiple outputs at once.
-    *                    \Ipopt internally caches results from the TNLP and generally, this flag can be ignored.
+    *                    %Ipopt internally caches results from the TNLP and generally, this flag can be ignored.
     *  @param obj_value (out) storage for the value of the objective function \f$f(x)\f$
     *
     *  @return true if success, false otherwise.
@@ -408,10 +408,10 @@ public:
     *
     * @note The arrays iRow and jCol only need to be filled once.
     * If the iRow and jCol arguments are not NULL (first call to this function),
-    * then \Ipopt expects that the sparsity structure of the Jacobian
+    * then %Ipopt expects that the sparsity structure of the Jacobian
     * (the row and column indices only) are written into iRow and jCol.
     * At this call, the arguments `x` and `values` will be NULL.
-    * If the arguments `x` and `values` are not NULL, then \Ipopt
+    * If the arguments `x` and `values` are not NULL, then %Ipopt
     * expects that the value of the Jacobian as calculated from array `x`
     * is stored in array `values` (using the same order as used when
     * specifying the sparsity structure).
@@ -432,7 +432,7 @@ public:
 
    /** Method to request either the sparsity structure or the values of the Hessian of the Lagrangian.
     *
-    * The Hessian matrix that \Ipopt uses is
+    * The Hessian matrix that %Ipopt uses is
     * \f[ \sigma_f \nabla^2 f(x_k) + \sum_{i=1}^m\lambda_i\nabla^2 g_i(x_k) \f]
     * for the given values for \f$x\f$, \f$\sigma_f\f$, and \f$\lambda\f$.
     * See \ref TRIPLET for a discussion of the sparse matrix format used in this method.
@@ -453,16 +453,16 @@ public:
     *
     * @note The arrays iRow and jCol only need to be filled once.
     * If the iRow and jCol arguments are not NULL (first call to this function),
-    * then \Ipopt expects that the sparsity structure of the Hessian
+    * then %Ipopt expects that the sparsity structure of the Hessian
     * (the row and column indices only) are written into iRow and jCol.
     * At this call, the arguments `x`, `lambda`, and `values` will be NULL.
-    * If the arguments `x`, `lambda`, and `values` are not NULL, then \Ipopt
+    * If the arguments `x`, `lambda`, and `values` are not NULL, then %Ipopt
     * expects that the value of the Hessian as calculated from arrays `x`
     * and `lambda` are stored in array `values` (using the same order as
     * used when specifying the sparsity structure).
     * At this call, the arguments `iRow` and `jCol` will be NULL.
     *
-    * @attention As this matrix is symmetric, \Ipopt expects that only the lower diagonal entries are specified.
+    * @attention As this matrix is symmetric, %Ipopt expects that only the lower diagonal entries are specified.
     *
     * A default implementation is provided, in case the user
     * wants to set quasi-Newton approximations to estimate the second
@@ -497,10 +497,64 @@ public:
       (void) values;
       return false;
    }
-   //@}
+
+   /** @name Methods for quasi-Newton approximation.
+    *
+    *  If the second derivatives are approximated by %Ipopt, it is better
+    *  to do this only in the space of nonlinear variables. The following
+    *  methods are call by %Ipopt if the \ref QUASI_NEWTON "quasi-Newton approximation"
+    *  is selected.
+    *
+    * @{
+    */
+
+   /** Return the number of variables that appear nonlinearly in the objective function or in at least one constraint function
+    *
+    *  If -1 is returned as number of nonlinear variables,
+    *  %Ipopt assumes that all variables are nonlinear.  Otherwise, it
+    *  calls get_list_of_nonlinear_variables with an array into which
+    *  the indices of the nonlinear variables should be written - the
+    *  array has the length num_nonlin_vars, which is identical with
+    *  the return value of get_number_of_nonlinear_variables().  It
+    *  is assumed that the indices are counted starting with 1 in the
+    *  FORTRAN_STYLE, and 0 for the C_STYLE.
+    *
+    *  The default implementation returns -1, i.e.,
+    *  all variables are assumed to be nonlinear.
+    */
+   // [TNLP_get_number_of_nonlinear_variables]
+   virtual Index get_number_of_nonlinear_variables()
+   // [TNLP_get_number_of_nonlinear_variables]
+   {
+      return -1;
+   }
+
+   /** Return the indices of all nonlinear variables.
+    *
+    * This method is called only if limited-memory quasi-Newton option
+    * is used and get_number_of_nonlinear_variables() returned a positive
+    * number. This number is provided in parameter num_nonlin_var.
+    *
+    * The method must store the indices of all nonlinear variables in
+    * pos_nonlin_vars, where the numbering starts with 0 order 1,
+    * depending on the numbering style determined in get_nlp_info.
+    */
+   // [TNLP_get_list_of_nonlinear_variables]
+   virtual bool get_list_of_nonlinear_variables(
+      Index  num_nonlin_vars,
+      Index* pos_nonlin_vars
+   )
+   // [TNLP_get_list_of_nonlinear_variables]
+   {
+      (void) num_nonlin_vars;
+      (void) pos_nonlin_vars;
+      return false;
+   }
+   ///@}
+   ///@}
 
    /** @name Solution Methods */
-   //@{
+   ///@{
    /** This method is called when the algorithm has finished (successfully or not) so the TNLP can digest the outcome, e.g., store/write the solution, if any.
     *
     *  @param status @parblock (in) gives the status of the algorithm
@@ -515,7 +569,7 @@ public:
     *   - USER_REQUESTED_STOP: The user call-back function TNLP::intermediate_callback returned false, i.e., the user code requested a premature termination of the optimization.
     *   - DIVERGING_ITERATES: It seems that the iterates diverge.
     *   - RESTORATION_FAILURE: Restoration phase failed, algorithm doesn't know how to proceed.
-    *   - ERROR_IN_STEP_COMPUTATION: An unrecoverable error occurred while \Ipopt tried to compute the search direction.
+    *   - ERROR_IN_STEP_COMPUTATION: An unrecoverable error occurred while %Ipopt tried to compute the search direction.
     *   - INVALID_NUMBER_DETECTED: Algorithm received an invalid number (such as NaN or Inf) from the NLP; see also option check_derivatives_for_nan_inf).
     *   - INTERNAL_ERROR: An unknown internal error occurred.
     *   @endparblock
@@ -588,71 +642,22 @@ public:
     *
     * This method is called once per iteration (during the convergence check),
     * and can be used to obtain information about the optimization status while
-    * \Ipopt solves the problem, and also to request a premature termination.
+    * %Ipopt solves the problem, and also to request a premature termination.
     *
     * The information provided by the entities in the argument list correspond
-    * to what \Ipopt prints in the iteration summary (see also \ref OUTPUT).
+    * to what %Ipopt prints in the iteration summary (see also \ref OUTPUT).
     * Further information can be obtained from the ip_data and ip_cq objects.
+    * The current iterate and violations of feasibility and optimality can be
+    * accessed via the methods Ipopt::TNLP::get_curr_iterate() and
+    * Ipopt::TNLP::get_curr_violations().
+    * These methods translate values for the *internal representation* of
+    * the problem from `ip_data` and `ip_cq` objects into the TNLP representation.
     *
-    * @return If this method returns false, \Ipopt will terminate with the
+    * @return If this method returns false, %Ipopt will terminate with the
     *   User_Requested_Stop status.
     *
     * It is not required to implement (overload) this method.
     * The default implementation always returns true.
-    *
-    * A frequently asked question is how to access the values of the primal
-    * and dual variables in this callback. The values are stored in the `ip_cq`
-    * object for the *internal representation* of the problem. To access the
-    * values in a form that corresponds to those used in the evaluation
-    * routines, the user has to request \Ipopt's TNLPAdapter
-    * object to "resort" the data vectors and to fill in information about
-    * possibly filtered out fixed variables. The TNLPAdapter can be accessed
-    * as follows. First, add the following includes to your TNLP
-    * implementation:
-    * \code
-    * #include "IpIpoptCalculatedQuantities.hpp"
-    * #include "IpIpoptData.hpp"
-    * #include "IpTNLPAdapter.hpp"
-    * #include "IpOrigIpoptNLP.hpp"
-    * \endcode
-    * Next, add the following code to your implementation of this function:
-    * \code
-    * Ipopt::TNLPAdapter* tnlp_adapter = NULL;
-    * if( ip_cq != NULL )
-    * {
-    *   Ipopt::OrigIpoptNLP* orignlp;
-    *   orignlp = dynamic_cast<OrigIpoptNLP*>(GetRawPtr(ip_cq->GetIpoptNLP()));
-    *   if( orignlp != NULL )
-    *     tnlp_adapter = dynamic_cast<TNLPAdapter*>(GetRawPtr(orignlp->nlp()));
-    * }
-    * \endcode
-    * Note, that retrieving the TNLPAdapter will fail (i.e., `orignlp` will be NULL)
-    * if \Ipopt is currently in restoration mode. If, however,
-    * `tnlp_adapter` is not NULL, then it can be used to obtain primal variable
-    * values \f$x\f$ and the dual values for the constraints and the variable
-    * bounds as follows:
-    * \code
-    * double* primals = new double[n];
-    * double* dualeqs = new double[m];
-    * double* duallbs = new double[n];
-    * double* dualubs = new double[n];
-    * tnlp_adapter->ResortX(*ip_data->curr()->x(), primals);
-    * tnlp_adapter->ResortG(*ip_data->curr()->y_c(), *ip_data->curr()->y_d(), dualeqs);
-    * tnlp_adapter->ResortBnds(*ip_data->curr()->z_L(), duallbs,
-    *                          *ip_data->curr()->z_U(), dualubs);
-    * \endcode
-    * \note ResortBnds does not provide dual multipliers for fixed variables, even if the
-    *   fixed-variable treatment has been set to handle them as constraints.
-    *
-    * Additionally, information about scaled violation of constraint
-    * and violation of complementarity constraints can be obtained via
-    * \code
-    * tnlp_adapter->ResortG(*ip_cq->curr_c(), *ip_cq->curr_d_minus_s(), ...)
-    * tnlp_adapter->ResortBnds(*ip_cq->curr_compl_x_L(), ...,
-    *                          *ip_cq->curr_compl_x_U(), ...)
-    * tnlp_adapter->ResortG(*ip_cq->curr_compl_s_L(), ...)
-    * tnlp_adapter->ResortG(*ip_cq->curr_compl_s_U(), ...)
-    * \endcode
     */
    // [TNLP_intermediate_callback]
    virtual bool intermediate_callback(
@@ -687,61 +692,104 @@ public:
       (void) ip_cq;
       return true;
    }
-   //@}
+   ///@}
 
-   /** @name Methods for quasi-Newton approximation.
+   /** @name Solution Methods */
+   ///@{
+   /** Get primal and dual variable values of the current iterate.
     *
-    *  If the second derivatives are approximated by \Ipopt, it is better
-    *  to do this only in the space of nonlinear variables. The following
-    *  methods are call by \Ipopt if the \ref QUASI_NEWTON "quasi-Newton approximation"
-    *  is selected.
+    * This method can be used to get the values of the current iterate,
+    * e.g., during intermediate_callback().
+    * The method expects the number of variables (dimension of x), number of constraints (dimension of g(x)),
+    * and allocated arrays of appropriate lengths as input.
     *
-    * @{
+    * The method translates the x(), c(), d(), y_c(), y_d(), z_L(), and z_U() vectors from IpoptData::curr()
+    * of the internal %NLP representation into the form used by the TNLP.
+    * For the correspondence between scaled and unscaled solutions, see the detailed description of OrigIpoptNLP.
+    * If %Ipopt is in restoration mode, it maps the current iterate of restoration %NLP (see RestoIpoptNLP) back to the original TNLP.
+    *
+    * If there are fixed variables and fixed_variable_treatment=make_parameter, then requesting z_L and z_U can trigger a reevaluation of
+    * the Gradient of the objective function and the Jacobian of the constraint functions.
+    *
+    * @param ip_data (in)  Ipopt Data
+    * @param ip_cq   (in)  Ipopt Calculated Quantities
+    * @param scaled  (in)  whether to retrieve scaled or unscaled iterate
+    * @param n       (in)  the number of variables \f$x\f$ in the problem; can be arbitrary if skipping x, z_L, and z_U
+    * @param x       (out) buffer to store value of primal variables \f$x\f$, must have length at least n; pass NULL to skip retrieving x
+    * @param z_L     (out) buffer to store the lower bound multipliers \f$z_L\f$, must have length at least n; pass NULL to skip retrieving z_L and z_U
+    * @param z_U     (out) buffer to store the upper bound multipliers \f$z_U\f$, must have length at least n; pass NULL to skip retrieving z_U and z_U
+    * @param m       (in)  the number of constraints \f$g(x)\f$; can be arbitrary if skipping g and lambda
+    * @param g       (out) buffer to store the constraint values \f$g(x)\f$, must have length at least m; pass NULL to skip retrieving g
+    * @param lambda  (out) buffer to store the constraint multipliers \f$\lambda\f$, must have length at least m; pass NULL to skip retrieving lambda
+    *
+    * @return Whether Ipopt has successfully filled the given arrays
+    * @since 3.14.0
     */
+   // [TNLP_get_curr_iterate]
+   bool get_curr_iterate(
+      const IpoptData*           ip_data,
+      IpoptCalculatedQuantities* ip_cq,
+      bool                       scaled,
+      Index                      n,
+      Number*                    x,
+      Number*                    z_L,
+      Number*                    z_U,
+      Index                      m,
+      Number*                    g,
+      Number*                    lambda
+   ) const;
+   // [TNLP_get_curr_iterate]
 
-   /** Return the number of variables that appear nonlinearly in the objective function or in at least one constraint function
+   /** Get primal and dual infeasibility of the current iterate.
     *
-    *  If -1 is returned as number of nonlinear variables,
-    *  \Ipopt assumes that all variables are nonlinear.  Otherwise, it
-    *  calls get_list_of_nonlinear_variables with an array into which
-    *  the indices of the nonlinear variables should be written - the
-    *  array has the length num_nonlin_vars, which is identical with
-    *  the return value of get_number_of_nonlinear_variables().  It
-    *  is assumed that the indices are counted starting with 1 in the
-    *  FORTRAN_STYLE, and 0 for the C_STYLE.
+    * This method can be used to get the violations of constraints and optimality conditions
+    * at the current iterate, e.g., during intermediate_callback().
+    * The method expects the number of variables (dimension of x), number of constraints (dimension of g(x)),
+    * and allocated arrays of appropriate lengths as input.
     *
-    *  The default implementation returns -1, i.e.,
-    *  all variables are assumed to be nonlinear.
+    * The method makes the vectors behind (unscaled_)curr_orig_bounds_violation(), (unscaled_)curr_nlp_constraint_violation(), (unscaled_)curr_dual_infeasibility(),
+    * (unscaled_)curr_complementarity() from IpoptCalculatedQuantities of the internal %NLP representation available into the form used by the TNLP.
+    * If %Ipopt is in restoration mode, it maps the current iterate of restoration %NLP (see RestoIpoptNLP) back to the original TNLP.
+    *
+    * @note If in restoration phase, then requesting grad_lag_x can trigger a call to eval_grad_f().
+    *
+    * @note Ipopt by default relaxes variable bounds (option bound_relax_factor > 0.0).
+    *   x_L_violation and x_U_violation report the violation of a solution w.r.t. the original unrelaxed bounds.
+    *   However, compl_x_L and compl_x_U use the relaxed variable bounds to calculate the complementarity.
+    *
+    * @param ip_data    (in)  Ipopt Data
+    * @param ip_cq      (in)  Ipopt Calculated Quantities
+    * @param scaled     (in)  whether to retrieve scaled or unscaled violations
+    * @param n          (in)  the number of variables \f$x\f$ in the problem; can be arbitrary if skipping compl_x_L, compl_x_U, and grad_lag_x
+    * @param x_L_violation (out) buffer to store violation of original lower bounds on variables (max(orig_x_L-x,0)), must have length at least n; pass NULL to skip retrieving orig_x_L
+    * @param x_U_violation (out) buffer to store violation of original upper bounds on variables (max(x-orig_x_U,0)), must have length at least n; pass NULL to skip retrieving orig_x_U
+    * @param compl_x_L  (out) buffer to store violation of complementarity for lower bounds on variables (\f$(x-x_L)z_L\f$), must have length at least n; pass NULL to skip retrieving compl_x_L
+    * @param compl_x_U  (out) buffer to store violation of complementarity for upper bounds on variables (\f$(x_U-x)z_U\f$), must have length at least n; pass NULL to skip retrieving compl_x_U
+    * @param grad_lag_x (out) buffer to store gradient of Lagrangian w.r.t. variables \f$x\f$, must have length at least n; pass NULL to skip retrieving grad_lag_x
+    * @param m          (in)  the number of constraints \f$g(x)\f$; can be arbitrary if skipping lambda
+    * @param nlp_constraint_violation (out) buffer to store violation of constraints \f$max(g_l-g(x),g(x)-g_u,0)\f$, must have length at least m; pass NULL to skip retrieving constraint_violation
+    * @param compl_g    (out) buffer to store violation of complementarity of constraint (\f$(g(x)-g_l)*\lambda^+ + (g_l-g(x))*\lambda^-\f$, where \f$\lambda^+=max(0,\lambda)\f$ and \f$\lambda^-=max(0,-\lambda)\f$ (componentwise)), must have length at least m; pass NULL to skip retrieving compl_g
+    *
+    * @return Whether Ipopt has successfully filled the given arrays
+    * @since 3.14.0
     */
-   // [TNLP_get_number_of_nonlinear_variables]
-   virtual Index get_number_of_nonlinear_variables()
-   // [TNLP_get_number_of_nonlinear_variables]
-   {
-      return -1;
-   }
-
-   /** Return the indices of all nonlinear variables.
-    *
-    * This method is called only if limited-memory quasi-Newton option
-    * is used and get_number_of_nonlinear_variables() returned a positive
-    * number. This number is provided in parameter num_nonlin_var.
-    *
-    * The method must store the indices of all nonlinear variables in
-    * pos_nonlin_vars, where the numbering starts with 0 order 1,
-    * depending on the numbering style determined in get_nlp_info.
-    */
-   // [TNLP_get_list_of_nonlinear_variables]
-   virtual bool get_list_of_nonlinear_variables(
-      Index  num_nonlin_vars,
-      Index* pos_nonlin_vars
-   )
-   // [TNLP_get_list_of_nonlinear_variables]
-   {
-      (void) num_nonlin_vars;
-      (void) pos_nonlin_vars;
-      return false;
-   }
-   //@}
+   // [TNLP_get_curr_violations]
+   bool get_curr_violations(
+      const IpoptData*           ip_data,
+      IpoptCalculatedQuantities* ip_cq,
+      bool                       scaled,
+      Index                      n,
+      Number*                    x_L_violation,
+      Number*                    x_U_violation,
+      Number*                    compl_x_L,
+      Number*                    compl_x_U,
+      Number*                    grad_lag_x,
+      Index                      m,
+      Number*                    nlp_constraint_violation,
+      Number*                    compl_g
+   ) const;
+   // [TNLP_get_curr_violations]
+   ///@}
 
 private:
    /**@name Default Compiler Generated Methods
@@ -752,7 +800,7 @@ private:
     * and do not define them. This ensures that
     * they will not be implicitly created/called.
     */
-   //@{
+   ///@{
    /** Copy Constructor */
    TNLP(
       const TNLP&
@@ -762,7 +810,7 @@ private:
    void operator=(
       const TNLP&
    );
-   //@}
+   ///@}
 };
 
 } // namespace Ipopt

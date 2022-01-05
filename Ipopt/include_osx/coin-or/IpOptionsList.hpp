@@ -36,7 +36,7 @@ class IPOPTLIB_EXPORT OptionsList: public ReferencedObject
    {
    public:
       /**@name Constructors/Destructors */
-      //@{
+      ///@{
       /** Default constructor */
       OptionValue()
          : initialized_(false)
@@ -44,9 +44,9 @@ class IPOPTLIB_EXPORT OptionsList: public ReferencedObject
 
       /** Constructor given the value */
       OptionValue(
-         std::string value,
-         bool        allow_clobber,
-         bool        dont_print
+         const std::string& value,
+         bool               allow_clobber,
+         bool               dont_print
       )
          : value_(value),
            counter_(0),
@@ -69,7 +69,7 @@ class IPOPTLIB_EXPORT OptionsList: public ReferencedObject
       }
 
       /** Equals operator */
-      void operator=(
+      OptionValue& operator=(
          const OptionValue& copy
       )
       {
@@ -78,12 +78,13 @@ class IPOPTLIB_EXPORT OptionsList: public ReferencedObject
          initialized_ = copy.initialized_;
          allow_clobber_ = copy.allow_clobber_;
          dont_print_ = copy.dont_print_;
+         return *this;
       }
 
       /** Default Destructor */
       ~OptionValue()
       { }
-      //@}
+      ///@}
 
       /** Method for retrieving the value of an option.
        *
@@ -146,7 +147,7 @@ class IPOPTLIB_EXPORT OptionsList: public ReferencedObject
 
 public:
    /**@name Constructors/Destructors */
-   //@{
+   ///@{
    OptionsList(
       SmartPtr<RegisteredOptions> reg_options,
       SmartPtr<Journalist>        jnlst
@@ -162,27 +163,25 @@ public:
    OptionsList(
       const OptionsList& copy
    )
-   {
-      // copy all the option strings and values
-      options_ = copy.options_;
-      // copy the registered options pointer
-      reg_options_ = copy.reg_options_;
-   }
+      : options_(copy.options_),        // copy all the option strings and values
+        reg_options_(copy.reg_options_) // copy the registered options pointer
+   { }
 
    /** Destructor */
    virtual ~OptionsList()
    { }
 
    /** Default Assignment Operator */
-   virtual void operator=(
+   virtual OptionsList& operator=(
       const OptionsList& source
    )
    {
       options_ = source.options_;
       reg_options_ = source.reg_options_;
       jnlst_ = source.jnlst_;
+      return *this;
    }
-   //@}
+   ///@}
 
    /** Method for clearing all previously set options */
    virtual void clear()
@@ -191,7 +190,7 @@ public:
    }
 
    /** @name Get / Set Methods */
-   //@{
+   ///@{
    virtual void SetRegisteredOptions(
       const SmartPtr<RegisteredOptions> reg_options
    )
@@ -206,9 +205,9 @@ public:
       jnlst_ = jnlst;
    }
 
-   //@}
+   ///@}
    /** @name Methods for setting options */
-   //@{
+   ///@{
    virtual bool SetStringValue(
       const std::string& tag,
       const std::string& value,
@@ -229,11 +228,29 @@ public:
       bool               allow_clobber = true,
       bool               dont_print = false
    );
-   //@}
 
-   /** @name Methods for setting options only if they have not been
-    *  set before*/
-   //@{
+   /// @since 3.14.1
+   virtual bool SetBoolValue(
+      const std::string& tag,
+      bool               value,
+      bool               allow_clobber = true,
+      bool               dont_print = false
+   )
+   {
+      return SetStringValue(tag, value ? "yes" : "no", allow_clobber, dont_print);
+   }
+
+   /// Resets an option to its default value, if clobber is allowed.
+   ///
+   /// @return Whether value has been unset, i.e., value was set before and clobber was allowed.
+   /// @since 3.14.2
+   virtual bool UnsetValue(
+      const std::string& tag
+   );
+   ///@}
+
+   /** @name Methods for setting options only if they have not been set before */
+   ///@{
    virtual bool SetStringValueIfUnset(
       const std::string& tag,
       const std::string& value,
@@ -254,12 +271,24 @@ public:
       bool               allow_clobber = true,
       bool               dont_print = false
    );
-   //@}
 
-   /** @name Methods for retrieving values from the options list.  If
-    *  a tag is not found, the methods return false, and value is set
+   /// @since 3.14.1
+   virtual bool SetBoolValueIfUnset(
+      const std::string& tag,
+      bool               value,
+      bool               allow_clobber = true,
+      bool               dont_print = false
+   )
+   {
+      return SetStringValueIfUnset(tag, value ? "yes" : "no", allow_clobber, dont_print);
+   }
+   ///@}
+
+   /** @name Methods for retrieving values from the options list.
+    *
+    *  If a tag is not found, the methods return false, and value is set
     *  to the default value defined in the registered options. */
-   //@{
+   ///@{
    virtual bool GetStringValue(
       const std::string& tag,
       std::string&       value,
@@ -289,7 +318,7 @@ public:
       Index&             value,
       const std::string& prefix
    ) const;
-   //@}
+   ///@}
 
    /** Get a string with the list of all options (tag, value, counter) */
    virtual void PrintList(
@@ -325,10 +354,10 @@ private:
     * and do not define them. This ensures that
     * they will not be implicitly created/called.
     */
-   //@{
+   ///@{
    /** Default Constructor */
    //    OptionsList();
-   //@}
+   ///@}
    /** map for storing the options */
    std::map<std::string, OptionValue> options_;
 
@@ -340,7 +369,7 @@ private:
 
    /** auxiliary method for converting sting to all lower-case letters */
    const std::string& lowercase(
-      const std::string tag
+      const std::string& tag
    ) const;
 
    /** auxiliary method for finding the value for a tag in the options list

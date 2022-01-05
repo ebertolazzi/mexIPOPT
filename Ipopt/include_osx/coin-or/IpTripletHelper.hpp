@@ -39,7 +39,7 @@ class IPOPTLIB_EXPORT TripletHelper
 {
 public:
    /**@name A set of recursive routines that help with the Triplet format. */
-   //@{
+   ///@{
    /** find the total number of triplet entries of a Matrix */
    static Index GetNumberEntries(
       const Matrix& matrix
@@ -72,10 +72,10 @@ public:
    /** put the values from the double* back into the vector */
    static void PutValuesInVector(
       Index         dim,
-      const double* values,
+      const Number* values,
       Vector&       vector
    );
-   //@}
+   ///@}
 
 private:
    /** find the total number of triplet entries for the SumMatrix */

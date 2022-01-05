@@ -7,20 +7,11 @@
 #ifndef __IPIPOPTAPPLICATION_HPP__
 #define __IPIPOPTAPPLICATION_HPP__
 
-#ifndef IPOPT_EXPORT
-#ifdef _MSC_VER
-#define IPOPT_EXPORT(type) type __cdecl
-#else
-#define IPOPT_EXPORT(type) type
-#endif
-#endif
-
 #include <iostream>
 
 #include "IpJournalist.hpp"
 #include "IpTNLP.hpp"
 #include "IpNLP.hpp"
-/* Return codes for the Optimize call for an application */
 #include "IpReturnCodes.hpp"
 
 namespace Ipopt
@@ -146,7 +137,7 @@ public:
    );
 
    /**@name Solve methods */
-   //@{
+   ///@{
    /** Solve a problem that inherits from TNLP */
    virtual ApplicationReturnStatus OptimizeTNLP(
       const SmartPtr<TNLP>& tnlp
@@ -166,9 +157,8 @@ public:
    /** Solve a problem (that inherits from TNLP) for a repeated time.
     *
     *  The OptimizeTNLP method must have been called before.  The
-    *  TNLP must be the same object, and the structure (number of
-    *  variables and constraints and position of nonzeros in Jacobian
-    *  and Hessian must be the same).
+    *  TNLP must be the same object. The IpoptAlgorithm object from the
+    *  previous solve will be reused.
     */
    virtual ApplicationReturnStatus ReOptimizeTNLP(
       const SmartPtr<TNLP>& tnlp
@@ -177,14 +167,13 @@ public:
    /** Solve a problem (that inherits from NLP) for a repeated time.
     *
     *  The OptimizeNLP method must have been called before.  The
-    *  NLP must be the same object, and the structure (number of
-    *  variables and constraints and position of nonzeros in Jacobian
-    *  and Hessian must be the same).
+    *  NLP must be the same object. The IpoptAlgorithm object from the
+    *  previous solve will be reused.
     */
    virtual ApplicationReturnStatus ReOptimizeNLP(
       const SmartPtr<NLP>& nlp
    );
-   //@}
+   ///@}
 
    /** Method for opening an output file with given print_level.
     *
@@ -196,7 +185,7 @@ public:
    );
 
    /**@name Accessor methods */
-   //@{
+   ///@{
    /** Get the Journalist for printing output */
    virtual SmartPtr<Journalist> Jnlst()
    {
@@ -223,6 +212,10 @@ public:
 
    /** Get the object with the statistics about the most recent
     *  optimization run.
+    *
+    *  @note Statistics are not available if optimization terminated
+    *  with a serious problem, that is, an ApplicationReturnStatus of
+    *  Not_Enough_Degrees_Of_Freedom or lower.
     */
    virtual SmartPtr<SolveStatistics> Statistics();
 
@@ -237,7 +230,7 @@ public:
 
    /** Get the Algorithm Object */
    SmartPtr<IpoptAlgorithm> AlgorithmObject();
-   //@}
+   ///@}
 
    /** Method for printing Ipopt copyright message now instead of
     *  just before the optimization.
@@ -247,10 +240,10 @@ public:
     */
    void PrintCopyrightMessage();
 
-   /** Method to set whether non-ipopt non-bad_alloc exceptions
+   /** Method to set whether non-ipopt non-bad_alloc non-overflow_error exceptions
     * are rethrown by Ipopt.
     *
-    * By default, non-Ipopt and non-bad_alloc exceptions are
+    * By default, non-Ipopt and non-bad_alloc and non-overflow_error exceptions are
     * caught by Ipopts initialization and optimization methods
     * and the status NonIpopt_Exception_Thrown is returned.
     * This function allows to enable rethrowing of such exceptions.
@@ -284,7 +277,7 @@ private:
     * them for us, so we declare them private
     * and do not define them. This ensures that
     * they will not be implicitly created/called. */
-   //@{
+   ///@{
    /** Copy Constructor */
    IpoptApplication(
       const IpoptApplication&
@@ -294,7 +287,7 @@ private:
    void operator=(
       const IpoptApplication&
    );
-   //@}
+   ///@}
 
    /** Method for the actual optimize call of the Ipopt algorithm.
     *
@@ -303,13 +296,13 @@ private:
    ApplicationReturnStatus call_optimize();
 
    /**@name Variables that customize the application behavior */
-   //@{
+   ///@{
    /** Decide whether or not the ipopt.opt file should be read */
    bool read_params_dat_;
 
-   /** Decide whether non-ipopt non-bad_alloc exceptions should be rethrown */
+   /** Decide whether non-ipopt non-bad_alloc non-overflow_error exceptions should be rethrown */
    bool rethrow_nonipoptexception_;
-   //@}
+   ///@}
 
    /** Journalist for reporting output */
    SmartPtr<Journalist> jnlst_;
@@ -354,7 +347,7 @@ private:
    SmartPtr<NLP> nlp_adapter_;
 
    /** @name Algorithmic parameters */
-   //@{
+   ///@{
    /** Flag indicating if we are to use the inexact linear solver option */
    bool inexact_algorithm_;
 
@@ -364,11 +357,11 @@ private:
     *  This is necessary for the inexact algorithm.
     */
    bool replace_bounds_;
-   //@}
+   ///@}
 };
 
 } // namespace Ipopt
 
-extern "C" IPOPTLIB_EXPORT IPOPT_EXPORT(class Ipopt::IpoptApplication*) IpoptApplicationFactory();
+extern "C" IPOPTLIB_EXPORT class Ipopt::IpoptApplication* IPOPT_CALLCONV IpoptApplicationFactory();
 
 #endif

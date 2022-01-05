@@ -491,7 +491,7 @@ namespace IpoptInterface {
     );
 
     // The destructor.
-    virtual ~MatlabProgram();
+    virtual ~MatlabProgram() override;
 
     // Method to return some info about the nonlinear program.
     virtual
@@ -502,7 +502,7 @@ namespace IpoptInterface {
       Index          & sizeOfJ,
       Index          & sizeOfH,
       IndexStyleEnum & indexStyle
-    );
+    ) override;
 
     // Return the bounds for the problem.
     virtual
@@ -514,7 +514,7 @@ namespace IpoptInterface {
       Index    m,
       Number * cl,
       Number * cu
-    );
+    ) override;
 
     // Return the starting point for the algorithm.
     virtual
@@ -529,22 +529,38 @@ namespace IpoptInterface {
       Index    m,
       bool     initializeLambda,
       Number * lambda
-    );
+    ) override;
 
     // Compute the value of the objective.
     virtual
     bool
-    eval_f( Index n, Number const * vars, bool ignore, Number & f );
+    eval_f(
+      Index          n,
+      Number const * vars,
+      bool           ignore,
+      Number &       f
+    ) override;
 
     // Compute the gradient of the objective.
     virtual
     bool
-    eval_grad_f( Index n, Number const * vars, bool ignore, Number * grad );
+    eval_grad_f(
+      Index          n,
+      Number const * vars,
+      bool           ignore,
+      Number *       grad
+    ) override;
 
     // Evaluate the constraint residuals.
     virtual
     bool
-    eval_g( Index n, Number const * vars, bool ignore, Index m, Number * g );
+    eval_g(
+      Index          n,
+      Number const * vars,
+      bool           ignore,
+      Index          m,
+      Number *       g
+    ) override;
 
     // This method either returns: 1.) The structure of the Jacobian
     // (if "Jacobian" is zero), or 2.) The values of the Jacobian (if
@@ -560,7 +576,7 @@ namespace IpoptInterface {
       Index        * rows,
       Index        * cols,
       Number       * Jx
-    );
+    ) override;
 
     // This method either returns: 1.) the structure of the Hessian of
     // the Lagrangian (if "Hessian" is zero), or 2.) the values of the
@@ -579,7 +595,7 @@ namespace IpoptInterface {
       Index        * rows,
       Index        * cols,
       Number       * Hx
-    );
+    ) override;
 
     // This method is called when the algorithm is complete.
     virtual
@@ -596,7 +612,7 @@ namespace IpoptInterface {
       Number                      objective,
       IpoptData const           * ip_data,
       IpoptCalculatedQuantities * ip_cq
-    );
+    ) override;
 
     // Intermediate callback method. It is called once per iteration
     // of the IPOPT algorithm.
@@ -616,7 +632,7 @@ namespace IpoptInterface {
       Index                       ls_trials,
       IpoptData const           * ip_data,
       IpoptCalculatedQuantities * ip_cq
-    );
+    ) override;
 
   };
 
@@ -638,13 +654,16 @@ namespace Ipopt {
   // ---------------------------------------------------------------
   // This class encapsulates journal output to the MATLAB console.
   class MatlabJournal : public Journal {
+
+    std::string const m_name = "matlab";
+
   public:
 
     // The constructor.
-    MatlabJournal(EJournalLevel default_level) : Journal("matlab", default_level) {}
+    MatlabJournal(EJournalLevel default_level) : Journal(m_name, default_level) {}
 
     // The destructor.
-    virtual ~MatlabJournal() { };
+    virtual ~MatlabJournal()  override { };
 
   protected:
 
@@ -655,7 +674,12 @@ namespace Ipopt {
       EJournalCategory category,
       EJournalLevel    level,
       char const *     str
-    );
+    ) override;
+
+    virtual
+    std::string
+    Name() override
+    { return m_name; }
 
     virtual
     void
@@ -664,10 +688,11 @@ namespace Ipopt {
       EJournalLevel    level,
       char const *     pformat,
       va_list          ap
-    );
+    ) override;
 
     virtual
-    void FlushBufferImpl()
+    void
+    FlushBufferImpl() override
     {}
 
   };

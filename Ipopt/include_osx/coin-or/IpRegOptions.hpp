@@ -13,6 +13,8 @@
 #include "IpSmartPtr.hpp"
 
 #include <map>
+#include <set>
+#include <list>
 
 namespace Ipopt
 {
@@ -25,13 +27,128 @@ enum RegisteredOptionType
    OT_Unknown
 };
 
-/** Base class for registered options.
- *
- *  The derived types are more
- *  specific to a string option or a Number (real) option, etc.
+class OptionsList;
+class RegisteredOption;
+
+/** A category of registered options.
+ * @since 3.14.0
  */
+class IPOPTLIB_EXPORT RegisteredCategory: public ReferencedObject
+{
+   friend class RegisteredOptions;
+public:
+   /// Constructor
+   ///
+   /// Use negative value for priority to suppress it being included in documentation.
+   RegisteredCategory(
+      const std::string& name,
+      int                priority
+   )
+      : name_(name),
+        priority_(priority)
+   { }
+
+   /// name of category
+   const std::string& Name() const
+   {
+      return name_;
+   }
+
+   /// name of category
+   ///
+   /// This one is for backward-compatibility with previous Ipopt versions where RegisteredCategory was a string.
+   /// @deprecated Use Name() instead.
+   IPOPT_DEPRECATED
+   operator const std::string& () const
+   {
+      return name_;
+   }
+
+   /// compare with string
+   ///
+   /// This one is for backward-compatibility with previous Ipopt versions where RegisteredCategory was a string.
+   /// @deprecated Use Name() and string comparison instead.
+   IPOPT_DEPRECATED
+   bool operator!=(
+      const std::string& other
+   ) const
+   {
+      return name_ != other;
+   }
+
+   /// compare with string
+   ///
+   /// This one is for backward-compatibility with previous Ipopt versions where RegisteredCategory was a string.
+   /// @deprecated Use Name() and string comparison instead.
+   IPOPT_DEPRECATED
+   bool operator==(
+      const std::string& other
+   ) const
+   {
+      return name_ == other;
+   }
+
+   /// compare two categories
+   ///
+   /// This one is for backward-compatibility with previous Ipopt versions where RegisteredCategory was a string.
+   /// @deprecated Use Name() and string comparison on them instead.
+   IPOPT_DEPRECATED
+   bool operator<(
+      const RegisteredCategory& other
+   ) const
+   {
+      return name_ < other.name_;
+   }
+
+   /// priority of category
+   int Priority() const
+   {
+      return priority_;
+   }
+
+   /// gives list of options in this category
+   const std::list<SmartPtr<RegisteredOption> >& RegisteredOptions() const
+   {
+      return regoptions_;
+   }
+
+   // class comparing two categories by priority
+   class ComparePriority
+   {
+   public:
+      bool operator()(
+         const SmartPtr<RegisteredCategory>& lhs,
+         const SmartPtr<RegisteredCategory>& rhs
+      ) const
+      {
+         DBG_ASSERT(IsValid(lhs));
+         DBG_ASSERT(IsValid(rhs));
+         return lhs->priority_ > rhs->priority_;
+      }
+   };
+
+private:
+   /// unimplemented default constructor
+   RegisteredCategory();
+   /// unimplemented copy constructor
+   RegisteredCategory(const RegisteredCategory&);
+   /// unimplemented assignment operator
+   RegisteredCategory& operator=(const RegisteredCategory&);
+
+   /// name of category
+   std::string name_;
+
+   /// priority of category (used to decide whether to print and printing order)
+   int priority_;
+
+   /// options of this category
+   std::list<SmartPtr<RegisteredOption> > regoptions_;
+};
+
+/** Option that has been registered. */
 class IPOPTLIB_EXPORT RegisteredOption: public ReferencedObject
 {
+   friend class RegisteredOptions;
 public:
    /** class to hold the valid string settings for a string option */
    class string_entry
@@ -50,34 +167,35 @@ public:
    };
 
    /** Constructors / Destructors */
-   //@{
+   ///@{
    RegisteredOption(
       Index counter
    )
       : type_(OT_Unknown),
+        advanced_(false),
         has_lower_(false),
         has_upper_(false),
         counter_(counter)
-   {
-   }
+   { }
 
    RegisteredOption(
-      const std::string& name,
-      const std::string& short_description,
-      const std::string& long_description,
-      const std::string& registering_category,
-      Index counter
+      const std::string& name,                                   ///< option name
+      const std::string& short_description,                      ///< short description
+      const std::string& long_description,                       ///< long description
+      const SmartPtr<RegisteredCategory>& registering_category,  ///< option category @since 3.14.0
+      Index counter,                                             ///< option counter
+      bool advanced = false                                      ///< whether option is advanced @since 3.14.0
    )
       : name_(name),
         short_description_(short_description),
         long_description_(long_description),
         registering_category_(registering_category),
         type_(OT_Unknown),
+        advanced_(advanced),
         has_lower_(false),
         has_upper_(false),
         counter_(counter)
-   {
-   }
+   { }
 
    RegisteredOption(
       const RegisteredOption& copy
@@ -87,24 +205,23 @@ public:
         long_description_(copy.long_description_),
         registering_category_(copy.registering_category_),
         type_(copy.type_),
+        advanced_(copy.advanced_),
         has_lower_(copy.has_lower_),
         lower_(copy.lower_),
         has_upper_(copy.has_upper_),
         upper_(copy.upper_),
         valid_strings_(copy.valid_strings_),
         counter_(copy.counter_)
-   {
-   }
+   { }
 
    virtual ~RegisteredOption()
    { }
-   //@}
+   ///@}
 
-   DECLARE_STD_EXCEPTION(ERROR_CONVERTING_STRING_TO_ENUM)
-   ;
+   DECLARE_STD_EXCEPTION(ERROR_CONVERTING_STRING_TO_ENUM);
 
    /** Standard Get / Set Methods */
-   //@{
+   ///@{
    /** Get the option's name (tag in the input file) */
    virtual const std::string& Name() const
    {
@@ -145,18 +262,12 @@ public:
       long_description_ = long_description;
    }
 
-   /** Get the registering class */
-   virtual const std::string& RegisteringCategory() const
+   /** Get the registering class
+    * @since 3.14.0
+    */
+   virtual const RegisteredCategory& RegisteringCategory() const
    {
-      return registering_category_;
-   }
-
-   /** Set the registering class */
-   virtual void SetRegisteringCategory(
-      const std::string& registering_category
-   )
-   {
-      registering_category_ = registering_category;
+      return *registering_category_;
    }
 
    /** Get the Option's type */
@@ -165,7 +276,7 @@ public:
       return type_;
 
    }
-   /** Get the Option's type */
+   /** Set the Option's type */
    virtual void SetType(
       const RegisteredOptionType& type
    )
@@ -173,18 +284,35 @@ public:
       type_ = type;
    }
 
+   /** Get the advanced flag
+    * @since 3.14.0
+    */
+   virtual bool Advanced() const
+   {
+      return advanced_;
+   }
+   /** Set the advanced flag
+    * @since 3.14.0
+    */
+   virtual void SetAdvanced(
+      bool advanced = true
+   )
+   {
+      advanced_ = advanced;
+   }
+
    /** Counter */
    virtual Index Counter() const
    {
       return counter_;
    }
-   //@}
+   ///@}
 
    /** @name Get / Set methods valid for specific types
     *
     * @note The Type must be set before calling these methods.
     */
-   //@{
+   ///@{
    /** check if the option has a lower bound
     *
     * can be called for OT_Number & OT_Integer
@@ -325,8 +453,8 @@ public:
     * can be called for OT_String
     */
    virtual void AddValidStringSetting(
-      const std::string value,
-      const std::string description)
+      const std::string& value,
+      const std::string& description)
    {
       DBG_ASSERT(type_ == OT_String);
       valid_strings_.push_back(string_entry(value, description));
@@ -483,7 +611,7 @@ public:
    virtual Index MapStringSettingToEnum(
       const std::string& value
    ) const;
-   //@}
+   ///@}
 
    /** output a description of the option */
    virtual void OutputDescription(
@@ -509,8 +637,9 @@ private:
    std::string name_;
    std::string short_description_;
    std::string long_description_;
-   std::string registering_category_;
+   SmartPtr<RegisteredCategory> registering_category_;
    RegisteredOptionType type_;
+   bool advanced_;
 
    bool has_lower_;
    bool lower_strict_;
@@ -520,9 +649,16 @@ private:
    Number upper_;
    Number default_number_;
 
+   std::vector<string_entry> valid_strings_;
+   std::string default_string_;
+
+   /** Has the information as how many-th option this one was
+    *  registered. */
+   const Index counter_;
+
    void MakeValidLatexString(
-      std::string source,
-      std::string& dest
+      const std::string& source,
+      std::string&       dest
    ) const;
 
    std::string MakeValidLatexNumber(
@@ -538,13 +674,6 @@ private:
       const std::string& s1,
       const std::string& s2
    ) const;
-
-   std::vector<string_entry> valid_strings_;
-   std::string default_string_;
-
-   /** Has the information as how many-th option this one was
-    *  registered. */
-   const Index counter_;
 };
 
 /** Class for storing registered options.
@@ -554,306 +683,369 @@ private:
 class IPOPTLIB_EXPORT RegisteredOptions: public ReferencedObject
 {
 public:
+   /// @since 3.14.0
+   typedef std::map<std::string, SmartPtr<RegisteredOption> > RegOptionsList;
+   /// @since 3.14.0
+   typedef std::map<std::string, SmartPtr<RegisteredCategory> > RegCategoriesList;
+   /// @since 3.14.0
+   typedef std::set<SmartPtr<RegisteredCategory>, RegisteredCategory::ComparePriority> RegCategoriesByPriority;
+
+   /** output modes
+    * @since 3.14.0
+    */
+   enum OutputMode
+   {
+      OUTPUTTEXT = 0,
+      OUTPUTLATEX,
+      OUTPUTDOXYGEN
+   };
+
    /** Constructors / Destructors */
-   //@{
+   ///@{
    /** Default Constructor */
    RegisteredOptions()
-      : next_counter_(0),
-        current_registering_category_("Uncategorized")
+      : next_counter_(0)
    { }
 
    /** Destructor */
    virtual ~RegisteredOptions()
-   { }
-   //@}
+   {
+      // break circular reference between registered options and registered categories
+      for( RegCategoriesList::iterator it(registered_categories_.begin()); it != registered_categories_.end(); ++it )
+      {
+         it->second->regoptions_.clear();
+      }
+   }
+   ///@}
 
-   DECLARE_STD_EXCEPTION(OPTION_ALREADY_REGISTERED)
-   ;
+   DECLARE_STD_EXCEPTION(OPTION_ALREADY_REGISTERED);
 
-   /** Methods to interact with registered options */
-   //@{
    /** set the registering class
     *
-    * All subsequent options will be added with the registered class
+    * If nonempty name, then all subsequent options will be added with the registered category.
+    * If empty name, then all subsequent options will not be added to any registered category.
+    *
+    * If the category doesn't exist yet, it will be created with given data.
+    * If it exists already, given priority and undocumented flag are ignored.
     */
    virtual void SetRegisteringCategory(
-      const std::string& registering_category
-   )
-   {
-      current_registering_category_ = registering_category;
-   }
+      const std::string& registering_category, ///< category name
+      int                priority = 0          ///< category priority @since 3.14.0
+   );
 
-   /** retrieve the value of the current registering category */
-   virtual std::string RegisteringCategory()
+   /** set the registering class
+    *
+    * If not NULL, then all subsequent options will be added with the registered category.
+    * If NULL, then all subsequent options will not be added to any registered category.
+    * @since 3.14.0
+    */
+   virtual void SetRegisteringCategory(
+      SmartPtr<RegisteredCategory> registering_category
+   );
+
+   /** retrieve the value of the current registering category
+    * @since 3.14.0
+    */
+   virtual SmartPtr<RegisteredCategory> RegisteringCategory()
    {
       return current_registering_category_;
    }
 
    /** Add a Number option (with no restrictions) */
    virtual void AddNumberOption(
-      const std::string& name,
-      const std::string& short_description,
-      Number             default_value,
-      const std::string& long_description = ""
+      const std::string& name,                  ///< option name
+      const std::string& short_description,     ///< short description
+      Number             default_value,         ///< default value
+      const std::string& long_description = "", ///< long description
+      bool               advanced = false       ///< whether option is for advanced users @since 3.14.0
    );
 
    /** Add a Number option (with a lower bound) */
    virtual void AddLowerBoundedNumberOption(
-      const std::string& name,
-      const std::string& short_description,
-      Number             lower,
-      bool               strict,
-      Number             default_value,
-      const std::string& long_description = ""
+      const std::string& name,                  ///< option name
+      const std::string& short_description,     ///< short description
+      Number             lower,                 ///< lower bound
+      bool               strict,                ///< whether lower bound is strict
+      Number             default_value,         ///< default value
+      const std::string& long_description = "", ///< long description
+      bool               advanced = false       ///< whether option is for advanced users @since 3.14.0
    );
 
    /** Add a Number option (with a upper bound) */
    virtual void AddUpperBoundedNumberOption(
-      const std::string& name,
-      const std::string& short_description,
-      Number             upper,
-      bool               strict,
-      Number             default_value,
-      const std::string& long_description = ""
+      const std::string& name,                  ///< option name
+      const std::string& short_description,     ///< short description
+      Number             upper,                 ///< upper bound
+      bool               strict,                ///< whether upper bound is strict
+      Number             default_value,         ///< default value
+      const std::string& long_description = "", ///< long description
+      bool               advanced = false       ///< whether option is for advanced users @since 3.14.0
    );
 
    /** Add a Number option (with a both bounds) */
    virtual void AddBoundedNumberOption(
-      const std::string& name,
-      const std::string& short_description,
-      Number             lower,
-      bool               lower_strict,
-      Number             upper,
-      bool               upper_strict,
-      Number             default_value,
-      const std::string& long_description = ""
+      const std::string& name,                  ///< option name
+      const std::string& short_description,     ///< short description
+      Number             lower,                 ///< lower bound
+      bool               lower_strict,          ///< whether lower bound is strict
+      Number             upper,                 ///< upper bound
+      bool               upper_strict,          ///< whether upper bound is strict
+      Number             default_value,         ///< default value
+      const std::string& long_description = "", ///< long description
+      bool               advanced = false       ///< whether option is for advanced users @since 3.14.0
    );
 
    /** Add a Integer option (with no restrictions) */
    virtual void AddIntegerOption(
-      const std::string& name,
-      const std::string& short_description,
-      Index              default_value,
-      const std::string& long_description = ""
+      const std::string& name,                  ///< option name
+      const std::string& short_description,     ///< short description
+      Index              default_value,         ///< default value
+      const std::string& long_description = "", ///< long description
+      bool               advanced = false       ///< whether option is for advanced users @since 3.14.0
    );
 
    /** Add a Integer option (with a lower bound) */
    virtual void AddLowerBoundedIntegerOption(
-      const std::string& name,
-      const std::string& short_description,
-      Index              lower,
-      Index              default_value,
-      const std::string& long_description = ""
+      const std::string& name,                  ///< option name
+      const std::string& short_description,     ///< short description
+      Index              lower,                 ///< lower bound
+      Index              default_value,         ///< default value
+      const std::string& long_description = "", ///< long description
+      bool               advanced = false       ///< whether option is for advanced users @since 3.14.0
    );
 
    /** Add a Integer option (with a upper bound) */
    virtual void AddUpperBoundedIntegerOption(
-      const std::string& name,
-      const std::string& short_description,
-      Index              upper,
-      Index              default_value,
-      const std::string& long_description = ""
+      const std::string& name,                  ///< option name
+      const std::string& short_description,     ///< short description
+      Index              upper,                 ///< upper bound
+      Index              default_value,         ///< default value
+      const std::string& long_description = "", ///< long description
+      bool               advanced = false       ///< whether option is for advanced users @since 3.14.0
    );
 
    /** Add a Integer option (with a both bounds) */
    virtual void AddBoundedIntegerOption(
-      const std::string& name,
-      const std::string& short_description,
-      Index              lower,
-      Index              upper,
-      Index              default_value,
-      const std::string& long_description = ""
+      const std::string& name,                  ///< option name
+      const std::string& short_description,     ///< short description
+      Index              lower,                 ///< lower bound
+      Index              upper,                 ///< upper bound
+      Index              default_value,         ///< default value
+      const std::string& long_description = "", ///< long description
+      bool               advanced = false       ///< whether option is for advanced users @since 3.14.0
    );
 
    /** Add a String option (with no restrictions) */
    virtual void AddStringOption(
-      const std::string&              name,
-      const std::string&              short_description,
-      const std::string&              default_value,
-      const std::vector<std::string>& settings,
-      const std::vector<std::string>& descriptions,
-      const std::string&              long_description = ""
+      const std::string& name,                  ///< option name
+      const std::string& short_description,     ///< short description
+      const std::string& default_value,         ///< default value
+      const std::vector<std::string>& settings, ///< possible values
+      const std::vector<std::string>& descriptions, ///< description of possible values
+      const std::string& long_description = "", ///< long description
+      bool               advanced = false       ///< whether option is for advanced users @since 3.14.0
    );
 
    /** Methods that make adding string options with only a few entries easier */
    virtual void AddStringOption1(
-      const std::string& name,
-      const std::string& short_description,
-      const std::string& default_value,
-      const std::string& setting1,
-      const std::string& description1,
-      const std::string& long_description = ""
+      const std::string& name,                  ///< option name
+      const std::string& short_description,     ///< short description
+      const std::string& default_value,         ///< default value
+      const std::string& setting1,              ///< first possible value
+      const std::string& description1,          ///< description of first possible value
+      const std::string& long_description = "", ///< long description
+      bool               advanced = false       ///< whether option is for advanced users @since 3.14.0
    );
 
    virtual void AddStringOption2(
-      const std::string& name,
-      const std::string& short_description,
-      const std::string& default_value,
-      const std::string& setting1,
-      const std::string& description1,
-      const std::string& setting2,
-      const std::string& description2,
-      const std::string& long_description = ""
+      const std::string& name,                  ///< option name
+      const std::string& short_description,     ///< short description
+      const std::string& default_value,         ///< default value
+      const std::string& setting1,              ///< first possible value
+      const std::string& description1,          ///< description of first possible value
+      const std::string& setting2,              ///< second possible value
+      const std::string& description2,          ///< description of second possible value
+      const std::string& long_description = "", ///< long description
+      bool               advanced = false       ///< whether option is for advanced users @since 3.14.0
    );
 
    virtual void AddStringOption3(
-      const std::string& name,
-      const std::string& short_description,
-      const std::string& default_value,
-      const std::string& setting1,
-      const std::string& description1,
-      const std::string& setting2,
-      const std::string& description2,
-      const std::string& setting3,
-      const std::string& description3,
-      const std::string& long_description = ""
+      const std::string& name,                  ///< option name
+      const std::string& short_description,     ///< short description
+      const std::string& default_value,         ///< default value
+      const std::string& setting1,              ///< first possible value
+      const std::string& description1,          ///< description of first possible value
+      const std::string& setting2,              ///< second possible value
+      const std::string& description2,          ///< description of second possible value
+      const std::string& setting3,              ///< third possible value
+      const std::string& description3,          ///< description of third possible value
+      const std::string& long_description = "", ///< long description
+      bool               advanced = false       ///< whether option is for advanced users @since 3.14.0
    );
 
    virtual void AddStringOption4(
-      const std::string& name,
-      const std::string& short_description,
-      const std::string& default_value,
-      const std::string& setting1,
-      const std::string& description1,
-      const std::string& setting2,
-      const std::string& description2,
-      const std::string& setting3,
-      const std::string& description3,
-      const std::string& setting4,
-      const std::string& description4,
-      const std::string& long_description = ""
+      const std::string& name,                  ///< option name
+      const std::string& short_description,     ///< short description
+      const std::string& default_value,         ///< default value
+      const std::string& setting1,              ///< first possible value
+      const std::string& description1,          ///< description of first possible value
+      const std::string& setting2,              ///< second possible value
+      const std::string& description2,          ///< description of second possible value
+      const std::string& setting3,              ///< third possible value
+      const std::string& description3,          ///< description of third possible value
+      const std::string& setting4,              ///< fourth possible value
+      const std::string& description4,          ///< description of fourth possible value
+      const std::string& long_description = "", ///< long description
+      bool               advanced = false       ///< whether option is for advanced users @since 3.14.0
    );
 
    virtual void AddStringOption5(
-      const std::string& name,
-      const std::string& short_description,
-      const std::string& default_value,
-      const std::string& setting1,
-      const std::string& description1,
-      const std::string& setting2,
-      const std::string& description2,
-      const std::string& setting3,
-      const std::string& description3,
-      const std::string& setting4,
-      const std::string& description4,
-      const std::string& setting5,
-      const std::string& description5,
-      const std::string& long_description = ""
+      const std::string& name,                  ///< option name
+      const std::string& short_description,     ///< short description
+      const std::string& default_value,         ///< default value
+      const std::string& setting1,              ///< first possible value
+      const std::string& description1,          ///< description of first possible value
+      const std::string& setting2,              ///< second possible value
+      const std::string& description2,          ///< description of second possible value
+      const std::string& setting3,              ///< third possible value
+      const std::string& description3,          ///< description of third possible value
+      const std::string& setting4,              ///< fourth possible value
+      const std::string& description4,          ///< description of fourth possible value
+      const std::string& setting5,              ///< fifth possible value
+      const std::string& description5,          ///< description of fifth possible value
+      const std::string& long_description = "", ///< long description
+      bool               advanced = false       ///< whether option is for advanced users @since 3.14.0
    );
 
    virtual void AddStringOption6(
-      const std::string& name,
-      const std::string& short_description,
-      const std::string& default_value,
-      const std::string& setting1,
-      const std::string& description1,
-      const std::string& setting2,
-      const std::string& description2,
-      const std::string& setting3,
-      const std::string& description3,
-      const std::string& setting4,
-      const std::string& description4,
-      const std::string& setting5,
-      const std::string& description5,
-      const std::string& setting6,
-      const std::string& description6,
-      const std::string& long_description = ""
+      const std::string& name,                  ///< option name
+      const std::string& short_description,     ///< short description
+      const std::string& default_value,         ///< default value
+      const std::string& setting1,              ///< first possible value
+      const std::string& description1,          ///< description of first possible value
+      const std::string& setting2,              ///< second possible value
+      const std::string& description2,          ///< description of second possible value
+      const std::string& setting3,              ///< third possible value
+      const std::string& description3,          ///< description of third possible value
+      const std::string& setting4,              ///< fourth possible value
+      const std::string& description4,          ///< description of fourth possible value
+      const std::string& setting5,              ///< fifth possible value
+      const std::string& description5,          ///< description of fifth possible value
+      const std::string& setting6,              ///< sixth possible value
+      const std::string& description6,          ///< description of sixth possible value
+      const std::string& long_description = "", ///< long description
+      bool               advanced = false       ///< whether option is for advanced users @since 3.14.0
    );
 
    virtual void AddStringOption7(
-      const std::string& name,
-      const std::string& short_description,
-      const std::string& default_value,
-      const std::string& setting1,
-      const std::string& description1,
-      const std::string& setting2,
-      const std::string& description2,
-      const std::string& setting3,
-      const std::string& description3,
-      const std::string& setting4,
-      const std::string& description4,
-      const std::string& setting5,
-      const std::string& description5,
-      const std::string& setting6,
-      const std::string& description6,
-      const std::string& setting7,
-      const std::string& description7,
-      const std::string& long_description = ""
+      const std::string& name,                  ///< option name
+      const std::string& short_description,     ///< short description
+      const std::string& default_value,         ///< default value
+      const std::string& setting1,              ///< first possible value
+      const std::string& description1,          ///< description of first possible value
+      const std::string& setting2,              ///< second possible value
+      const std::string& description2,          ///< description of second possible value
+      const std::string& setting3,              ///< third possible value
+      const std::string& description3,          ///< description of third possible value
+      const std::string& setting4,              ///< fourth possible value
+      const std::string& description4,          ///< description of fourth possible value
+      const std::string& setting5,              ///< fifth possible value
+      const std::string& description5,          ///< description of fifth possible value
+      const std::string& setting6,              ///< sixth possible value
+      const std::string& description6,          ///< description of sixth possible value
+      const std::string& setting7,              ///< seventh possible value
+      const std::string& description7,          ///< description of seventh possible value
+      const std::string& long_description = "", ///< long description
+      bool               advanced = false       ///< whether option is for advanced users @since 3.14.0
    );
 
    virtual void AddStringOption8(
-      const std::string& name,
-      const std::string& short_description,
-      const std::string& default_value,
-      const std::string& setting1,
-      const std::string& description1,
-      const std::string& setting2,
-      const std::string& description2,
-      const std::string& setting3,
-      const std::string& description3,
-      const std::string& setting4,
-      const std::string& description4,
-      const std::string& setting5,
-      const std::string& description5,
-      const std::string& setting6,
-      const std::string& description6,
-      const std::string& setting7,
-      const std::string& description7,
-      const std::string& setting8,
-      const std::string& description8,
-      const std::string& long_description = ""
+      const std::string& name,                  ///< option name
+      const std::string& short_description,     ///< short description
+      const std::string& default_value,         ///< default value
+      const std::string& setting1,              ///< first possible value
+      const std::string& description1,          ///< description of first possible value
+      const std::string& setting2,              ///< second possible value
+      const std::string& description2,          ///< description of second possible value
+      const std::string& setting3,              ///< third possible value
+      const std::string& description3,          ///< description of third possible value
+      const std::string& setting4,              ///< fourth possible value
+      const std::string& description4,          ///< description of fourth possible value
+      const std::string& setting5,              ///< fifth possible value
+      const std::string& description5,          ///< description of fifth possible value
+      const std::string& setting6,              ///< sixth possible value
+      const std::string& description6,          ///< description of sixth possible value
+      const std::string& setting7,              ///< seventh possible value
+      const std::string& description7,          ///< description of seventh possible value
+      const std::string& setting8,              ///< eighth possible value
+      const std::string& description8,          ///< description of eighth possible value
+      const std::string& long_description = "", ///< long description
+      bool               advanced = false       ///< whether option is for advanced users @since 3.14.0
    );
 
    virtual void AddStringOption9(
-      const std::string& name,
-      const std::string& short_description,
-      const std::string& default_value,
-      const std::string& setting1,
-      const std::string& description1,
-      const std::string& setting2,
-      const std::string& description2,
-      const std::string& setting3,
-      const std::string& description3,
-      const std::string& setting4,
-      const std::string& description4,
-      const std::string& setting5,
-      const std::string& description5,
-      const std::string& setting6,
-      const std::string& description6,
-      const std::string& setting7,
-      const std::string& description7,
-      const std::string& setting8,
-      const std::string& description8,
-      const std::string& setting9,
-      const std::string& description9,
-      const std::string& long_description = ""
+      const std::string& name,                  ///< option name
+      const std::string& short_description,     ///< short description
+      const std::string& default_value,         ///< default value
+      const std::string& setting1,              ///< first possible value
+      const std::string& description1,          ///< description of first possible value
+      const std::string& setting2,              ///< second possible value
+      const std::string& description2,          ///< description of second possible value
+      const std::string& setting3,              ///< third possible value
+      const std::string& description3,          ///< description of third possible value
+      const std::string& setting4,              ///< fourth possible value
+      const std::string& description4,          ///< description of fourth possible value
+      const std::string& setting5,              ///< fifth possible value
+      const std::string& description5,          ///< description of fifth possible value
+      const std::string& setting6,              ///< sixth possible value
+      const std::string& description6,          ///< description of sixth possible value
+      const std::string& setting7,              ///< seventh possible value
+      const std::string& description7,          ///< description of seventh possible value
+      const std::string& setting8,              ///< eighth possible value
+      const std::string& description8,          ///< description of eighth possible value
+      const std::string& setting9,              ///< ninth possible value
+      const std::string& description9,          ///< description of ninth possible value
+      const std::string& long_description = "", ///< long description
+      bool               advanced = false       ///< whether option is for advanced users @since 3.14.0
    );
 
    virtual void AddStringOption10(
-      const std::string& name,
-      const std::string& short_description,
-      const std::string& default_value,
-      const std::string& setting1,
-      const std::string& description1,
-      const std::string& setting2,
-      const std::string& description2,
-      const std::string& setting3,
-      const std::string& description3,
-      const std::string& setting4,
-      const std::string& description4,
-      const std::string& setting5,
-      const std::string& description5,
-      const std::string& setting6,
-      const std::string& description6,
-      const std::string& setting7,
-      const std::string& description7,
-      const std::string& setting8,
-      const std::string& description8,
-      const std::string& setting9,
-      const std::string& description9,
-      const std::string& setting10,
-      const std::string& description10,
-      const std::string& long_description = ""
+      const std::string& name,                  ///< option name
+      const std::string& short_description,     ///< short description
+      const std::string& default_value,         ///< default value
+      const std::string& setting1,              ///< first possible value
+      const std::string& description1,          ///< description of first possible value
+      const std::string& setting2,              ///< second possible value
+      const std::string& description2,          ///< description of second possible value
+      const std::string& setting3,              ///< third possible value
+      const std::string& description3,          ///< description of third possible value
+      const std::string& setting4,              ///< fourth possible value
+      const std::string& description4,          ///< description of fourth possible value
+      const std::string& setting5,              ///< fifth possible value
+      const std::string& description5,          ///< description of fifth possible value
+      const std::string& setting6,              ///< sixth possible value
+      const std::string& description6,          ///< description of sixth possible value
+      const std::string& setting7,              ///< seventh possible value
+      const std::string& description7,          ///< description of seventh possible value
+      const std::string& setting8,              ///< eighth possible value
+      const std::string& description8,          ///< description of eighth possible value
+      const std::string& setting9,              ///< ninth possible value
+      const std::string& description9,          ///< description of ninth possible value
+      const std::string& setting10,             ///< tenth possible value
+      const std::string& description10,         ///< description of tenth possible value
+      const std::string& long_description = "", ///< long description
+      bool               advanced = false       ///< whether option is for advanced users @since 3.14.0
+   );
+
+   /** Create a string value with two possible settings: yes and no
+    * @since 3.14.0
+    */
+   virtual void AddBoolOption(
+      const std::string& name,                  ///< option name
+      const std::string& short_description,     ///< short description
+      bool               default_value,         ///< default value
+      const std::string& long_description = "", ///< long description
+      bool               advanced = false       ///< whether option is for advanced users @since 3.14.0
    );
 
    /** Get a registered option
@@ -864,37 +1056,95 @@ public:
       const std::string& name
    );
 
-   /** Output documentation for the options - gives a description, etc. */
-   virtual void OutputOptionDocumentation(
-      const Journalist&       jnlst,
-      std::list<std::string>& categories
-   );
-
-   /** Output documentation in Latex format to include in a latex file */
-   virtual void OutputLatexOptionDocumentation(
-      const Journalist&       jnlst,
-      std::list<std::string>& categories
-   );
-
-   /** Output documentation in Doxygen format to include in doxygen documentation */
-   virtual void OutputDoxygenOptionDocumentation(
-      const Journalist&       jnlst,
-      std::list<std::string>& categories
-   );
-   //@}
-
-   typedef std::map<std::string, SmartPtr<RegisteredOption> > RegOptionsList;
-
    /** Giving access to iteratable representation of the registered options */
-   virtual const RegOptionsList& RegisteredOptionsList() const
+   const RegOptionsList& RegisteredOptionsList() const
    {
       return registered_options_;
    }
 
+   /** Giving access to registered categories
+    * @since 3.14.0
+    */
+   const RegCategoriesList& RegisteredCategories() const
+   {
+      return registered_categories_;
+   }
+
+   /** Giving access to registered categories ordered by (decreasing) priority
+    *
+    * Result is stored in given set.
+    * @since 3.14.0
+    */
+   void RegisteredCategoriesByPriority(
+      RegCategoriesByPriority& categories
+   ) const;
+
+   /** Output documentation
+    *
+    * Format is decided according to print_options_mode option.
+    * Whether to print advanced options is decided according to print_advanced_options option.
+    * All categories with priority equal or greater minpriority are printed.
+    * @since 3.14.0
+    */
+   virtual void OutputOptionDocumentation(
+      const Journalist&             jnlst,
+      SmartPtr<OptionsList>         options,
+      int                           minpriority = 0
+   ) const;
+
+   /** Output documentation in text format
+    *
+    * If categories is empty, then all options are printed.
+    *
+    * @deprecated Use other OutputOptionDocumentation() instead.
+    */
+   IPOPT_DEPRECATED
+   virtual void OutputOptionDocumentation(
+      const Journalist&             jnlst,
+      const std::list<std::string>& categories = std::list<std::string>()
+   ) const;
+
+   /** Output documentation in Latex format to include in a latex file
+    *
+    * If options_to_print is empty, then all options are printed.
+    *
+    * @deprecated Use OutputOptionDocumentation() instead.
+    */
+   IPOPT_DEPRECATED
+   virtual void OutputLatexOptionDocumentation(
+      const Journalist&             jnlst,
+      const std::list<std::string>& options_to_print = std::list<std::string>()
+   ) const;
+
+   /** Output documentation in Doxygen format to include in doxygen documentation
+    *
+    * If options_to_print is empty, then all options are printed.
+    *
+    * @deprecated Use OutputOptionDocumentation() instead.
+    */
+   IPOPT_DEPRECATED
+   virtual void OutputDoxygenOptionDocumentation(
+      const Journalist&             jnlst,
+      const std::list<std::string>& options_to_print = std::list<std::string>()
+   ) const;
+
+   /** register options of RegisteredOptions class
+    * @since 3.14.0
+    */
+   static void RegisterOptions(
+      SmartPtr<RegisteredOptions> roptions
+   );
+
 private:
+   void AddOption(
+      const SmartPtr<RegisteredOption>& option
+   );
+
+   RegOptionsList registered_options_;
+   RegCategoriesList registered_categories_;
+
    Index next_counter_;
-   std::string current_registering_category_;
-   std::map<std::string, SmartPtr<RegisteredOption> > registered_options_;
+   SmartPtr<RegisteredCategory> current_registering_category_;
 };
 
 } // namespace Ipopt

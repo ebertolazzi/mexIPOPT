@@ -8,19 +8,23 @@
 #define __IPTYPES_HPP__
 
 #include "IpoptConfig.h"
+#include "IpTypes.h"
 
 namespace Ipopt
 {
+
 /** Type of all numbers */
-typedef double Number;
+typedef ipnumber Number;
+
 /** Type of all indices of vectors, matrices etc */
-typedef int Index;
-/** Type of default integer */
+typedef ipindex Index;
+
+/** Type of default integer
+ * @deprecated Use int instead.
+ */
+IPOPT_DEPRECATED
 typedef int Int;
 
 } // namespace Ipopt
-
-/* Type of Fortran integer translated into C */
-typedef IPOPT_FORTRAN_INTEGER_TYPE ipfint;
 
 #endif

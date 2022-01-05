@@ -26,17 +26,17 @@ class IPOPTLIB_EXPORT IteratesVector: public CompoundVector
 {
 public:
    /** Constructors / Destructors */
-   //@{
+   ///@{
    IteratesVector(
       const IteratesVectorSpace* owner_space,
       bool                       create_new
    );
 
    virtual ~IteratesVector();
-   //@}
+   ///@}
 
    /** Make New methods */
-   //@{
+   ///@{
    /** Use this method to create a new iterates vector.
     *
     *  The MakeNew method on the Vector class also works, but it does not give
@@ -65,10 +65,10 @@ public:
     *  existing entries may or may not be modifiable.
     */
    SmartPtr<IteratesVector> MakeNewContainer() const;
-   //@}
+   ///@}
 
    /** Iterates Set/Get Methods */
-   //@{
+   ///@{
    /** Get the x iterate (const) */
    SmartPtr<const Vector> x() const
    {
@@ -91,9 +91,9 @@ public:
     */
    SmartPtr<Vector> create_new_x_copy()
    {
-      SmartPtr<const Vector> curr_x = GetComp(0);
-      Set_x_NonConst(*curr_x->MakeNew());
-      x_NonConst()->Copy(*curr_x);
+      SmartPtr<const Vector> curr_x_ = GetComp(0);
+      Set_x_NonConst(*curr_x_->MakeNew());
+      x_NonConst()->Copy(*curr_x_);
       return x_NonConst();
    }
 
@@ -192,9 +192,9 @@ public:
     */
    SmartPtr<Vector> create_new_y_c_copy()
    {
-      SmartPtr<const Vector> curr_y_c = GetComp(2);
-      Set_y_c_NonConst(*curr_y_c->MakeNew());
-      y_c_NonConst()->Copy(*curr_y_c);
+      SmartPtr<const Vector> curr_y_c_ = GetComp(2);
+      Set_y_c_NonConst(*curr_y_c_->MakeNew());
+      y_c_NonConst()->Copy(*curr_y_c_);
       return y_c_NonConst();
    }
 
@@ -242,9 +242,9 @@ public:
     */
    SmartPtr<Vector> create_new_y_d_copy()
    {
-      SmartPtr<const Vector> curr_y_d = GetComp(3);
-      Set_y_d_NonConst(*curr_y_d->MakeNew());
-      y_d_NonConst()->Copy(*curr_y_d);
+      SmartPtr<const Vector> curr_y_d_ = GetComp(3);
+      Set_y_d_NonConst(*curr_y_d_->MakeNew());
+      y_d_NonConst()->Copy(*curr_y_d_);
       return y_d_NonConst();
    }
 
@@ -292,9 +292,9 @@ public:
     *  values into it. */
    SmartPtr<Vector> create_new_z_L_copy()
    {
-      SmartPtr<const Vector> curr_z_L = GetComp(4);
-      Set_z_L_NonConst(*curr_z_L->MakeNew());
-      z_L_NonConst()->Copy(*curr_z_L);
+      SmartPtr<const Vector> curr_z_L_ = GetComp(4);
+      Set_z_L_NonConst(*curr_z_L_->MakeNew());
+      z_L_NonConst()->Copy(*curr_z_L_);
       return z_L_NonConst();
    }
 
@@ -342,9 +342,9 @@ public:
     */
    SmartPtr<Vector> create_new_z_U_copy()
    {
-      SmartPtr<const Vector> curr_z_U = GetComp(5);
-      Set_z_U_NonConst(*curr_z_U->MakeNew());
-      z_U_NonConst()->Copy(*curr_z_U);
+      SmartPtr<const Vector> curr_z_U_ = GetComp(5);
+      Set_z_U_NonConst(*curr_z_U_->MakeNew());
+      z_U_NonConst()->Copy(*curr_z_U_);
       return z_U_NonConst();
    }
 
@@ -598,7 +598,7 @@ public:
 
       return tag;
    }
-   //@}
+   ///@}
 
 private:
    /**@name Default Compiler Generated Methods (Hidden to avoid
@@ -609,7 +609,7 @@ private:
     * declare them private and do not define them. This ensures that
     * they will not be implicitly created/called.
     */
-   //@{
+   ///@{
    /** Default Constructor */
    IteratesVector();
 
@@ -622,7 +622,7 @@ private:
    void operator=(
       const IteratesVector&
    );
-   //@}
+   ///@}
 
    const IteratesVectorSpace* owner_space_;
 
@@ -666,7 +666,7 @@ class IPOPTLIB_EXPORT IteratesVectorSpace: public CompoundVectorSpace
 {
 public:
    /** @name Constructors / Destructors */
-   //@{
+   ///@{
    /** Constructor that takes the spaces for each of the iterates.
     *
     *  @attention None of these can be NULL !
@@ -683,10 +683,10 @@ public:
    );
 
    virtual ~IteratesVectorSpace();
-   //@}
+   ///@}
 
    /** Method for creating vectors . */
-   //@{
+   ///@{
    /** Use this to create a new IteratesVector.
     *
     *  You can pass-in
@@ -745,7 +745,7 @@ public:
    {
       return MakeNewIteratesVector();
    }
-   //@}
+   ///@}
 
    /** This method hides the CompoundVectorSpace::SetCompSpace method
     *  since the components of the Iterates are fixed at
@@ -768,7 +768,7 @@ private:
     * declare them private and do not define them. This ensures that
     * they will not be implicitly created/called.
     */
-   //@{
+   ///@{
    /** Default constructor */
    IteratesVectorSpace();
 
@@ -781,7 +781,7 @@ private:
    IteratesVectorSpace& operator=(
       const IteratesVectorSpace&
    );
-   //@}
+   ///@}
 
    /** Contained Spaces */
    SmartPtr<const VectorSpace> x_space_;

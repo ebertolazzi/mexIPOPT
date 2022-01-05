@@ -29,27 +29,55 @@ enum HessianApproximationSpace
 };
 
 /** This class maps the traditional NLP into
- *  something that is more useful by Ipopt.
+ *  something that is more useful for %Ipopt.
  *
  *  This class takes care of storing the
- *  calculated model results, handles caching,
+ *  calculated model results, handles caching, scaling,
  *  and (some day) takes care of addition of slacks.
+ *
+ *  Given a NLP
+ *  \f{eqnarray*}
+ *     \mathrm{min}  && f(x), \\
+ *     \mathrm{s.t.} && c(x) = 0,               &\qquad y_c\\
+ *                   && d_L \leq d(x) \leq d_U, &\qquad y_d \\
+ *                   && x_L \leq  x \leq x_U,   &\qquad z_L, z_U
+ *  \f}
+ *  and (invertible diagonal) scaling matrices \f$s_o\f$, \f$s_c\f$, \f$s_d\f$, \f$s_x\f$,
+ *  this class represents the %NLP
+ *  \f{eqnarray*}
+ *     \mathrm{min}  && s_o f(s_x^{-1} \tilde x), \\
+ *     \mathrm{s.t.} && s_c c(s_x^{-1} \tilde x) = 0,                       &\qquad \tilde y_c \\
+ *                   && s_d d_L \leq s_d d(s_x^{-1} \tilde x) \leq s_d d_U, &\qquad \tilde y_d \\
+ *                   && s_x x_L \leq \tilde x \leq s_x x_U,                 &\qquad \tilde z_L, z_U
+ *  \f}
+ *  where \f$\tilde x\f$, \f$\tilde y_c\f$, \f$\tilde y_d\f$, \f$\tilde z_L\f$, \f$\tilde z_U\f$,
+ *  are the primal and dual variables of the scaled problem (though, %Ipopt adds slack variables additionally).
+ *
+ *  The correspondence between a scaled and its corresponding unscaled solution is
+ *  \f{eqnarray*}
+ *    x   && = s_x^{-1} \tilde x \\
+ *    y_c && = s_o^{-1} s_c \tilde y_c \\
+ *    y_d && = s_o^{-1} s_d \tilde y_d \\
+ *    z_L && = s_o^{-1} s_x \tilde z_L \\
+ *    z_U && = s_o^{-1} s_x \tilde z_U
+ *  \f}
  */
 class IPOPTLIB_EXPORT OrigIpoptNLP: public IpoptNLP
 {
 public:
    /**@name Constructors / Destructor */
-   //@{
+   ///@{
    /** Constructor */
    OrigIpoptNLP(
-      const SmartPtr<const Journalist>& jnlst,
-      const SmartPtr<NLP>&              nlp,
-      const SmartPtr<NLPScalingObject>& nlp_scaling
+      const SmartPtr<const Journalist>& jnlst,             ///< Journalist
+      const SmartPtr<NLP>&              nlp,               ///< NLP
+      const SmartPtr<NLPScalingObject>& nlp_scaling,       ///< NLP scaling
+      TimingStatistics&                 timing_statistics  ///< Timing statistics @since 3.14.0
    );
 
    /** Destructor */
    virtual ~OrigIpoptNLP();
-   //@}
+   ///@}
 
    virtual bool Initialize(
       const Journalist&  jnlst,
@@ -82,7 +110,7 @@ public:
    }
 
    /** Accessor methods for model data */
-   //@{
+   ///@{
    /** Objective value */
    virtual Number f(
       const Vector& x
@@ -169,6 +197,16 @@ public:
       return Px_L_;
    }
 
+   /** Original lower bounds on x
+    *
+    * Returns NULL if bounds are not relaxed.
+    * @since 3.14.0
+    */
+   virtual SmartPtr<const Vector> orig_x_L() const
+   {
+      return orig_x_L_;
+   }
+
    /** Upper bounds on x */
    virtual SmartPtr<const Vector> x_U() const
    {
@@ -179,6 +217,16 @@ public:
    virtual SmartPtr<const Matrix> Px_U() const
    {
       return Px_U_;
+   }
+
+   /** Original upper bounds on x
+    *
+    * Returns NULL if bounds are not relaxed.
+    * @since 3.14.0
+    */
+   virtual SmartPtr<const Vector> orig_x_U() const
+   {
+      return orig_x_U_;
    }
 
    /** Lower bounds on d */
@@ -214,7 +262,7 @@ public:
    {
       return x_space_;
    }
-   //@}
+   ///@}
 
    /** Accessor method for vector/matrix spaces pointers */
    virtual void GetSpaces(
@@ -244,7 +292,7 @@ public:
    );
 
    /** @name Counters for the number of function evaluations. */
-   //@{
+   ///@{
    virtual Index f_evals() const
    {
       return f_evals_;
@@ -273,10 +321,10 @@ public:
    {
       return h_evals_;
    }
-   //@}
+   ///@}
 
    /** Solution Routines - overloaded from IpoptNLP */
-   //@{
+   ///@{
    void FinalizeSolution(
       SolverReturn               status,
       const Vector&              x,
@@ -306,7 +354,7 @@ public:
       SmartPtr<const IpoptData>           ip_data,
       SmartPtr<IpoptCalculatedQuantities> ip_cq
    );
-   //@}
+   ///@}
 
    /** Called to register the options */
    static void RegisterOptions(
@@ -319,51 +367,6 @@ public:
       return nlp_;
    }
 
-   /**@name Methods related to function evaluation timing. */
-   //@{
-   /** Reset the timing statistics */
-   void ResetTimes();
-
-   void PrintTimingStatistics(
-      Journalist&      jnlst,
-      EJournalLevel    level,
-      EJournalCategory category
-   ) const;
-
-   const TimedTask& f_eval_time() const
-   {
-      return f_eval_time_;
-   }
-   const TimedTask& grad_f_eval_time() const
-   {
-      return grad_f_eval_time_;
-   }
-   const TimedTask& c_eval_time() const
-   {
-      return c_eval_time_;
-   }
-   const TimedTask& jac_c_eval_time() const
-   {
-      return jac_c_eval_time_;
-   }
-   const TimedTask& d_eval_time() const
-   {
-      return d_eval_time_;
-   }
-   const TimedTask& jac_d_eval_time() const
-   {
-      return jac_d_eval_time_;
-   }
-   const TimedTask& h_eval_time() const
-   {
-      return h_eval_time_;
-   }
-
-   Number TotalFunctionEvaluationCpuTime() const;
-   Number TotalFunctionEvaluationSysTime() const;
-   Number TotalFunctionEvaluationWallclockTime() const;
-   //@}
-
 private:
    /** Journalist */
    SmartPtr<const Journalist> jnlst_;
@@ -372,7 +375,7 @@ private:
    SmartPtr<NLP> nlp_;
 
    /** Necessary Vector/Matrix spaces */
-   //@{
+   ///@{
    SmartPtr<const VectorSpace> x_space_;
    SmartPtr<const VectorSpace> c_space_;
    SmartPtr<const VectorSpace> d_space_;
@@ -391,10 +394,10 @@ private:
    SmartPtr<const MatrixSpace> scaled_jac_c_space_;
    SmartPtr<const MatrixSpace> scaled_jac_d_space_;
    SmartPtr<const SymMatrixSpace> scaled_h_space_;
-   //@}
+   ///@}
 
    /**@name Storage for Model Quantities */
-   //@{
+   ///@{
    /** Objective function */
    CachedResults<Number> f_cache_;
 
@@ -456,7 +459,7 @@ private:
 
    /** Original unmodified upper bounds on x */
    SmartPtr<const Vector> orig_x_U_;
-   //@}
+   ///@}
 
    /**@name Default Compiler Generated Methods
     * (Hidden to avoid implicit creation/calling).
@@ -467,7 +470,7 @@ private:
     * and do not define them. This ensures that
     * they will not be implicitly created/called.
     */
-   //@{
+   ///@{
    /** Default Constructor */
    OrigIpoptNLP();
 
@@ -480,10 +483,10 @@ private:
    void operator=(
       const OrigIpoptNLP&
    );
-   //@}
+   ///@}
 
    /** @name auxiliary functions */
-   //@{
+   ///@{
    /** relax the bounds by a relative move of relax_bound_factor.
     *
     *  Here, relax_bound_factor should be negative (or zero) for
@@ -498,13 +501,16 @@ private:
    SmartPtr<const Vector> get_unscaled_x(
       const Vector& x
    );
-   //@}
+   ///@}
 
    /** @name Algorithmic parameters */
-   //@{
+   ///@{
 
    /** relaxation factor for the bounds */
    Number bound_relax_factor_;
+
+   /** constraint violation tolerance (from OptimalityErrorConvergenceCheck) */
+   Number constr_viol_tol_;
 
    /** Flag indicating whether the primal variables should be
     *  projected back into original bounds are optimization.
@@ -539,10 +545,10 @@ private:
 
    /** Flag indicating if we need to ask for Hessian only once */
    bool hessian_constant_;
-   //@}
+   ///@}
 
    /** @name Counters for the function evaluations */
-   //@{
+   ///@{
    Index f_evals_;
    Index grad_f_evals_;
    Index c_evals_;
@@ -550,21 +556,15 @@ private:
    Index d_evals_;
    Index jac_d_evals_;
    Index h_evals_;
-   //@}
+   ///@}
 
    /** Flag indicating if initialization method has been called */
    bool initialized_;
 
    /**@name Timing statistics for the function evaluations. */
-   //@{
-   TimedTask f_eval_time_;
-   TimedTask grad_f_eval_time_;
-   TimedTask c_eval_time_;
-   TimedTask jac_c_eval_time_;
-   TimedTask d_eval_time_;
-   TimedTask jac_d_eval_time_;
-   TimedTask h_eval_time_;
-   //@}
+   ///@{
+   TimingStatistics& timing_statistics_;
+   ///@}
 };
 
 } // namespace Ipopt

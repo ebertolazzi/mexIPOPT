@@ -23,11 +23,26 @@ class IpoptData;
 class IpoptCalculatedQuantities;
 class IteratesVector;
 
+/** Traditional %NLP.
+ *
+ * Represents NLPs of the form
+ *  \f{eqnarray*}
+ *     \mathrm{min}  && f(x), \\
+ *     \mathrm{s.t.} && c(x) = 0,               &\qquad y_c\\
+ *                   && d_L \leq d(x) \leq d_U, &\qquad y_d \\
+ *                   && x_L \leq  x \leq x_U,   &\qquad z_L, z_U
+ *  \f}
+ *  where \f$y_c\f$, \f$y_d\f$, \f$z_L\f$, \f$z_U\f$ name the dual variables of the corresponding constraints.
+ *
+ *  A prominent implementation of a NLP is TNLPAdapter.
+ *
+ *  A traditional %NLP is wrapper into a IpoptNLP, e.g., OrigIpoptNLP.
+ */
 class IPOPTLIB_EXPORT NLP: public ReferencedObject
 {
 public:
    /**@name Constructors/Destructors */
-   //@{
+   ///@{
    /** Default constructor */
    NLP()
    { }
@@ -35,16 +50,16 @@ public:
    /** Default destructor */
    virtual ~NLP()
    { }
-   //@}
+   ///@}
 
    /** Exceptions */
-   //@{
+   ///@{
    DECLARE_STD_EXCEPTION(USER_SCALING_NOT_IMPLEMENTED);
    DECLARE_STD_EXCEPTION(INVALID_NLP);
-   //@}
+   ///@}
 
    /** @name NLP Initialization (overload in derived classes).*/
-   //@{
+   ///@{
    /** Overload if you want the chance to process options or parameters that may be specific to the NLP */
    virtual bool ProcessOptions(
       const OptionsList& /*options*/,
@@ -87,10 +102,8 @@ public:
       Vector&       d_U
    ) = 0;
 
-   /** Method for obtaining the starting point for all the iterates.
-    *
-    * @todo it might not make sense to ask for initial values for v_L and v_U?
-    */
+   /** Method for obtaining the starting point for all the iterates. */
+   // ToDo it might not make sense to ask for initial values for v_L and v_U?
    virtual bool GetStartingPoint(
       SmartPtr<Vector> x,
       bool             need_x,
@@ -115,10 +128,10 @@ public:
    {
       return false;
    }
-   //@}
+   ///@}
 
-   /** @name NLP evaluation routines (overload in derived classes. */
-   //@{
+   /** @name NLP evaluation routines (overload in derived classes). */
+   ///@{
    virtual bool Eval_f(
       const Vector& x,
       Number&       f
@@ -156,12 +169,12 @@ public:
       const Vector& yd,
       SymMatrix&    h
    ) = 0;
-   //@}
+   ///@}
 
    /** @name NLP solution routines.
     * Have default dummy implementations that can be overloaded.
     */
-   //@{
+   ///@{
    /** This method is called at the very end of the optimization.
     *
     * It provides the final iterate to the user, so that it can be
@@ -219,13 +232,13 @@ public:
    {
       return true;
    }
-   //@}
+   ///@}
 
    /** Routines to get the scaling parameters.
     *
     * These do not need to be overloaded unless the options are set for user scaling.
     */
-   //@{
+   ///@{
    virtual void GetScalingParameters(
       const SmartPtr<const VectorSpace> /*x_space*/,
       const SmartPtr<const VectorSpace> /*c_space*/,
@@ -239,7 +252,7 @@ public:
       THROW_EXCEPTION(USER_SCALING_NOT_IMPLEMENTED,
                       "You have set options for user provided scaling, but have not implemented GetScalingParameters in the NLP interface");
    }
-   //@}
+   ///@}
 
    /** Method for obtaining the subspace in which the limited-memory
     *  Hessian approximation should be done.
@@ -275,7 +288,7 @@ private:
     * them for us, so we declare them private
     * and do not define them. This ensures that
     * they will not be implicitly created/called. */
-   //@{
+   ///@{
    /** Copy Constructor */
    NLP(
       const NLP&
@@ -285,7 +298,7 @@ private:
    void operator=(
       const NLP&
    );
-   //@}
+   ///@}
 };
 
 } // namespace Ipopt

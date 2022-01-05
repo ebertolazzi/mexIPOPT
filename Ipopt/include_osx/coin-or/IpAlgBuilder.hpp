@@ -11,6 +11,7 @@
 #include "IpReferenced.hpp"
 #include "IpAugSystemSolver.hpp"
 #include "IpPDSystemSolver.hpp"
+#include "IpLibraryLoader.hpp"
 
 namespace Ipopt
 {
@@ -49,7 +50,7 @@ class IPOPTLIB_EXPORT AlgorithmBuilder: public ReferencedObject
 {
 public:
    /**@name Constructors/Destructors */
-   //@{
+   ///@{
    /** Constructor */
    AlgorithmBuilder(
       SmartPtr<AugSystemSolver> custom_solver = NULL
@@ -59,15 +60,15 @@ public:
    virtual ~AlgorithmBuilder()
    { }
 
-   //@}
+   ///@}
 
    /** Methods for IpoptTypeInfo */
-   //@{
+   ///@{
    /** register the options used by the algorithm builder */
    static void RegisterOptions(
       SmartPtr<RegisteredOptions> roptions
    );
-   //@}
+   ///@}
 
    /** @name Convenience methods for building solvers without having
     *  to duplicate the significant amount of preprocessor flag and
@@ -78,7 +79,7 @@ public:
     *  vary. Therefore, each of the Factory methods below is paired
     *  with a Getter method, which is called by all parts of this
     *  algorithm builder to ensure the Factory is only called once. */
-   //@{
+   ///@{
    /** Create a solver that can be used to solve a symmetric linear
     *  system.
     *  Dependencies: None
@@ -149,10 +150,10 @@ public:
       const OptionsList& options,
       const std::string& prefix
    );
-   //@}
+   ///@}
 
    /** @name Methods to build parts of the algorithm */
-   //@{
+   ///@{
    /** Allocates memory for the IpoptNLP, IpoptData, and
     *  IpoptCalculatedQuanties arguments.
     *  Dependencies: None
@@ -326,7 +327,26 @@ public:
       const OptionsList& options,
       const std::string& prefix
    );
-   //@}
+   ///@}
+
+protected:
+   /// Gives Library Loader for HSL library if not all HSL routines are linked in
+   ///
+   /// Creates new loader if not existing yet.
+   /// @since 3.14.0
+   SmartPtr<LibraryLoader> GetHSLLoader(
+      const OptionsList& options,
+      const std::string& prefix
+   );
+
+   /// Gives Library Loader for Pardiso library from pardiso-project.org.
+   ///
+   /// Creates new loader if not existing yet.
+   /// @since 3.14.0
+   SmartPtr<LibraryLoader> GetPardisoLoader(
+      const OptionsList& options,
+      const std::string& prefix
+   );
 
 private:
    /**@name Default Compiler Generated Methods
@@ -336,7 +356,7 @@ private:
     * them for us, so we declare them private
     * and do not define them. This ensures that
     * they will not be implicitly created/called. */
-   //@{
+   ///@{
    /** Default Constructor */
    //AlgorithmBuilder();
 
@@ -349,7 +369,7 @@ private:
    void operator=(
       const AlgorithmBuilder&
    );
-   //@}
+   ///@}
 
    /** @name IpoptAlgorithm constructor arguments.
     *  These components are built in separate Build
@@ -358,7 +378,7 @@ private:
     *  other core components in its constructor, so the
     *  this class holds pointers to each component for use
     *  between the separate Build methods. */
-   //@{
+   ///@{
    SmartPtr<IterationOutput> IterOutput_;
    SmartPtr<HessianUpdater> HessUpdater_;
    SmartPtr<ConvergenceCheck> ConvCheck_;
@@ -367,21 +387,29 @@ private:
    SmartPtr<IterateInitializer> IterInitializer_;
    SmartPtr<LineSearch> LineSearch_;
    SmartPtr<MuUpdate> MuUpdate_;
-   //@}
+   ///@}
 
    /** @name Commonly used solver components
     *  for building core algorithm components. Each
     *  of these members is paired with a Factory/Getter
     *  method. */
-   //@{
+   ///@{
    SmartPtr<SymLinearSolver> SymSolver_;
    SmartPtr<AugSystemSolver> AugSolver_;
    SmartPtr<PDSystemSolver> PDSolver_;
-   //@}
+   ///@}
 
    /** Optional pointer to AugSystemSolver.  If this is set in the
-    *  contructor, we will use this to solve the linear systems. */
+    *  constructor, we will use this to solve the linear systems. */
    SmartPtr<AugSystemSolver> custom_solver_;
+
+   /// name of linear solver constructed in SymLinearSolverFactory
+   std::string linear_solver;
+
+   /// loader of HSL library (at runtime)
+   SmartPtr<LibraryLoader> hslloader;
+   /// loader of Pardiso library (at runtime)
+   SmartPtr<LibraryLoader> pardisoloader;
 
 };
 } // namespace Ipopt

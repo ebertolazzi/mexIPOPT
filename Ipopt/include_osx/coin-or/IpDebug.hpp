@@ -60,22 +60,22 @@ class IPOPTLIB_EXPORT DebugJournalistWrapper
 {
 public:
    /** @name Constructors/Destructors. */
-   //@{
+   ///@{
    DebugJournalistWrapper(
-      std::string func_name,
-      Index       verbose_level
+      const std::string& func_name,
+      Index              verbose_level
    );
 
    DebugJournalistWrapper(
-      std::string       func_name,
-      Index             verbose_level,
-      const void* const method_owner
+      const std::string& func_name,
+      Index              verbose_level,
+      const void* const  method_owner
    );
    ~DebugJournalistWrapper();
-   //@}
+   ///@}
 
    /** @name accessor methods */
-   //@{
+   ///@{
    Index Verbosity()
    {
       return verbose_level_;
@@ -88,9 +88,12 @@ public:
    {
       return indentation_level_;
    }
-   //@}
+   ///@}
 
    /** Printing */
+#ifdef __GNUC__
+   __attribute__((format(printf, 3, 4)))
+#endif
    void DebugPrintf(
       Index       verbosity,
       const char* pformat,
@@ -118,7 +121,7 @@ private:
     * and do not define them. This ensures that
     * they will not be implicitly created/called.
     */
-   //@{
+   ///@{
    /** default constructor */
    DebugJournalistWrapper();
 
@@ -131,7 +134,7 @@ private:
    DebugJournalistWrapper& operator=(
       const DebugJournalistWrapper&
    );
-   //@}
+   ///@}
 
    static Index indentation_level_;
    std::string func_name_;

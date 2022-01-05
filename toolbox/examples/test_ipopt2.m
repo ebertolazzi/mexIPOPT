@@ -1,4 +1,4 @@
-function test_ipopt
+function test_ipopt2
 
   auxdata = {} ;
 
