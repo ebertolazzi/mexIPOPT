@@ -323,9 +323,9 @@ namespace IpoptInterface {
 
   void
   MatlabFunctionHandle::eval(
-    Index           n_lhs,
+    Index            n_lhs,
     mxArray       ** lhs,
-    Index           n_rhs,
+    Index            n_rhs,
     mxArray const ** rhs
   ) const {
 
@@ -404,6 +404,11 @@ namespace IpoptInterface {
     mxSetField( m_info_ptr, 0, "eval", evalStruct );
 
     IPOPT_DEBUG("Out MatlabInfo::MatlabInfo");
+  }
+
+  // The destructor.
+  MatlabInfo::~MatlabInfo() {
+    IPOPT_DEBUG("In MatlabInfo::~MatlabInfo");
   }
 
   void
@@ -539,6 +544,11 @@ namespace IpoptInterface {
     }
 
     IPOPT_DEBUG("Out IpoptOptions::IpoptOptions");
+  }
+
+  // -----------------------------------------------------------------
+  IpoptOptions::~IpoptOptions( ) {
+    IPOPT_DEBUG("In IpoptOptions::~IpoptOptions");
   }
 
   bool
@@ -819,7 +829,7 @@ namespace IpoptInterface {
       static char const * msg = "The initial point for the Lagrange multipliers associated with the lower bounds\n";
       IPOPT_ASSERT( mxIsDouble(p) && !mxIsComplex(p), msg << msg1 );
       IPOPT_ASSERT(
-        mxGetNumberOfElements(p) == mwIndex(m_n),
+        Index(mxGetNumberOfElements(p)) == Index(m_n),
         msg << "must be a vector of length " << m_n 
             << " found of lenght " << mxGetNumberOfElements(p)
       );
@@ -834,7 +844,7 @@ namespace IpoptInterface {
       static char const * msg = "The initial point for the Lagrange multipliers associated with the upper bounds\n";
       IPOPT_ASSERT( mxIsDouble(p) && !mxIsComplex(p), msg << msg1 );
       IPOPT_ASSERT(
-        mxGetNumberOfElements(p) == mwIndex( m_n ),
+        Index(mxGetNumberOfElements(p)) == Index( m_n ),
         msg << "must be a vector of length " << m_n 
             << " found of lenght " << mxGetNumberOfElements(p)
       );
@@ -852,7 +862,7 @@ namespace IpoptInterface {
         msg << "must be a double-precision array with one element for each constraint"
       );
       IPOPT_ASSERT(
-        mxGetNumberOfElements(p) == mwIndex( m_m ),
+        Index(mxGetNumberOfElements(p)) == Index( m_m ),
         msg << "must be a vector of length " << m_n
             << " found of length " << mxGetNumberOfElements(p)
       );
@@ -1011,7 +1021,7 @@ namespace IpoptInterface {
       " must be a real double scalar, found: " << mxGetClassName(ptr)
     );
     IPOPT_ASSERT(
-      mxGetNumberOfElements(ptr) == 1,
+      Index(mxGetNumberOfElements(ptr)) == Index(1),
       "In MATLAB function " << m_obj.name() << "\n"
       "The first return value of the objective callback function has " <<
       mxGetNumberOfElements(ptr) << " elements, expected 1"
@@ -1079,7 +1089,7 @@ namespace IpoptInterface {
         mxDestroyArray( ptr1 ); // destroy old sparse vector
       }
       IPOPT_ASSERT(
-        mxGetNumberOfElements(ptr) == mwIndex(n),
+        Index(mxGetNumberOfElements(ptr)) == Index(n),
         "In MATLAB function " << m_grad.name() << "\n"
         "The gradient callback must return a real double vector of size = " << n <<
         " while it return a vector of size = " << mxGetNumberOfElements(ptr)
@@ -1125,7 +1135,7 @@ namespace IpoptInterface {
     );
 
     IPOPT_ASSERT(
-      mxGetNumberOfElements(ptr) == mwIndex(m),
+      Index(mxGetNumberOfElements(ptr)) == Index(m),
       "In MATLAB function " << m_constraint.name() << "\n"
       "The constraints callback must return a real double vector of size = " << m <<
       " while it return a vector of size = " << mxGetNumberOfElements(ptr)
@@ -1166,7 +1176,7 @@ namespace IpoptInterface {
       "Jacobian must be a real sparse matrix, found complex sparse matrix"
     );
     IPOPT_ASSERT(
-      mxGetM(ptr) == mwIndex(m) && mxGetN(ptr) == mwIndex(n),
+      Index(mxGetM(ptr)) == Index(m) && Index(mxGetN(ptr)) == Index(n),
       "In MATLAB function " << name << "\n"
       "Jacobian must be an (m=" << m << ") x (n=" << n << ") sparse matrix\n"
       "where m is the number of constraints and n is the number of variables,\n"
@@ -1222,7 +1232,7 @@ namespace IpoptInterface {
       "In MATLAB function " << name << " Hessian must be a sparse matrix"
     );
     IPOPT_ASSERT(
-      mxGetM(ptr) == mwIndex(n) && mxGetN(ptr) == mwIndex(n),
+      Index(mxGetM(ptr)) == Index(n) && Index(mxGetN(ptr)) == Index(n),
       "In MATLAB function " << name << "\n"
       "Hessian must be a " << n << " x " << n << " matrix\n"
       "found an " << mxGetM(ptr)  << " x " <<  mxGetN(ptr) << " matrix"
@@ -1814,6 +1824,15 @@ namespace Ipopt {
     #define VA_LIST_AP ap
   #endif
 
+  MatlabJournal::MatlabJournal( EJournalLevel default_level )
+  : Journal( "MatlabJournal", default_level ) {
+    IPOPT_DEBUG("MatlabJournal::MatlabJournal");
+  }
+
+  MatlabJournal::~MatlabJournal() {
+    IPOPT_DEBUG("MatlabJournal::MatlabJournal");
+  };
+
   void
   MatlabJournal::PrintImpl(
     EJournalCategory category,
@@ -1871,6 +1890,5 @@ namespace Ipopt {
     );
 
     IPOPT_DEBUG("Out MatlabJournal::PrintfImpl");
-
   }
 }

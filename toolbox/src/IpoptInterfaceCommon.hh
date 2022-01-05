@@ -117,12 +117,12 @@ namespace IpoptInterface {
   // function.
   class MatlabFunctionHandle {
   protected:
-    mxArray   * m_f;  // The MATLAB function handle.
+    mxArray * m_f = nullptr;  // The MATLAB function handle.
     std::string m_name;
   public:
 
     // The default constructor creates a null function handle.
-    MatlabFunctionHandle() : m_f(nullptr) { }
+    MatlabFunctionHandle( std::string const & name ) : m_name(name) { }
 
     // The destructor.
     ~MatlabFunctionHandle()
@@ -142,9 +142,9 @@ namespace IpoptInterface {
     // properly deallocate the outputs.
     void
     eval(
-      Index           n_lhs,
+      Index            n_lhs,
       mxArray       ** lhs,
-      Index           n_rhs,
+      Index            n_rhs,
       mxArray const ** rhs
     ) const;
 
@@ -190,16 +190,17 @@ namespace IpoptInterface {
   // routines for calling these functions with the necessary inputs and
   // outputs.
   class CallbackFunctions {
-    MatlabFunctionHandle m_obj;        // Objective callback function.
-    MatlabFunctionHandle m_grad;       // Gradient callback function.
-    MatlabFunctionHandle m_constraint; // Constraint callback function.
-    MatlabFunctionHandle m_jacobian;   // Jacobian callback function.
-    MatlabFunctionHandle m_jacstruc;   // Jacobian structure function.
-    MatlabFunctionHandle m_hessian;    // Hessian callback function.
-    MatlabFunctionHandle m_hesstruc;   // Hessian structure function.
-    MatlabFunctionHandle m_iter;       // Iterative callback function.
+    MatlabFunctionHandle m_obj{"obj"};                     // Objective callback function.
+    MatlabFunctionHandle m_grad{"grad"};                   // Gradient callback function.
+    MatlabFunctionHandle m_constraint{"constraint"};       // Constraint callback function.
+    MatlabFunctionHandle m_jacobian{"jacobian"};           // Jacobian callback function.
+    MatlabFunctionHandle m_jacstruc{"jacobian_structure"}; // Jacobian structure function.
+    MatlabFunctionHandle m_hessian{"hessian"};             // Hessian callback function.
+    MatlabFunctionHandle m_hesstruc{"hessian_structure"};  // Hessian structure function.
+    MatlabFunctionHandle m_iter{"iter"};                   // Iterative callback function.
 
-    Index     mx_x_nc, mx_x_nv;
+    Index     mx_x_nc;
+    Index     mx_x_nv;
     mxArray * mx_x;
     bool      m_x_is_cell_array; // true if x is a cell array
 
@@ -340,7 +341,7 @@ namespace IpoptInterface {
     explicit MatlabInfo( mxArray *& ptr );
 
     // The destructor.
-    ~MatlabInfo() { };
+    ~MatlabInfo();
 
     void setfield( mxArray const * ptr, char const * field );
     void setfield( size_t n, Number const * x, char const * field );
@@ -392,7 +393,7 @@ namespace IpoptInterface {
     IpoptOptions( Ipopt::IpoptApplication & app, mxArray const * ptr );
 
     // The destructor.
-    ~IpoptOptions() { };
+    ~IpoptOptions();
 
     // The first function returns true if and only if the user has
     // specified a quasi-Newton approximation to the Hessian instead of
@@ -654,16 +655,13 @@ namespace Ipopt {
   // ---------------------------------------------------------------
   // This class encapsulates journal output to the MATLAB console.
   class MatlabJournal : public Journal {
-
-    std::string const m_name = "matlab";
-
   public:
 
     // The constructor.
-    MatlabJournal(EJournalLevel default_level) : Journal(m_name, default_level) {}
+    MatlabJournal( EJournalLevel default_level );
 
     // The destructor.
-    virtual ~MatlabJournal()  override { };
+    virtual ~MatlabJournal() override;
 
   protected:
 
@@ -679,7 +677,7 @@ namespace Ipopt {
     virtual
     std::string
     Name() override
-    { return m_name; }
+    { return "MatlabJournal"; }
 
     virtual
     void

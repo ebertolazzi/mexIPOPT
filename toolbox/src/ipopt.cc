@@ -100,13 +100,17 @@ namespace IpoptInterface {
       "Incorrect number of output arguments, expected 2 found " << nlhs
     );
 
+    IPOPT_DEBUG("\nCALL CallbackFunctions\n");
     // Get the second input which specifies the callback functions.
     CallbackFunctions funcs( prhs[0], prhs[1] );
 
     // Get the third input which specifies the options.
     // Create a new IPOPT application object and process the options.
+    IPOPT_DEBUG("\nCALL app\n");
     IpoptApplication app(false);
-    Options          options( funcs.numVariables(), app, prhs[2] ); // app, options
+
+    IPOPT_DEBUG("\nCALL options\n");
+    Options options( funcs.numVariables(), app, prhs[2] ); // app, options
 
     #if IPOPT_VERSION_MINOR > 11
     app.RethrowNonIpoptException(true);
@@ -118,6 +122,7 @@ namespace IpoptInterface {
     // The second output argument stores other information, such as
     // the exit status, the value of the Lagrange multipliers upon
     // termination, the final state of the auxiliary data, and so on.
+    IPOPT_DEBUG("\nCALL info\n");
     MatlabInfo info( plhs[1] );
 
     // Check to see whether the user provided a callback function for
@@ -144,13 +149,18 @@ namespace IpoptInterface {
       app.Options()->SetStringValue("warm_start_init_point","yes");
 
     // Set up the IPOPT console.
+    IPOPT_DEBUG("\nCALL printLevel\n");
     EJournalLevel printLevel = (EJournalLevel) options.ipoptOptions().printLevel();
+    SmartPtr<Journal> console;
     if ( printLevel > 0 ) { //prevents IPOPT display if we don't want it
-      SmartPtr<Journal> console = new MatlabJournal(printLevel);
+      IPOPT_DEBUG("\nCALL console\n");
+      console = new MatlabJournal(printLevel);
+      IPOPT_DEBUG("\nCALL journal\n");
       app.Jnlst()->AddJournal(console);
     }
 
     // Intialize the IpoptApplication object and process the options.
+    IPOPT_DEBUG("\nCALL initialize\n");
     ApplicationReturnStatus exitstatus = app.Initialize();
     IPOPT_ASSERT(
       exitstatus == Ipopt::Solve_Succeeded,
@@ -158,15 +168,17 @@ namespace IpoptInterface {
     );
 
     // Create a new instance of the constrained, nonlinear program.
-    MatlabProgram* matlabProgram = new MatlabProgram( funcs, options, info );
-    SmartPtr<TNLP> program = matlabProgram;
+    IPOPT_DEBUG("\nCALL matlab\n");
+    SmartPtr<TNLP> program = new MatlabProgram( funcs, options, info );
 
     // Ask Ipopt to solve the problem.
+    IPOPT_DEBUG("\nCALL optimize\n");
     exitstatus = app.OptimizeTNLP(program);
     info.setExitStatus(exitstatus);
     plhs[0] = mxDuplicateArray(info.getfield_mx("x"));
 
     // Collect statistics about Ipopt run
+    IPOPT_DEBUG("\nCALL statistic\n");
     if ( IsValid(app.Statistics()) ) {
       SmartPtr<SolveStatistics> stats = app.Statistics();
       info.setIterationCount(stats->IterationCount());

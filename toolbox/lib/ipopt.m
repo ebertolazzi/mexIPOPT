@@ -250,7 +250,9 @@ function [x,info] = ipopt( varargin )
   cmp      = computer;
   isOctave = isempty(ver('matlab'));
   if ispc
-    if strcmp( cmp, 'PCWIN64') == 1 || strcmp( cmp, 'x86_64-w64-mingw32') == 1 || strcmp( cmp, 'i686-w64-mingw32') == 1
+    if isOctave
+      [x,info] = ipopt_win_octave(varargin{:});
+    elseif strcmp( cmp, 'PCWIN64') == 1 || strcmp( cmp, 'x86_64-w64-mingw32') == 1 || strcmp( cmp, 'i686-w64-mingw32') == 1
       [x,info] = ipopt_win(varargin{:});
     else
       error('IPOPT: No support for architecture %s\n', cmp );

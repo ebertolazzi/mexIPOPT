@@ -33,6 +33,18 @@ if isOctave
       '-DOS_OCTAVE_ON_MAC -output bin/osx/ipopt_osx_octave ' ...
       '-Lbin/osx -lcoinmumps.3 -lipopt.3 -lgfortran.5 -lquadmath.0 -lmetis -lstdc++.6 -lgcc_s.1 -ldl ' ...
     ];
+  elseif ispc
+    IPOPT_HOME = '../Ipopt';
+    LIBS = ' "-Wl,-rpath=." -Lbin/windows_mingw ';
+    NAMES = {'ipopt','coinmumps'};
+    for kkk=1:2
+      %LIBS = [ LIBS, ' ./bin/windows_mingw/lib', NAMES{kkk}, '.dll.a ' ];
+      LIBS = [ LIBS, ' -l', NAMES{kkk}, '.dll ' ];
+    end
+    CMD = [ CMD ...
+      '-I' IPOPT_HOME '/include_win_mingw/coin-or ' ...
+      '-DOS_OCTAVE_ON_WINDOWS -output bin/windows_mingw/ipopt_win_octave ' LIBS ...
+    ];
   else
     MEX_EXE = 'bin/ipopt_oct';
     [status, IPOPT_INCL] = system('pkg-config --cflags ipopt', 1);
@@ -84,10 +96,14 @@ elseif ispc
   % use ipopt precompiled with visual studio
   IPOPT_HOME = '../Ipopt/include_vs/';
   IPOPT_BIN  = 'bin/windows/';
+  LIBS = [' -L' IPOPT_BIN ];
+  NAMES = {'ipoptfort','ipopt','libomp','ompstub','openblas','flang','flangmain','flangrti'};
+  for kkk=1:8
+    LIBS = [ LIBS, ' -l', NAMES{kkk} ];
+  end
   CMD = [ CMD ...
     '-DOS_WIN -I' IPOPT_HOME '/coin-or ' ...
-    '-output ' IPOPT_BIN 'ipopt_win -L' IPOPT_BIN ...
-    ' -lipopt -lipoptfort -lomp -lopenblas -lflang -lflangmain -lflangrti ' ...
+    '-output ' IPOPT_BIN 'ipopt_win ' LIBS ...
   ];
 else
   error('architecture not supported');
