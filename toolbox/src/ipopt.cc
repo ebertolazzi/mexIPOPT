@@ -25,6 +25,10 @@
 
 #include "mex.h"
 
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wignored-attributes"
+#endif
+
 #include "IpoptInterfaceCommon.hh"
 
 #include "IpRegOptions.hpp"

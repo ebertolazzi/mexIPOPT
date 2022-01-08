@@ -7,7 +7,7 @@
     <param.summary>Toolbox for MATLAB interfacing with IPOPT</param.summary>
     <param.description>Toolbox for MATLAB interfacing with IPOPT</param.description>
     <param.screenshot>${PROJECT_ROOT}/toolbox/screenshot.png</param.screenshot>
-    <param.version>1.1.3</param.version>
+    <param.version>1.1.4</param.version>
     <param.output>${PROJECT_ROOT}/IPOPT-toolbox.mltbx</param.output>
     <param.products.name />
     <param.products.id />
@@ -106,7 +106,7 @@
       <file>${PROJECT_ROOT}/toolbox/lib</file>
       <file>${PROJECT_ROOT}/toolbox/license.txt</file>
       <file>${PROJECT_ROOT}/toolbox/screenshot.png</file>
-      <file>${PROJECT_ROOT}/toolbox/setupIpoptPath.m</file>
+      <file>${PROJECT_ROOT}/toolbox/setup.m</file>
       <file>${PROJECT_ROOT}/toolbox/src</file>
     </fileset.rootfiles>
     <fileset.depfun.included />
@@ -160,7 +160,7 @@
       <vista>false</vista>
       <linux>false</linux>
       <solaris>false</solaris>
-      <osver>11.6</osver>
+      <osver>12.1</osver>
       <os32>false</os32>
       <os64>true</os64>
       <arch>maci64</arch>

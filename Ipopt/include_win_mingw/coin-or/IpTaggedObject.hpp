@@ -2,8 +2,6 @@
 // All Rights Reserved.
 // This code is published under the Eclipse Public License.
 //
-// $Id$
-//
 // Authors:  Carl Laird, Andreas Waechter     IBM    2004-08-13
 
 #ifndef __IPTAGGEDOBJECT_HPP__
@@ -104,13 +102,13 @@ private:
     * and we do not want the compiler to implement them for us, so we
     * declare them private and do not define them. This ensures that
     * they will not be implicitly created/called. */
-   //@{
+   ///@{
    /** Copy Constructor */
    TaggedObject(const TaggedObject&);
 
    /** Default Assignment Operator */
    void operator=(const TaggedObject&);
-   //@}
+   ///@}
 
    /** The tag indicating the current state of the object.
     *  We use this to compare against the comparison_tag

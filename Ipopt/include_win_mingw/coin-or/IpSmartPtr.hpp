@@ -13,13 +13,6 @@
 #if IPOPT_CHECKLEVEL > 2
 # define IP_DEBUG_SMARTPTR
 #endif
-#ifndef IPOPT_UNUSED
-# if defined(__GNUC__)
-#   define IPOPT_UNUSED __attribute__((unused))
-# else
-#   define IPOPT_UNUSED
-# endif
-#endif
 
 namespace Ipopt
 {
@@ -174,7 +167,7 @@ public:
 #define ipopt_dbg_smartptr_verbosity 0
 
    /**@name Constructors/Destructors */
-   //@{
+   ///@{
    /** Default constructor, initialized to NULL */
    SmartPtr();
 
@@ -199,10 +192,10 @@ public:
     * necessary.
     */
    ~SmartPtr();
-   //@}
+   ///@}
 
    /**@name Overloaded operators. */
-   //@{
+   ///@{
    /** Overloaded arrow operator, allows the user to call
     * methods using the contained pointer.
     */
@@ -233,6 +226,7 @@ public:
     * SmartPtr of a different type
     */
    template<class U>
+   // cppcheck-suppress operatorEq  ; wrong cppcheck suggestion
    SmartPtr<T>& operator=(
       const SmartPtr<U>& rhs);
 
@@ -305,10 +299,10 @@ public:
       const SmartPtr<U>& lhs,
       const SmartPtr<U>& rhs
    );
-   //@}
+   ///@}
 
    /**@name friend method declarations */
-   //@{
+   ///@{
    /** Returns the raw pointer contained.
     *
     * Use to get the value of
@@ -352,11 +346,11 @@ public:
    bool IsNull(
       const SmartPtr<U>& smart_ptr
    );
-   //@}
+   ///@}
 
 private:
    /**@name Private Data/Methods */
-   //@{
+   ///@{
    /** Actual raw pointer to the object. */
    T* ptr_;
 
@@ -378,11 +372,11 @@ private:
 
    /** Release the currently referenced object. */
    void ReleasePointer_();
-   //@}
+   ///@}
 };
 
-/**@name SmartPtr friend function declarations.*/
-//@{
+/**@name SmartPtr friend function declarations */
+///@{
 template<class U>
 U* GetRawPtr(
    const SmartPtr<U>& smart_ptr
@@ -438,7 +432,7 @@ bool operator!=(
    const SmartPtr<U2>& raw_rhs
 );
 
-//@}
+///@}
 
 template<class T>
 SmartPtr<T>::SmartPtr()
@@ -449,6 +443,7 @@ SmartPtr<T>::SmartPtr()
 #endif
 
 #ifndef NDEBUG
+   // cppcheck-suppress unreadVariable
    const ReferencedObject* IPOPT_UNUSED trying_to_use_SmartPtr_with_an_object_that_does_not_inherit_from_ReferencedObject_ = ptr_;
 #endif
 }
@@ -464,6 +459,7 @@ SmartPtr<T>::SmartPtr(
 #endif
 
 #ifndef NDEBUG
+   // cppcheck-suppress unreadVariable
    const ReferencedObject* IPOPT_UNUSED trying_to_use_SmartPtr_with_an_object_that_does_not_inherit_from_ReferencedObject_ =
       ptr_;
 #endif
@@ -483,6 +479,7 @@ SmartPtr<T>::SmartPtr(
 #endif
 
 #ifndef NDEBUG
+   // cppcheck-suppress unreadVariable
    const ReferencedObject* IPOPT_UNUSED trying_to_use_SmartPtr_with_an_object_that_does_not_inherit_from_ReferencedObject_ =
       ptr_;
 #endif
@@ -501,6 +498,7 @@ SmartPtr<T>::SmartPtr(
 #endif
 
 #ifndef NDEBUG
+   // cppcheck-suppress unreadVariable
    const ReferencedObject* IPOPT_UNUSED trying_to_use_SmartPtr_with_an_object_that_does_not_inherit_from_ReferencedObject_ =
       ptr_;
 #endif

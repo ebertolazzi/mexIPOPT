@@ -17,7 +17,7 @@ class IPOPTLIB_EXPORT ConvergenceCheck: public AlgorithmStrategyObject
 {
 public:
    /**@name Constructors/Destructors */
-   //@{
+   ///@{
    /** Constructor */
    ConvergenceCheck()
    { }
@@ -25,7 +25,7 @@ public:
    /** Destructor */
    virtual ~ConvergenceCheck()
    { }
-   //@}
+   ///@}
 
    /** Convergence return enum */
    enum ConvergenceStatus
@@ -35,6 +35,7 @@ public:
       CONVERGED_TO_ACCEPTABLE_POINT,
       MAXITER_EXCEEDED,
       CPUTIME_EXCEEDED,
+      WALLTIME_EXCEEDED,  ///< @since 3.14.0
       DIVERGING,
       USER_STOP,
       FAILED
@@ -75,7 +76,7 @@ private:
     * and do not define them. This ensures that
     * they will not be implicitly created/called.
     */
-   //@{
+   ///@{
    /** Default Constructor */
    //    ConvergenceCheck();
    /** Copy Constructor */
@@ -87,7 +88,7 @@ private:
    void operator=(
       const ConvergenceCheck&
    );
-   //@}
+   ///@}
 
 };
 

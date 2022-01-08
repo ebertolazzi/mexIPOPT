@@ -6,7 +6,7 @@
 
 #ifndef MUMPS_CALL
 /* Define Mumps calling convention. */
-#define MUMPS_CALL __declspec(dllimport)
+#define MUMPS_CALL 
 #endif
 
 /* tell using codes that we changed mpi.h to mumps_mpi.h */

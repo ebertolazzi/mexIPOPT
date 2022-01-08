@@ -23,11 +23,6 @@
 namespace Ipopt
 {
 
-/** @name Exceptions */
-//@{
-DECLARE_STD_EXCEPTION(STEP_COMPUTATION_FAILED);
-//@}
-
 /** The main ipopt algorithm class.
  *
  *  Main Ipopt algorithm class, contains the main optimize method,
@@ -46,27 +41,30 @@ class IPOPTLIB_EXPORT IpoptAlgorithm: public AlgorithmStrategyObject
 public:
 
    /**@name Constructors/Destructors */
-   //@{
+   ///@{
    /** Constructor.
     *
     *  The IpoptAlgorithm uses smart pointers for these
     *  passed-in pieces to make sure that a user of IpoptAlgoroithm
     *  cannot pass in an object created on the stack!
+    *
+    *  The optional linear_solver_name is used for printing.
     */
    IpoptAlgorithm(
-      const SmartPtr<SearchDirectionCalculator>& search_dir_calculator,
-      const SmartPtr<LineSearch>&                line_search,
-      const SmartPtr<MuUpdate>&                  mu_update,
-      const SmartPtr<ConvergenceCheck>&          conv_check,
-      const SmartPtr<IterateInitializer>&        iterate_initializer,
-      const SmartPtr<IterationOutput>&           iter_output,
-      const SmartPtr<HessianUpdater>&            hessian_updater,
-      const SmartPtr<EqMultiplierCalculator>&    eq_multiplier_calculator = NULL
+      const SmartPtr<SearchDirectionCalculator>& search_dir_calculator,  ///< search direction calculator
+      const SmartPtr<LineSearch>&                line_search,            ///< line search
+      const SmartPtr<MuUpdate>&                  mu_update,              ///< mu updater
+      const SmartPtr<ConvergenceCheck>&          conv_check,             ///< convergence check
+      const SmartPtr<IterateInitializer>&        iterate_initializer,    ///< iterate initializer
+      const SmartPtr<IterationOutput>&           iter_output,            ///< iteration output
+      const SmartPtr<HessianUpdater>&            hessian_updater,        ///< hessian updater
+      const SmartPtr<EqMultiplierCalculator>&    eq_multiplier_calculator = NULL,  ///< calculator for multipliers
+      const std::string&                         linear_solver_name = ""  ///< name of linear solver @since 3.14.0
    );
 
    /** Destructor */
    virtual ~IpoptAlgorithm();
-   //@}
+   ///@}
 
    /** overloaded from AlgorithmStrategyObject */
    virtual bool InitializeImpl(
@@ -80,19 +78,19 @@ public:
    );
 
    /** Methods for IpoptType */
-   //@{
+   ///@{
    static void RegisterOptions(
       SmartPtr<RegisteredOptions> roptions
    );
-   //@}
+   ///@}
 
    /**@name Access to internal strategy objects */
-   //@{
+   ///@{
    SmartPtr<SearchDirectionCalculator> SearchDirCalc()
    {
       return search_dir_calculator_;
    }
-   //@}
+   ///@}
 
    static void print_copyright_message(
       const Journalist& jnlst
@@ -108,7 +106,7 @@ private:
     * and do not define them. This ensures that
     * they will not be implicitly created/called.
     */
-   //@{
+   ///@{
    /** Default Constructor */
    IpoptAlgorithm();
 
@@ -121,10 +119,10 @@ private:
    void operator=(
       const IpoptAlgorithm&
    );
-   //@}
+   ///@}
 
    /** @name Strategy objects */
-   //@{
+   ///@{
    SmartPtr<SearchDirectionCalculator> search_dir_calculator_;
    SmartPtr<LineSearch> line_search_;
    SmartPtr<MuUpdate> mu_update_;
@@ -136,10 +134,10 @@ private:
     *  if option recalc_y is set to true
     */
    SmartPtr<EqMultiplierCalculator> eq_multiplier_calculator_;
-   //@}
+   ///@}
 
    /** @name Main steps of the algorithm */
-   //@{
+   ///@{
    /** Method for updating the current Hessian.
     *
     *  This can either just evaluate the exact Hessian (based on
@@ -188,16 +186,16 @@ private:
 
    /** Compute the Lagrangian multipliers for a feasibility problem */
    void ComputeFeasibilityMultipliers();
-   //@}
+   ///@}
 
    /** @name internal flags */
-   //@{
+   ///@{
    /** Flag indicating if the statistic should not be printed */
    bool skip_print_problem_stats_;
-   //@}
+   ///@}
 
    /** @name Algorithmic parameters */
-   //@{
+   ///@{
    /** safeguard factor for bound multipliers.
     *
     *  If value >= 1, then
@@ -219,11 +217,11 @@ private:
     */
    bool mehrotra_algorithm_;
    /** String specifying linear solver */
-   std::string linear_solver_;
-   //@}
+   std::string linear_solver_name_;
+   ///@}
 
    /** @name auxiliary functions */
-   //@{
+   ///@{
    void calc_number_of_bounds(
       const Vector& x,
       const Vector& x_L,
@@ -251,7 +249,7 @@ private:
       const Vector&           trial_compl,
       SmartPtr<const Vector>& new_trial_z
    );
-   //@}
+   ///@}
 };
 
 } // namespace Ipopt

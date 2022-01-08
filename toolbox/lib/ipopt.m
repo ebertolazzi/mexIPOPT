@@ -253,7 +253,8 @@ function [x,info] = ipopt( varargin )
     if isOctave
       [x,info] = ipopt_win_octave(varargin{:});
     elseif strcmp( cmp, 'PCWIN64') == 1 || strcmp( cmp, 'x86_64-w64-mingw32') == 1 || strcmp( cmp, 'i686-w64-mingw32') == 1
-      [x,info] = ipopt_win(varargin{:});
+      %[x,info] = ipopt_win(varargin{:});
+      [x,info] = ipopt_win_mingw(varargin{:});
     else
       error('IPOPT: No support for architecture %s\n', cmp );
     end

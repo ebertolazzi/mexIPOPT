@@ -74,18 +74,18 @@ public:
 #endif
 
    /** @name Constructors and Destructors. */
-   //@{
+   ///@{
    /** Constructor */
    CachedResults(
-      Int max_cache_size /**< maximal number of results that should be cached, negative for infinity */
+      int max_cache_size /**< maximal number of results that should be cached, negative for infinity */
    );
 
    /** Destructor */
    virtual ~CachedResults();
-   //@}
+   ///@}
 
    /** @name Generic methods for adding and retrieving cached results. */
-   //@{
+   ///@{
    /** Generic method for adding a result to the cache, given a
     *  std::vector of TaggesObjects and a std::vector of Numbers.
     */
@@ -116,12 +116,12 @@ public:
       T&                                      retResult,
       const std::vector<const TaggedObject*>& dependents
    ) const;
-   //@}
+   ///@}
 
    /** @name Pointer-based methods for adding and retrieving cached
     *  results, providing dependencies explicitly.
     */
-   //@{
+   ///@{
    /** Method for adding a result to the cache, proving one
     *  dependency as a TaggedObject explicitly.
     */
@@ -177,7 +177,7 @@ public:
    );
 
    /** @name Pointer-free version of the Add and Get methods */
-   //@{
+   ///@{
    bool GetCachedResult1Dep(
       T&                  retResult,
       const TaggedObject& dependent1
@@ -230,7 +230,7 @@ public:
    {
       AddCachedResult3Dep(result, &dependent1, &dependent2, &dependent3);
    }
-   //@}
+   ///@}
 
    /** Invalidates the result for given dependencies.
     *
@@ -248,7 +248,7 @@ public:
 
    /** Invalidate all cached results and changes max_cache_size */
    void Clear(
-      Int max_cache_size
+      int max_cache_size
    );
 
 private:
@@ -261,7 +261,7 @@ private:
     * and do not define them. This ensures that
     * they will not be implicitly created/called.
     */
-   //@{
+   ///@{
    /** Default Constructor */
    CachedResults();
 
@@ -274,10 +274,10 @@ private:
    void operator=(
       const CachedResults&
    );
-   //@}
+   ///@}
 
    /** maximum number of cached results */
-   Int max_cache_size_;
+   int max_cache_size_;
 
    /** list of currently cached results. */
    mutable std::list<DependentResult<T>*>* cached_results_;
@@ -307,7 +307,7 @@ public:
 #endif
 
    /** @name Constructor, Destructors */
-   //@{
+   ///@{
    /** Constructor, given all information about the result. */
    DependentResult(
       const T&                                result,
@@ -317,10 +317,10 @@ public:
 
    /** Destructor. */
    ~DependentResult();
-   //@}
+   ///@}
 
    /** @name Accessor method. */
-   //@{
+   ///@{
    /** Indicates, whether the DependentResult is no longer valid. */
    bool IsStale() const;
 
@@ -329,7 +329,7 @@ public:
 
    /** Returns the cached result. */
    const T& GetResult() const;
-   //@}
+   ///@}
 
    /** This method returns true if the dependencies provided to this
     *  function are identical to the ones stored with the
@@ -369,7 +369,7 @@ private:
     * and do not define them. This ensures that
     * they will not be implicitly created/called.
     */
-   //@{
+   ///@{
    /** Default Constructor */
    DependentResult();
 
@@ -382,7 +382,7 @@ private:
    void operator=(
       const DependentResult&
    );
-   //@}
+   ///@}
 
    /** Flag indicating, if the cached result is still valid.
     *
@@ -547,7 +547,7 @@ void DependentResult<T>::DebugPrint() const
 
 template<class T>
 CachedResults<T>::CachedResults(
-   Int max_cache_size
+   int max_cache_size
 )
    : max_cache_size_(max_cache_size),
      cached_results_(NULL)
@@ -567,7 +567,7 @@ CachedResults<T>::~CachedResults()
 
    if( cached_results_ )
    {
-      for( typename std::list<DependentResult<T>*>::iterator iter = cached_results_->begin(); iter != cached_results_->end(); iter++ )
+      for( typename std::list<DependentResult<T>*>::iterator iter = cached_results_->begin(); iter != cached_results_->end(); ++iter )
       {
          delete *iter;
       }
@@ -610,8 +610,8 @@ void CachedResults<T>::AddCachedResult(
    {
       // if negative, allow infinite cache
       // non-negative - limit size of list to max_cache_size
-      DBG_ASSERT((Int)cached_results_->size() <= max_cache_size_ + 1);
-      if( (Int) cached_results_->size() > max_cache_size_ )
+      DBG_ASSERT(cached_results_->size() <= (size_t)max_cache_size_ + 1);
+      if( cached_results_->size() > (size_t)max_cache_size_ )
       {
          delete cached_results_->back();
          cached_results_->pop_back();
@@ -653,8 +653,7 @@ bool CachedResults<T>::GetCachedResult(
    CleanupInvalidatedResults();
 
    bool retValue = false;
-   typename std::list<DependentResult<T>*>::const_iterator iter;
-   for( iter = cached_results_->begin(); iter != cached_results_->end(); iter++ )
+   for( typename std::list<DependentResult<T>*>::const_iterator iter = cached_results_->begin(); iter != cached_results_->end(); ++iter )
       if( (*iter)->DependentsIdentical(dependents, scalar_dependents) )
       {
          retResult = (*iter)->GetResult();
@@ -802,8 +801,7 @@ bool CachedResults<T>::InvalidateResult(
    CleanupInvalidatedResults();
 
    bool retValue = false;
-   typename std::list<DependentResult<T>*>::const_iterator iter;
-   for( iter = cached_results_->begin(); iter != cached_results_->end(); iter++ )
+   for( typename std::list<DependentResult<T>*>::const_iterator iter = cached_results_->begin(); iter != cached_results_->end(); ++iter )
       if( (*iter)->DependentsIdentical(dependents, scalar_dependents) )
       {
          (*iter)->Invalidate();
@@ -822,8 +820,7 @@ void CachedResults<T>::Clear()
       return;
    }
 
-   typename std::list<DependentResult<T>*>::const_iterator iter;
-   for( iter = cached_results_->begin(); iter != cached_results_->end(); iter++ )
+   for( typename std::list<DependentResult<T>*>::const_iterator iter = cached_results_->begin(); iter != cached_results_->end(); ++iter )
    {
       (*iter)->Invalidate();
    }
@@ -833,7 +830,7 @@ void CachedResults<T>::Clear()
 
 template<class T>
 void CachedResults<T>::Clear(
-   Int max_cache_size
+   int max_cache_size
 )
 {
    Clear();
@@ -858,15 +855,14 @@ void CachedResults<T>::CleanupInvalidatedResults() const
    {
       if( (*iter)->IsStale() )
       {
-         typename std::list<DependentResult<T>*>::iterator iter_to_remove = iter;
-         iter++;
+         typename std::list<DependentResult<T>*>::iterator iter_to_remove = iter++;
          DependentResult<T>* result_to_delete = (*iter_to_remove);
          cached_results_->erase(iter_to_remove);
          delete result_to_delete;
       }
       else
       {
-         iter++;
+         ++iter;
       }
    }
 }
@@ -886,9 +882,9 @@ void CachedResults<T>::DebugPrintCachedResults() const
       {
          typename std::list< DependentResult<T>* >::const_iterator iter;
          DBG_PRINT((2, "Current set of cached results:\n"));
-         for (iter = cached_results_->begin(); iter != cached_results_->end(); iter++)
+         for (iter = cached_results_->begin(); iter != cached_results_->end(); ++iter)
          {
-            DBG_PRINT((2, "  DependentResult:0x%x\n", (*iter)));
+            DBG_PRINT((2, "  DependentResult: %p\n", (void*)*iter));
          }
       }
    }

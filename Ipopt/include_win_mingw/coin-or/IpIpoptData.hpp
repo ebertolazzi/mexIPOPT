@@ -30,7 +30,7 @@ class IPOPTLIB_EXPORT IpoptAdditionalData: public ReferencedObject
 {
 public:
    /**@name Constructors/Destructors */
-   //@{
+   ///@{
    /** Default Constructor */
    IpoptAdditionalData()
    { }
@@ -38,7 +38,7 @@ public:
    /** Destructor */
    virtual ~IpoptAdditionalData()
    { }
-   //@}
+   ///@}
 
    /** This method is called to initialize the global algorithmic
     *  parameters.
@@ -71,7 +71,7 @@ private:
     * and do not define them. This ensures that
     * they will not be implicitly created/called.
     */
-   //@{
+   ///@{
    /** Copy Constructor */
    IpoptAdditionalData(
       const IpoptAdditionalData&
@@ -81,7 +81,7 @@ private:
    void operator=(
       const IpoptAdditionalData&
    );
-   //@}
+   ///@}
 };
 
 /** Class to organize all the data required by the algorithm.
@@ -98,16 +98,15 @@ class IPOPTLIB_EXPORT IpoptData: public ReferencedObject
 {
 public:
    /**@name Constructors/Destructors */
-   //@{
+   ///@{
    /** Constructor */
    IpoptData(
-      SmartPtr<IpoptAdditionalData> add_data = NULL,
-      Number                        cpu_time_start = -1.
+      SmartPtr<IpoptAdditionalData> add_data = NULL
    );
 
    /** Destructor */
    virtual ~IpoptData();
-   //@}
+   ///@}
 
    /** Initialize Data Structures */
    bool InitializeDataStructures(
@@ -131,7 +130,7 @@ public:
    );
 
    /** @name Get Methods for Iterates */
-   //@{
+   ///@{
    /** Current point */
    inline SmartPtr<const IteratesVector> curr() const;
 
@@ -160,6 +159,11 @@ public:
    void set_trial(
       SmartPtr<IteratesVector>& trial
    );
+   /* ToDo: I may need to add versions of set_trial like the
+    *  following, but I am not sure
+    */
+   // void set_trial(const SmartPtr<IteratesVector>& trial_iterates);
+   // void set_trial(SmartPtr<const IteratesVector>& trial_iterates);
 
    /** Set the values of the primal trial variables (x and s) from
     *  provided Step with step length alpha.
@@ -190,11 +194,6 @@ public:
       const Vector& delta_v_U
    );
 
-   /** ToDo: I may need to add versions of set_trial like the
-    *  following, but I am not sure
-    */
-   // void set_trial(const SmartPtr<IteratesVector>& trial_iterates);
-   // void set_trial(SmartPtr<const IteratesVector>& trial_iterates);
    /** get the current delta */
    inline SmartPtr<const IteratesVector> delta() const;
 
@@ -259,7 +258,7 @@ public:
     *  are overwritten in every iteration, so do not hold on to the
     *  pointers (make copies instead)
     */
-   //@{
+   ///@{
    /** Returns true, if the primal-dual step have been already
     *  computed for the current iteration.
     *
@@ -289,7 +288,7 @@ public:
    {
       have_deltas_ = have_deltas;
    }
-   //@}
+   ///@}
 
    /** @name Affine-scaling step.
     *
@@ -299,7 +298,7 @@ public:
     *  scaling steps, then the corrector step in the line search does
     *  not have to recompute those solutions of the linear system.
     */
-   //@{
+   ///@{
    /** Returns true, if the affine-scaling step have been already
     *  computed for the current iteration.
     *
@@ -329,20 +328,20 @@ public:
    {
       have_affine_deltas_ = have_affine_deltas;
    }
-   //@}
+   ///@}
 
    /** @name Public Methods for updating iterates */
-   //@{
+   ///@{
    /** Copy the trial values to the current values */
    inline
    void CopyTrialToCurrent();
 
    /** Set the current iterate values from the trial values. */
    void AcceptTrialPoint();
-   //@}
+   ///@}
 
    /** @name General algorithmic data */
-   //@{
+   ///@{
    Index iter_count() const
    {
       return iter_count_;
@@ -412,7 +411,7 @@ public:
    {
       return tiny_step_flag_;
    }
-   //@}
+   ///@}
 
    /** Overall convergence tolerance.
     *
@@ -421,7 +420,7 @@ public:
     *  depend on the specified tolerance, such as the minimum value
     *  for the barrier parameter.
     */
-   //@{
+   ///@{
    /** Obtain the tolerance. */
    Number tol() const
    {
@@ -444,7 +443,7 @@ public:
    {
       tol_ = tol;
    }
-   //@}
+   ///@}
 
    /** Cpu time counter at the beginning of the optimization.
     *
@@ -453,14 +452,14 @@ public:
     *
     *  Can only be called after beginning of optimization.
     */
+   IPOPT_DEPRECATED
    Number cpu_time_start() const
    {
-      DBG_ASSERT(cpu_time_start_ >= 0);
-      return cpu_time_start_;
+      return timing_statistics_.OverallAlgorithm().StartCpuTime();
    }
 
    /** @name Information gathered for iteration output */
-   //@{
+   ///@{
    Number info_regu_x() const
    {
       return info_regu_x_;
@@ -582,18 +581,12 @@ public:
       info_skip_output_ = false;
       info_string_.erase();
    }
-   //@}
+   ///@}
 
    /** Return Timing Statistics Object */
    TimingStatistics& TimingStats()
    {
       return timing_statistics_;
-   }
-
-   /** Resetting CPU Start Time */
-   void ResetCpuStartTime()
-   {
-      cpu_time_start_ = CpuTime();
    }
 
    /** Check if additional data has been set */
@@ -613,6 +606,7 @@ public:
       SmartPtr<IpoptAdditionalData> add_data
    )
    {
+      // cppcheck-suppress assertWithSideEffect
       DBG_ASSERT(!HaveAddData());
       add_data_ = add_data;
    }
@@ -651,7 +645,7 @@ public:
 
 private:
    /** @name Iterates */
-   //@{
+   ///@{
    /** Main iteration variables (current iteration) */
    SmartPtr<const IteratesVector> curr_;
 
@@ -662,7 +656,7 @@ private:
    SmartPtr<const SymMatrix> W_;
 
    /** @name Primal-dual Step */
-   //@{
+   ///@{
    SmartPtr<const IteratesVector> delta_;
    /** The following flag is set to true, if some other part of the
     *  algorithm (like the method for computing the barrier
@@ -670,10 +664,10 @@ private:
     *  direction.
     *
     *  This flag is reset when the AcceptTrialPoint method is called.
-    *  @todo we could cue off of a null delta_
     */
+   // ToDo we could cue off of a null delta_
    bool have_deltas_;
-   //@}
+   ///@}
 
    /** @name Affine-scaling step.
     *
@@ -682,17 +676,17 @@ private:
     *  of the barrier parameter to the corrector (in the line
     *  search).
     */
-   //@{
+   ///@{
    SmartPtr<const IteratesVector> delta_aff_;
    /** The following flag is set to true, if some other part of the
     *  algorithm (like the method for computing the barrier
     *  parameter) has already computed the affine-scaling step.
     *
     *  This flag is reset when the AcceptTrialPoint method is called.
-    *  @todo we could cue off of a null delta_aff_
     */
+   // ToDo we could cue off of a null delta_aff_
    bool have_affine_deltas_;
-   //@}
+   ///@}
 
    /** iteration count */
    Index iter_count_;
@@ -720,21 +714,21 @@ private:
     *  algorithm.  They are set using an OptionsList object in the
     *  Initialize method.
     */
-   //@{
+   ///@{
    /** Overall convergence tolerance */
    Number tol_;
-   //@}
+   ///@}
 
    /** @name Status data **/
-   //@{
+   ///@{
    /** flag indicating whether the algorithm is in the free mu mode */
    bool free_mu_mode_;
    /** flag indicating if a tiny step has been detected */
    bool tiny_step_flag_;
-   //@}
+   ///@}
 
    /** @name Gathered information for iteration output */
-   //@{
+   ///@{
    /** Size of regularization for the Hessian */
    Number info_regu_x_;
    /** Primal step size */
@@ -757,7 +751,7 @@ private:
     * summary header was printed
     */
    int info_iters_since_header_;
-   //@}
+   ///@}
 
    /** VectorSpace for all the iterates */
    SmartPtr<IteratesVectorSpace> iterates_space_;
@@ -765,21 +759,18 @@ private:
    /** TimingStatistics object collecting all Ipopt timing statistics */
    TimingStatistics timing_statistics_;
 
-   /** CPU time counter at begin of optimization. */
-   Number cpu_time_start_;
-
    /** Object for the data specific for the Chen-Goldfarb penalty
     *  method algorithm
     */
    SmartPtr<IpoptAdditionalData> add_data_;
 
    /** @name Information about the perturbation of the primal-dual system */
-   //@{
+   ///@{
    Number pd_pert_x_;
    Number pd_pert_s_;
    Number pd_pert_c_;
    Number pd_pert_d_;
-   //@}
+   ///@}
 
    /**@name Default Compiler Generated Methods
     * (Hidden to avoid implicit creation/calling).
@@ -790,7 +781,7 @@ private:
     * and do not define them. This ensures that
     * they will not be implicitly created/called.
     */
-   //@{
+   ///@{
    /** Copy Constructor */
    IpoptData(
       const IpoptData&
@@ -800,13 +791,13 @@ private:
    void operator=(
       const IpoptData&
    );
-   //@}
+   ///@}
 
 #if IPOPT_CHECKLEVEL > 0
    /** Some debug flags to make sure vectors are not changed
     *  behind the IpoptData's back
     */
-   //@{
+   ///@{
    TaggedObject::Tag debug_curr_tag_;
    TaggedObject::Tag debug_trial_tag_;
    TaggedObject::Tag debug_delta_tag_;
@@ -815,7 +806,7 @@ private:
    TaggedObject::Tag debug_trial_tag_sum_;
    TaggedObject::Tag debug_delta_tag_sum_;
    TaggedObject::Tag debug_delta_aff_tag_sum_;
-   //@}
+   ///@}
 #endif
 
 };
@@ -877,7 +868,7 @@ void IpoptData::set_trial(
 
 #if IPOPT_CHECKLEVEL > 0
    // verify the correct space
-   DBG_ASSERT(trial_->OwnerSpace() == (VectorSpace*)GetRawPtr(iterates_space_));
+   DBG_ASSERT(trial_->OwnerSpace() == static_cast<VectorSpace*>(GetRawPtr(iterates_space_)));
    if (IsValid(trial))
    {
       debug_trial_tag_ = trial->GetTag();

@@ -19,7 +19,7 @@ class IPOPTLIB_EXPORT TimingStatistics: public ReferencedObject
 {
 public:
    /**@name Constructors/Destructors */
-   //@{
+   ///@{
    /** Default constructor. */
    TimingStatistics()
    { }
@@ -27,21 +27,50 @@ public:
    /** Destructor */
    virtual ~TimingStatistics()
    { }
-   //@}
+   ///@}
+
+   /// Whether timing of function evaluation has been enabled
+   /// @since 3.14.0
+   bool IsFunctionEvaluationTimeEnabled() const;
+   /// total CPU time spend in function evaluation
+   /// @since 3.14.0
+   Number TotalFunctionEvaluationCpuTime() const;
+   /// total system time spend in function evaluation
+   /// @since 3.14.0
+   Number TotalFunctionEvaluationSysTime() const;
+   /// total wall-clock time spend in function evaluation
+   /// @since 3.14.0
+   Number TotalFunctionEvaluationWallclockTime() const;
 
    /** Method for resetting all times. */
    void ResetTimes();
 
+   /** Method for enabling all timed tasked.
+    * @since 3.14.0
+    */
+   void EnableTimes();
+
+   /** Method for disabling all timed tasks except for OverallAlgorithm
+    * @since 3.14.0
+    */
+   void DisableTimes();
+
    /** Method for printing all timing information */
    void PrintAllTimingStatistics(
-      Journalist&      jnlst,
-      EJournalLevel    level,
-      EJournalCategory category
+      const Journalist& jnlst,
+      EJournalLevel     level,
+      EJournalCategory  category
    ) const;
 
    /**@name Accessor methods to all timed tasks. */
-   //@{
+   ///@{
    TimedTask& OverallAlgorithm()
+   {
+      return OverallAlgorithm_;
+   }
+
+   /// @since 3.14.0
+   const TimedTask& OverallAlgorithm() const
    {
       return OverallAlgorithm_;
    }
@@ -180,7 +209,49 @@ public:
    {
       return Task6_;
    }
-   //@}
+
+   /// @since 3.14.0
+   TimedTask& f_eval_time()
+   {
+      return f_eval_time_;
+   }
+
+   /// @since 3.14.0
+   TimedTask& grad_f_eval_time()
+   {
+      return grad_f_eval_time_;
+   }
+
+   /// @since 3.14.0
+   TimedTask& c_eval_time()
+   {
+      return c_eval_time_;
+   }
+
+   /// @since 3.14.0
+   TimedTask& jac_c_eval_time()
+   {
+      return jac_c_eval_time_;
+   }
+
+   /// @since 3.14.0
+   TimedTask& d_eval_time()
+   {
+      return d_eval_time_;
+   }
+
+   /// @since 3.14.0
+   TimedTask& jac_d_eval_time()
+   {
+      return jac_d_eval_time_;
+   }
+
+   /// @since 3.14.0
+   TimedTask& h_eval_time()
+   {
+      return h_eval_time_;
+   }
+   ///@}
 
 private:
    /**@name Default Compiler Generated Methods
@@ -192,7 +263,7 @@ private:
     * and do not define them. This ensures that
     * they will not be implicitly created/called.
     */
-   //@{
+   ///@{
    /** Copy Constructor */
    TimingStatistics(
       const TimingStatistics&
@@ -202,10 +273,10 @@ private:
    void operator=(
       const TimingStatistics&
    );
-   //@}
+   ///@}
 
    /**@name All timed tasks. */
-   //@{
+   ///@{
    TimedTask OverallAlgorithm_;
    TimedTask PrintProblemStatistics_;
    TimedTask InitializeIterates_;
@@ -236,7 +307,15 @@ private:
    TimedTask Task4_;
    TimedTask Task5_;
    TimedTask Task6_;
-   //@}
+
+   TimedTask f_eval_time_;
+   TimedTask grad_f_eval_time_;
+   TimedTask c_eval_time_;
+   TimedTask jac_c_eval_time_;
+   TimedTask d_eval_time_;
+   TimedTask jac_d_eval_time_;
+   TimedTask h_eval_time_;
+   ///@}
 };
 
 } // namespace Ipopt

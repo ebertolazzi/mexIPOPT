@@ -9,6 +9,7 @@
 
 #include "IpReferenced.hpp"
 #include "IpSmartPtr.hpp"
+#include "IpUtils.hpp"
 
 namespace Ipopt
 {
@@ -27,7 +28,7 @@ class IPOPTLIB_EXPORT SolveStatistics : public ReferencedObject
 {
 public:
    /**@name Constructors/Destructors */
-   //@{
+   ///@{
    /** Default constructor.
     *
     *  It takes in those collecting Ipopt
@@ -44,10 +45,10 @@ public:
    /** Default destructor */
    virtual ~SolveStatistics()
    { }
-   //@}
+   ///@}
 
    /** @name Accessor methods for retrieving different kind of solver statistics information */
-   //@{
+   ///@{
    /** Iteration counts. */
    virtual Index IterationCount() const;
 
@@ -56,8 +57,9 @@ public:
 
    /** Total CPU time, including function evaluations.
     *
-    * Included for backward compatibility.
+    * @deprecated Use TotalCpuTime() instead.
     */
+   IPOPT_DEPRECATED
    Number TotalCPUTime() const
    {
       return TotalCpuTime();
@@ -78,7 +80,11 @@ public:
       Index& num_hess_evals
    ) const;
 
-   /** Unscaled solution infeasibilities. */
+   /** Unscaled solution infeasibilities.
+    *
+    * @deprecated Use Infeasibilities() with 5 arguments instead.
+    */
+   IPOPT_DEPRECATED
    virtual void Infeasibilities(
       Number& dual_inf,
       Number& constr_viol,
@@ -86,7 +92,20 @@ public:
       Number& kkt_error
    ) const;
 
-   /** Scaled solution infeasibilities. */
+   /** Unscaled solution infeasibilities. */
+   virtual void Infeasibilities(
+      Number& dual_inf,        ///< dual infeasibility (Gradient of Lagrangian not zero)
+      Number& constr_viol,     ///< violation of constraints
+      Number& varbounds_viol,  ///< violation of variable bounds @since 3.14.0
+      Number& complementarity, ///< violation of complementarity
+      Number& kkt_error        ///< KKT error
+   ) const;
+
+   /** Scaled solution infeasibilities.
+    *
+    * @deprecated Use ScaledInfeasibilities() with 5 arguments instead.
+    */
+   IPOPT_DEPRECATED
    virtual void ScaledInfeasibilities(
       Number& scaled_dual_inf,
       Number& scaled_constr_viol,
@@ -94,12 +113,24 @@ public:
       Number& scaled_kkt_error
    ) const;
 
+   /** Scaled solution infeasibilities.
+    *
+    * @deprecated Use ScaledInfeasibilities() with 5 arguments instead.
+    */
+   virtual void ScaledInfeasibilities(
+      Number& scaled_dual_inf,        ///< scaled dual infeasibility (Gradient of Lagrangian not zero)
+      Number& scaled_constr_viol,     ///< violation of scaled constraints
+      Number& scaled_varbounds_viol,  ///< violation of scaled variable bounds @since 3.14.0
+      Number& scaled_complementarity, ///< violation of scaled complementarity
+      Number& scaled_kkt_error        ///< scaled KKT error
+   ) const;
+
    /** Final value of objective function */
    virtual Number FinalObjective() const;
 
    /** Final scaled value of objective function */
    virtual Number FinalScaledObjective() const;
-   //@}
+   ///@}
 
 private:
    /**@name Default Compiler Generated Methods
@@ -111,7 +142,7 @@ private:
     * and do not define them. This ensures that
     * they will not be implicitly created/called.
     */
-   //@{
+   ///@{
    /** Default Constructor */
    SolveStatistics();
 
@@ -124,10 +155,10 @@ private:
    void operator=(
       const SolveStatistics&
    );
-   //@}
+   ///@}
 
    /** @name Fields for storing the statistics data */
-   //@{
+   ///@{
    /** Number of iterations. */
    Index num_iters_;
    /* Total CPU time */
@@ -159,6 +190,10 @@ private:
    Number scaled_constr_viol_;
    /** Final unscaled constraint violation (max-norm) */
    Number constr_viol_;
+   /** Final scaled variable bound violation (max-norm) */
+   Number scaled_bound_viol_;
+   /** Final unscaled variable bound violation (max-norm) */
+   Number bound_viol_;
    /** Final scaled complementarity error (max-norm) */
    Number scaled_compl_;
    /** Final unscaled complementarity error (max-norm) */
@@ -167,7 +202,7 @@ private:
    Number scaled_kkt_error_;
    /** Final overall unscaled KKT error (max-norm) */
    Number kkt_error_;
-   //@}
+   ///@}
 };
 
 } // namespace Ipopt

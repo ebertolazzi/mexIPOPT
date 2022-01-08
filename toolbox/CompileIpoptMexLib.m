@@ -93,18 +93,34 @@ elseif isunix
               '-lMatlabDataArray -lmx -lmex -lmat -lm '' ' ...
   ];
 elseif ispc
-  % use ipopt precompiled with visual studio
-  IPOPT_HOME = '../Ipopt/include_vs/';
-  IPOPT_BIN  = 'bin/windows/';
-  LIBS = [' -L' IPOPT_BIN ];
-  NAMES = {'ipoptfort','ipopt','libomp','ompstub','openblas','flang','flangmain','flangrti'};
-  for kkk=1:8
-    LIBS = [ LIBS, ' -l', NAMES{kkk} ];
+  if true
+    % use ipopt precompiled with visual studio
+    IPOPT_HOME = '../Ipopt/include_win_mingw/';
+    IPOPT_BIN  = 'bin/windows_mingw/';
+    LIBS = [' -L' IPOPT_BIN ];
+   % NAMES = {'ipopt','sipopt','coinmumps','coinasl','ipoptamplinterface'};
+    NAMES = {'ipopt','coinmumps'};
+    for kkk=1:length(NAMES)
+      LIBS = [ LIBS, ' -l', NAMES{kkk} ];
+    end
+    CMD = [ CMD ...
+      '-DOS_WIN -I' IPOPT_HOME '/coin-or ' ...
+      '-output ' IPOPT_BIN 'ipopt_win_mingw ' LIBS ...
+    ];
+  else
+    % use ipopt precompiled with visual studio
+    IPOPT_HOME = '../Ipopt/include_vs/';
+    IPOPT_BIN  = 'bin/windows/';
+    LIBS = [' -L' IPOPT_BIN ];
+    NAMES = {'ipoptfort','ipopt','libomp','ompstub','openblas','flang','flangmain','flangrti'};
+    for kkk=1:8
+      LIBS = [ LIBS, ' -l', NAMES{kkk} ];
+    end
+    CMD = [ CMD ...
+      '-DOS_WIN -I' IPOPT_HOME '/coin-or ' ...
+      '-output ' IPOPT_BIN 'ipopt_win ' LIBS ...
+    ];
   end
-  CMD = [ CMD ...
-    '-DOS_WIN -I' IPOPT_HOME '/coin-or ' ...
-    '-output ' IPOPT_BIN 'ipopt_win ' LIBS ...
-  ];
 else
   error('architecture not supported');
 end

@@ -37,14 +37,14 @@ class IPOPTLIB_EXPORT AugSystemSolver: public AlgorithmStrategyObject
 {
 public:
    /**@name Constructors/Destructors */
-   //@{
+   ///@{
    /** Default constructor. */
    AugSystemSolver()
    { }
    /** Destructor */
    virtual ~AugSystemSolver()
    { }
-   //@}
+   ///@}
 
    /** overloaded from AlgorithmStrategyObject */
    virtual bool InitializeImpl(
@@ -62,17 +62,17 @@ public:
     */
    virtual ESymSolverStatus Solve(
       const SymMatrix* W,
-      double           W_factor,
+      Number           W_factor,
       const Vector*    D_x,
-      double           delta_x,
+      Number           delta_x,
       const Vector*    D_s,
-      double           delta_s,
+      Number           delta_s,
       const Matrix*    J_c,
       const Vector*    D_c,
-      double           delta_c,
+      Number           delta_c,
       const Matrix*    J_d,
       const Vector*    D_d,
-      double           delta_d,
+      Number           delta_d,
       const Vector&    rhs_x,
       const Vector&    rhs_s,
       const Vector&    rhs_c,
@@ -112,17 +112,17 @@ public:
     */
    virtual ESymSolverStatus MultiSolve(
       const SymMatrix*                      W,
-      double                                W_factor,
+      Number                                W_factor,
       const Vector*                         D_x,
-      double                                delta_x,
+      Number                                delta_x,
       const Vector*                         D_s,
-      double                                delta_s,
+      Number                                delta_s,
       const Matrix*                         J_c,
       const Vector*                         D_c,
-      double                                delta_c,
+      Number                                delta_c,
       const Matrix*                         J_d,
       const Vector*                         D_d,
-      double                                delta_d,
+      Number                                delta_d,
       std::vector<SmartPtr<const Vector> >& rhs_xV,
       std::vector<SmartPtr<const Vector> >& rhs_sV,
       std::vector<SmartPtr<const Vector> >& rhs_cV,
@@ -193,7 +193,7 @@ private:
     * and do not define them. This ensures that
     * they will not be implicitly created/called.
     */
-   //@{
+   ///@{
    /** Copy Constructor */
    AugSystemSolver(
       const AugSystemSolver&
@@ -203,7 +203,7 @@ private:
    void operator=(
       const AugSystemSolver&
    );
-   //@}
+   ///@}
 
 };
 

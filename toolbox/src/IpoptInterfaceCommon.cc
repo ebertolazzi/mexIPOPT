@@ -23,6 +23,10 @@
  *
  */
 
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wignored-attributes"
+#endif
+
 #include "IpoptInterfaceCommon.hh"
 
 #include "IpTNLP.hpp"

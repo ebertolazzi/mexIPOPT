@@ -45,9 +45,9 @@ public:
    };
 
    void AddAvailableSuffix(
-      std::string   suffix_string,
-      Suffix_Source source,
-      Suffix_Type   type
+      const std::string& suffix_string,
+      Suffix_Source      source,
+      Suffix_Type        type
    )
    {
       suffix_ids_.push_back(suffix_string);
@@ -56,26 +56,26 @@ public:
       //      suffix_values_.push_back();
    }
 
-   const Index* GetIntegerSuffixValues(
-      std::string   suffix_string,
-      Suffix_Source source
+   const int* GetIntegerSuffixValues(
+      const std::string& suffix_string,
+      Suffix_Source      source
    ) const;
 
    const Number* GetNumberSuffixValues(
-      std::string   suffix_string,
-      Suffix_Source source
+      const std::string& suffix_string,
+      Suffix_Source      source
    ) const;
 
-   std::vector<Index> GetIntegerSuffixValues(
+   std::vector<int> GetIntegerSuffixValues(
       Index         n,
-      std::string   suffix_string,
-      Suffix_Source source
+      const std::string& suffix_string,
+      Suffix_Source      source
    ) const;
 
    std::vector<Number> GetNumberSuffixValues(
       Index         n,
-      std::string   suffix_string,
-      Suffix_Source source
+      const std::string& suffix_string,
+      Suffix_Source      source
    ) const;
 
 private:
@@ -88,7 +88,7 @@ private:
     * and do not define them. This ensures that
     * they will not be implicitly created/called.
     */
-   //@{
+   ///@{
    /** Default Constructor */
    //AmplSuffixHandler();
    /** Copy Constructor */
@@ -100,7 +100,7 @@ private:
    void operator=(
       const AmplSuffixHandler&
    );
-   //@}
+   ///@}
 
    mutable ASL_pfgh* asl_;
 
@@ -140,9 +140,9 @@ public:
    {
    public:
       AmplOption(
-         const std::string ipopt_option_name,
-         AmplOptionType    type,
-         const std::string description);
+         const std::string& ipopt_option_name,
+         AmplOptionType     type,
+         const std::string& description);
 
       ~AmplOption()
       {
@@ -171,7 +171,7 @@ public:
        * and do not define them. This ensures that
        * they will not be implicitly created/called.
        */
-      //@{
+      ///@{
       /** Default Constructor */
       AmplOption();
 
@@ -182,7 +182,7 @@ public:
       /** Default Assignment Operator */
       void operator=(
          const AmplOption&);
-      //@}
+      ///@}
 
       const std::string ipopt_option_name_;
       const AmplOptionType type_;
@@ -193,7 +193,7 @@ public:
    {
    public:
       PrivatInfo(
-         const std::string          ipopt_name,
+         const std::string&         ipopt_name,
          SmartPtr<OptionsList>      options,
          SmartPtr<const Journalist> jnlst,
          void**                     nerror = NULL
@@ -239,10 +239,10 @@ public:
 
    /** Adding a new AMPL Option */
    void AddAmplOption(
-      const std::string               ampl_option_name,
-      const std::string               ipopt_option_name,
+      const std::string&              ampl_option_name,
+      const std::string&              ipopt_option_name,
       AmplOptionsList::AmplOptionType type,
-      const std::string               description
+      const std::string&              description
    )
    {
       SmartPtr<AmplOption> new_option = new AmplOption(ipopt_option_name, type, description);
@@ -272,7 +272,7 @@ private:
     * and do not define them. This ensures that
     * they will not be implicitly created/called.
     */
-   //@{
+   ///@{
    /** Default Constructor */
    //AmplOptionsList();
    /** Copy Constructor */
@@ -284,7 +284,7 @@ private:
    void operator=(
       const AmplOptionsList&
    );
-   //@}
+   ///@}
 
    void MakeValidLatexString(
       std::string  source,
@@ -317,8 +317,29 @@ class IPOPTAMPLINTERFACELIB_EXPORT AmplTNLP: public TNLP
 {
 public:
    /**@name Constructors/Destructors */
-   //@{
-   /** Constructor. */
+   ///@{
+   /** Constructor.
+    * @since 3.14.0
+    */
+   AmplTNLP(
+      const SmartPtr<const Journalist>& jnlst,
+      const SmartPtr<RegisteredOptions> regoptions,
+      const SmartPtr<OptionsList>       options,
+      const char* const*                argv,
+      SmartPtr<AmplSuffixHandler>       suffix_handler = NULL,
+      bool                              allow_discrete = false,
+      SmartPtr<AmplOptionsList>         ampl_options_list = NULL,
+      const char*                       ampl_option_string = NULL,
+      const char*                       ampl_invokation_string = NULL,
+      const char*                       ampl_banner_string = NULL,
+      std::string*                      nl_file_content = NULL
+   );
+
+   /** Constructor without RegisteredOptions.
+    *
+    * @deprecated Use other constructor that also expects regoptions instead.
+    */
+   IPOPT_DEPRECATED
    AmplTNLP(
       const SmartPtr<const Journalist>& jnlst,
       const SmartPtr<OptionsList>       options,
@@ -334,13 +355,13 @@ public:
 
    /** Default destructor */
    virtual ~AmplTNLP();
-   //@}
+   ///@}
 
    /** Exceptions */
    DECLARE_STD_EXCEPTION(NONPOSITIVE_SCALING_FACTOR);
 
    /**@name methods to gather information about the NLP */
-   //@{
+   ///@{
    virtual bool get_nlp_info(
       Index&          n,
       Index&          m,
@@ -443,10 +464,10 @@ public:
       Index   m,
       Number* g_scaling
    );
-   //@}
+   ///@}
 
    /** @name Solution Methods */
-   //@{
+   ///@{
    virtual void finalize_solution(
       SolverReturn               status,
       Index                      n,
@@ -460,19 +481,19 @@ public:
       const IpoptData*           ip_data,
       IpoptCalculatedQuantities* ip_cq
    );
-   //@}
+   ///@}
 
    /** @name Method for quasi-Newton approximation information. */
-   //@{
+   ///@{
    virtual Index get_number_of_nonlinear_variables();
    virtual bool get_list_of_nonlinear_variables(
       Index  num_nonlin_vars,
       Index* pos_nonlin_vars
    );
-   //@}
+   ///@}
 
    /**@name Ampl specific methods */
-   //@{
+   ///@{
    /** Return the ampl solver object (ASL*) */
    ASL_pfgh* AmplSolverObject()
    {
@@ -482,8 +503,8 @@ public:
    /** Write the solution file.
     *
     *  This is a wrapper for AMPL's write_sol.
-    *  @todo Maybe this should be at a different place, or collect the numbers itself?
     */
+   // ToDo Maybe this should be at a different place, or collect the numbers itself?
    void write_solution_file(
       const std::string& message
    ) const;
@@ -503,7 +524,7 @@ public:
       Index& nbv_,
       Index& niv_
    ) const;
-   //@}
+   ///@}
 
    /** A method for setting the index of the objective function to be
     *  considered.
@@ -521,49 +542,55 @@ public:
     *
     * These values will be passed on to the TNLP in get_var_con_meta_data.
     */
-   //@{
+   ///@{
    void set_string_metadata_for_var(
-      std::string              tag,
-      std::vector<std::string> meta_data)
+      const std::string&              tag,
+      const std::vector<std::string>& meta_data
+   )
    {
       var_string_md_[tag] = meta_data;
    }
 
    void set_integer_metadata_for_var(
-      std::string        tag,
-      std::vector<Index> meta_data)
+      const std::string&        tag,
+      const std::vector<Index>& meta_data
+   )
    {
       var_integer_md_[tag] = meta_data;
    }
 
    void set_numeric_metadata_for_var(
-      std::string         tag,
-      std::vector<Number> meta_data)
+      const std::string&         tag,
+      const std::vector<Number>& meta_data
+   )
    {
       var_numeric_md_[tag] = meta_data;
    }
 
    void set_string_metadata_for_con(
-      std::string              tag,
-      std::vector<std::string> meta_data)
+      const std::string&              tag,
+      const std::vector<std::string>& meta_data
+   )
    {
       con_string_md_[tag] = meta_data;
    }
 
    void set_integer_metadata_for_con(
-      std::string        tag,
-      std::vector<Index> meta_data)
+      const std::string&        tag,
+      const std::vector<Index>& meta_data
+   )
    {
       con_integer_md_[tag] = meta_data;
    }
 
    void set_numeric_metadata_for_con(
-      std::string         tag,
-      std::vector<Number> meta_data)
+      const std::string&         tag,
+      const std::vector<Number>& meta_data
+   )
    {
       con_numeric_md_[tag] = meta_data;
    }
-   //@}
+   ///@}
 
    /** Method for returning the suffix handler */
    SmartPtr<AmplSuffixHandler> get_suffix_handler()
@@ -581,7 +608,7 @@ private:
     * and do not define them. This ensures that
     * they will not be implicitly created/called.
     */
-   //@{
+   ///@{
    /** Default Constructor */
    AmplTNLP();
 
@@ -594,7 +621,19 @@ private:
    void operator=(
       const AmplTNLP&
    );
-   //@}
+   ///@}
+
+   void gutsOfConstructor(
+      const SmartPtr<RegisteredOptions> regoptions,
+      const SmartPtr<OptionsList>       options,
+      const char* const*                argv,
+      bool                              allow_discrete /* = false */,
+      SmartPtr<AmplOptionsList>         ampl_options_list /* = NULL */,
+      const char*                       ampl_option_string /* = NULL */,
+      const char*                       ampl_invokation_string /* = NULL */,
+      const char*                       ampl_banner_string /* = NULL */,
+      std::string*                      nl_file_content /* = NULL */
+   );
 
 protected:
    /** Journalist */
@@ -604,26 +643,26 @@ protected:
    ASL_pfgh* asl_;
 
    /** Sign of the objective fn (1 for min, -1 for max) */
-   double obj_sign_;
+   Number obj_sign_;
 
    /**@name Problem Size Data*/
-   //@{
+   ///@{
    /** number of nonzeros in the full_x Hessian */
    Index nz_h_full_;
    /* the rest of the problem size data is available easily through the ampl variables */
-   //@}
+   ///@}
    /**@name Internal copies of solution vectors */
-   //@{
+   ///@{
    Number* x_sol_;
    Number* z_L_sol_;
    Number* z_U_sol_;
    Number* g_sol_;
    Number* lambda_sol_;
    Number  obj_sol_;
-   //@}
+   ///@}
 
    /**@name Flags to track internal state */
-   //@{
+   ///@{
    /** whether the objective value has been calculated with the current x
     *
     *  set to false in apply_new_x, and set to true in internal_objval
@@ -637,7 +676,7 @@ protected:
    bool hesset_called_;
    /** whether set_active_objective has been called */
    bool set_active_objective_called_;
-   //@}
+   ///@}
 
    /** Pointer to the Oinfo structure */
    void* Oinfo_ptr_;
@@ -676,13 +715,33 @@ protected:
     *  @return a pointer to a char* with the name of the stub
     */
    char* get_options(
+      const SmartPtr<RegisteredOptions> regoptions,        ///< Registered Ipopt options @since 3.14.0
+      const SmartPtr<OptionsList>& options,                ///< Options
+      SmartPtr<AmplOptionsList>&   ampl_options_list,      ///< AMPL options list
+      const char*                  ampl_option_string,     ///< AMPL options string
+      const char*                  ampl_invokation_string, ///< AMPL invokation string
+      const char*                  ampl_banner_string,     ///< AMPL banner string
+      const char* const*           argv                    ///< Program arguments
+   );
+
+   /** Method for obtaining the name of the NL file and the options set from AMPL
+    *
+    *  @return a pointer to a char* with the name of the stub
+    *  @deprecated Use get_options() with RegisteredOptions argument instead.
+    */
+   IPOPT_DEPRECATED
+   char* get_options(
       const SmartPtr<OptionsList>& options,
       SmartPtr<AmplOptionsList>&   ampl_options_list,
       const char*                  ampl_option_string,
       const char*                  ampl_invokation_string,
       const char*                  ampl_banner_string,
+      // cppcheck-suppress constParameter
       char**&                      argv
-   );
+   )
+   {
+      return get_options(NULL, options, ampl_options_list, ampl_option_string, ampl_invokation_string, ampl_banner_string, argv);
+   }
 
    /** whether the ampl nerror code is ok */
    bool nerror_ok(

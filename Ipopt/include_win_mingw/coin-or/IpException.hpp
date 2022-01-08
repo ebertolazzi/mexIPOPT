@@ -58,13 +58,13 @@ class IPOPTLIB_EXPORT IpoptException
 {
 public:
    /**@name Constructors/Destructors */
-   //@{
+   ///@{
    /** Constructor */
    IpoptException(
-      std::string msg,
-      std::string file_name,
-      Index       line_number,
-      std::string type = "IpoptException"
+      const std::string& msg,
+      const std::string& file_name,
+      Index              line_number,
+      const std::string& type = "IpoptException"
    )
       : msg_(msg),
         file_name_(file_name),
@@ -85,7 +85,7 @@ public:
    /** Default destructor */
    virtual ~IpoptException()
    { }
-   //@}
+   ///@}
 
    /** Method to report the exception to a journalist */
    void ReportException(
@@ -94,7 +94,7 @@ public:
    ) const
    {
       jnlst.Printf(level, J_MAIN,
-                   "Exception of type: %s in file \"%s\" at line %d:\n Exception message: %s\n", type_.c_str(), file_name_.c_str(), line_number_, msg_.c_str());
+                   "Exception of type: %s in file \"%s\" at line %" IPOPT_INDEX_FORMAT ":\n Exception message: %s\n", type_.c_str(), file_name_.c_str(), line_number_, msg_.c_str());
    }
 
    const std::string& Message() const
@@ -111,7 +111,7 @@ private:
     * them for us, so we declare them private
     * and do not define them. This ensures that
     * they will not be implicitly created/called. */
-   //@{
+   ///@{
    /** Default Constructor */
    IpoptException();
 
@@ -119,7 +119,7 @@ private:
    void operator=(
       const IpoptException&
    );
-   //@}
+   ///@}
 
    std::string msg_;
    std::string file_name_;
@@ -144,7 +144,7 @@ private:
     class IPOPTLIB_EXPORT  __except_type : public Ipopt::IpoptException \
     { \
     public: \
-      __except_type(std::string msg, std::string fname, Ipopt::Index line) \
+      __except_type(const std::string& msg, const std::string& fname, Ipopt::Index line) \
       : Ipopt::IpoptException(msg,fname,line, #__except_type) {} \
       __except_type(const __except_type& copy) \
       : Ipopt::IpoptException(copy) {} \
