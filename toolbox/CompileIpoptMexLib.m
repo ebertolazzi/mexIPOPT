@@ -49,7 +49,7 @@ if isOctave
     MEX_EXE = 'bin/ipopt_oct';
     [status, IPOPT_INCL] = system('pkg-config --cflags ipopt', 1);
     [status, IPOPT_LIBS] = system('pkg-config --libs ipopt', 1);
-    CMD = [ CMD ' ' IPOPT_INCL(1:end-1) ' -output ' MEX_EXE IPOPT_LIBS(1:end-1) ];
+    CMD = [ CMD IPOPT_INCL(1:end-1) ' -output ' MEX_EXE ' ' IPOPT_LIBS(1:end-1) ];
   end
 elseif ismac
   %
