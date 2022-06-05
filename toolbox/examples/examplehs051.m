@@ -23,16 +23,29 @@ function [x, info] = examplehs051
   options.ipopt.mu_strategy           = 'adaptive';
   options.ipopt.tol                   = 1e-7;
 
+  options.ipopt.linear_solver = 'mumps';
+  % HSL solver family
+  % to use this solvers see README_HSL.md
+  %options.ipopt.linear_solver    = 'ma57';
+  %options.ipopt.linear_solver    = 'ma77';
+  %options.ipopt.linear_solver    = 'ma86';
+  %options.ipopt.linear_solver    = 'ma97';
+
+  % PARDISO solver
+  % to use this solvers see README_HSL.md
+  %options.ipopt.linear_solver    = 'pardiso';
+  %options.ipopt.pardiso_msglvl   = 4;
+
   % The callback functions.
   funcs.objective         = @objective;
   funcs.constraints       = @constraints;
   funcs.gradient          = @gradient;
   funcs.jacobian          = @jacobian;
   funcs.jacobianstructure = @jacobian;
-  
+
   % Run IPOPT.
   [x info] = ipopt(x0,funcs,options);
-  
+
 % ----------------------------------------------------------------------
 function f = objective (x)
   f = (x(1) - x(2))^2 + ...
@@ -54,8 +67,7 @@ function c = constraints (x)
         x(2) - x(5) ];
 
 % ----------------------------------------------------------------------
-function J = jacobian (x)  
+function J = jacobian (x)
   J = sparse([ 1  3  0  0  0;
 	       0  0  1  1 -2;
 	       0  1  0  0 -1 ]);
-  

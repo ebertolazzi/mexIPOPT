@@ -1,4 +1,4 @@
-addpath('../lib') ;
+addpath('../lib');
 
 % In this small MATLAB script, we compute the least squares solution to a
 % regression problem subject to L1 regularization, which rewards "sparse"
@@ -39,5 +39,4 @@ y     = A * beta + noise;  % The binary outputs.
 w = lasso(A,y,lambda);
 fprintf('Solution:\n');
 disp(w);
-
 

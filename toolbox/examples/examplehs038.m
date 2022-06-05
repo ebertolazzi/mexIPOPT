@@ -12,7 +12,7 @@
 %         September 18, 2008
 function [x, info] = examplehs038
 
-  addpath('../lib') ;
+  addpath('../lib');
 
   x0         = [-3  -1  -3  -1];   % The starting point.
   options.lb = [-10 -10 -10 -10];  % Lower bound on the variables.
@@ -34,7 +34,20 @@ function [x, info] = examplehs038
   end
 
   % Set the IPOPT options.
-  options.ipopt.linear_solver = 'mumps'; %'ma57'; 'pardiso';
+
+  options.ipopt.linear_solver = 'mumps';
+  % HSL solver family
+  % to use this solvers see README_HSL.md
+  %options.ipopt.linear_solver    = 'ma57';
+  %options.ipopt.linear_solver    = 'ma77';
+  %options.ipopt.linear_solver    = 'ma86';
+  %options.ipopt.linear_solver    = 'ma97';
+
+  % PARDISO solver
+  % to use this solvers see README_HSL.md
+  %options.ipopt.linear_solver    = 'pardiso';
+  %options.ipopt.pardiso_msglvl   = 4;
+
   options.ipopt.mu_strategy   = 'adaptive';
   options.ipopt.print_level   = 0;
   options.ipopt.tol           = 1e-7;
@@ -60,7 +73,7 @@ end
 
 % ----------------------------------------------------------------------
 function H = hessianstructure()
-  H = sparse([ 1  0  0  0 
+  H = sparse([ 1  0  0  0
                1  1  0  0
                0  0  1  0
                0  1  1  1 ]);

@@ -119,18 +119,18 @@ namespace IpoptInterface {
       i = mxJc[c], i1 = mxJc[c+1];
       k = m_Jc[c]; k1 = m_Jc[c+1];
       for (; i < i1; ++i, ++k ) {
-        mwIndex mxi = mxIr[i] ;
+        mwIndex mxi = mxIr[i];
         while ( k < k1 && mwIndex(m_Ir[k]) < mxi ) ++k; // skip not set elements
         if ( k < k1 && mwIndex(m_Ir[k]) == mxi ) {
           IPOPT_ASSERT(
             std::isfinite(v[i]),
-            "In MATLAB function " << func << 
+            "In MATLAB function " << func <<
             "\nelement (" << mxi+1 << "," << c+1 << ") is NaN\n"
           );
           values[k] = v[i];
         } else {
           IPOPT_DO_ERROR(
-            "In MATLAB function " << func << 
+            "In MATLAB function " << func <<
             "\nelement (" << mxi+1 << "," << c+1 << ") not found in pattern"
           );
         }
@@ -834,7 +834,7 @@ namespace IpoptInterface {
       IPOPT_ASSERT( mxIsDouble(p) && !mxIsComplex(p), msg << msg1 );
       IPOPT_ASSERT(
         Index(mxGetNumberOfElements(p)) == Index(m_n),
-        msg << "must be a vector of length " << m_n 
+        msg << "must be a vector of length " << m_n
             << " found of lenght " << mxGetNumberOfElements(p)
       );
       m_zl.resize( m_n );
@@ -849,7 +849,7 @@ namespace IpoptInterface {
       IPOPT_ASSERT( mxIsDouble(p) && !mxIsComplex(p), msg << msg1 );
       IPOPT_ASSERT(
         Index(mxGetNumberOfElements(p)) == Index( m_n ),
-        msg << "must be a vector of length " << m_n 
+        msg << "must be a vector of length " << m_n
             << " found of lenght " << mxGetNumberOfElements(p)
       );
       m_zu.resize( m_n );
@@ -1848,7 +1848,7 @@ namespace Ipopt {
       mexPrintf("MatlabJournal::PrintImpl, passed null string!!!!\n");
     } else {
       mexPrintf("%s",str);
-      mexEvalString("drawnow;"); 
+      mexEvalString("drawnow;");
     }
     IPOPT_DEBUG("Out MatlabJournal::PrintImpl");
   }
@@ -1881,7 +1881,7 @@ namespace Ipopt {
 
     IPOPT_DEBUG("In MatlabJournal::PrintfImpl 2");
     mexPrintf("%s",s);
-    mexEvalString("drawnow;"); 
+    mexEvalString("drawnow;");
 
     //mexEvalStringWithTrap("drawnow;"); // to dump string.
 

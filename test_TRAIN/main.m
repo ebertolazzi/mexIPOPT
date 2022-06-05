@@ -54,10 +54,20 @@ options.ipopt.hessian_constant = 'no';
 options.ipopt.mu_strategy      = 'adaptive';
 options.ipopt.max_iter         = 400;
 options.ipopt.tol              = 1e-10;%
+% default solver
+options.ipopt.linear_solver    = 'mumps';
+
+% HSL solver family
+% to use this solvers see README_HSL.md
 %options.ipopt.linear_solver    = 'ma57';
-%options.ipopt.linear_solver    = 'mumps';
+%options.ipopt.linear_solver    = 'ma77';
+%options.ipopt.linear_solver    = 'ma86';
+%options.ipopt.linear_solver    = 'ma97';
+
+% PARDISO solver
+% to use this solvers see README_HSL.md
 %options.ipopt.linear_solver    = 'pardiso';
-options.ipopt.pardiso_msglvl   = 4 ;
+%options.ipopt.pardiso_msglvl   = 4 ;
 
 % The callback functions.
 funcs.objective         = @train_NLP_target;
@@ -97,13 +107,13 @@ v  = sol(2:2:2*N) ;
 ua = sol(2*N+(1:2:2*N-2)) ;
 ub = sol(2*N+(2:2:2*N-2)) ;
 
-subplot( 3, 1, 1 );  
+subplot( 3, 1, 1 );
 plot( nodes, x, 'Linewidth', 2 ) ;
 
-subplot( 3, 1, 2 );  
+subplot( 3, 1, 2 );
 plot( nodes, v, 'Linewidth', 2 ) ;
 
-subplot( 3, 1, 3 );  
+subplot( 3, 1, 3 );
 plot( nodes(1:end-1), ua, nodes(1:end-1), ub, 'Linewidth', 2 ) ;
 
 info;
