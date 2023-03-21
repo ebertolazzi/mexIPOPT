@@ -2,9 +2,25 @@ require 'colorize'
 #
 # Adjust path for depend on dylib in the local bin directory
 #
-['libgfortran.5','libquadmath.0','libstdc++.6','libgcc_s.1','libipopt.3','libcoinmumps.3','libmetis'].each do |lib|
+LIST = %w(
+libblas
+libdmumps
+libgcc_s.1
+libgfortran.5
+libipopt.3
+libipoptamplinterface.3
+liblapack
+libmpiseq
+libmumps_common
+libopenblas.0
+libpord
+libquadmath.0
+libsipopt.3
+libstdc++.6
+)
+LIST.each do |lib|
   system('install_name_tool -id "@loader_path/'+lib+'.dylib" '+lib+'.dylib');
-  ['libgfortran.5','libquadmath.0','libcoinmumps.3','libstdc++.6','libgcc_s.1','libmetis'].each do |name|
+  LIST.each do |name|
     path = `otool -L #{lib}.dylib | grep #{name}`;
     if path != "" then
       path.gsub!(/\s*([^\s]+).*/,'\1')
