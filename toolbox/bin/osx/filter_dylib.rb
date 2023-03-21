@@ -6,6 +6,7 @@ LIST = %w(
 libblas
 libdmumps
 libgcc_s.1
+libgcc_s.1.1
 libgfortran.5
 libipopt.3
 libipoptamplinterface.3
