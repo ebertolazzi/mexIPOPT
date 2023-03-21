@@ -26,7 +26,14 @@
 #include "mex.h"
 
 #ifdef __clang__
+#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wignored-attributes"
+#pragma clang diagnostic ignored "-Wsuggest-destructor-override"
+#pragma clang diagnostic ignored "-Wold-style-cast"
+#pragma clang diagnostic ignored "-Wsuggest-override"
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
+#pragma clang diagnostic ignored "-Wcomma"
+#pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
 #endif
 
 #include "IpoptInterfaceCommon.hh"
@@ -50,6 +57,10 @@ using Ipopt::SmartPtr;
 using Ipopt::TNLP;
 using Ipopt::ApplicationReturnStatus;
 using Ipopt::SolveStatistics;
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 /*
 // redirect stdout, found at
@@ -154,7 +165,7 @@ namespace IpoptInterface {
 
     // Set up the IPOPT console.
     IPOPT_DEBUG("\nCALL printLevel\n");
-    EJournalLevel printLevel = (EJournalLevel) options.ipoptOptions().printLevel();
+    EJournalLevel printLevel = static_cast<EJournalLevel>(options.ipoptOptions().printLevel());
     SmartPtr<Journal> console;
     if ( printLevel > 0 ) { //prevents IPOPT display if we don't want it
       IPOPT_DEBUG("\nCALL console\n");

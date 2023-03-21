@@ -24,7 +24,14 @@
  */
 
 #ifdef __clang__
+#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wignored-attributes"
+#pragma clang diagnostic ignored "-Wsuggest-destructor-override"
+#pragma clang diagnostic ignored "-Wold-style-cast"
+#pragma clang diagnostic ignored "-Wsuggest-override"
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
+#pragma clang diagnostic ignored "-Wcomma"
+#pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
 #endif
 
 #include "IpoptInterfaceCommon.hh"
@@ -34,6 +41,10 @@
 #include "IpIpoptData.hpp"
 #include "IpTNLPAdapter.hpp"
 #include "IpOrigIpoptNLP.hpp"
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 using Ipopt::ApplicationReturnStatus;
 using Ipopt::IpoptApplication;
@@ -116,7 +127,7 @@ namespace IpoptInterface {
     std::fill_n( values, m_nnz, 0 );
     mwIndex i, k, i1, k1;
     for ( mwIndex c = 0; c < mwIndex(m_numCols); ++c ) {
-      i = mxJc[c], i1 = mxJc[c+1];
+      i = mxJc[c]; i1 = mxJc[c+1];
       k = m_Jc[c]; k1 = m_Jc[c+1];
       for (; i < i1; ++i, ++k ) {
         mwIndex mxi = mxIr[i];
@@ -263,7 +274,7 @@ namespace IpoptInterface {
       "Error in IsInIncOrder, expected sparse matrix"
     );
 
-    Index    ncol = (Index) mxGetN(ptr);
+    Index    ncol = Index(mxGetN(ptr));
     mwIndex* jc   = mxGetJc(ptr);
     mwIndex* ir   = mxGetIr(ptr);
     bool     ok   = true;
@@ -489,7 +500,7 @@ namespace IpoptInterface {
     mxArray const * p = getfield_mx("status");
 
     IPOPT_DEBUG("Out MatlabInfo::getExitStatus");
-    return (ApplicationReturnStatus) (int) *mxGetPr(p);
+    return static_cast<ApplicationReturnStatus>( static_cast<int>( *mxGetPr(p) ) );
   }
 
   void
@@ -668,7 +679,7 @@ namespace IpoptInterface {
 
     // Set either the integer option.
     Number value   = mxGetScalar(ptr);
-    bool   success = m_app.Options()->SetIntegerValue(label,(Index) value);
+    bool   success = m_app.Options()->SetIntegerValue( label, Index(value) );
     IPOPT_ASSERT(
       success, "Invalid value for integer IPOPT option \"" << label << "\""
     );
@@ -804,7 +815,7 @@ namespace IpoptInterface {
       );
 
       // Get the number of constraints.
-      m_m = (Index) mxGetNumberOfElements(pl);
+      m_m = Index( mxGetNumberOfElements(pl) );
 
       // Load the lower bounds on the constraints and convert MATLAB's
       // convention of infinity to IPOPT's convention of infinity.
@@ -905,7 +916,7 @@ namespace IpoptInterface {
       mx_x    = mxCreateCellMatrix( mx_x_nc, 1 );
       for ( Index i = 0; i < mx_x_nc; ++i ) {
         p = mxGetCell( mx_x0, i );
-        mx_x_nv += (Index) mxGetNumberOfElements( p );
+        mx_x_nv += Index( mxGetNumberOfElements( p ) );
         mxSetCell( mx_x, i, mxDuplicateArray( p ) );
       }
     } else {
@@ -974,7 +985,7 @@ namespace IpoptInterface {
     Index ntot = 0;
     for ( Index i = 0; i < this -> mx_x_nc; ++i ) {
       mxArray const * p = mxGetCell(ptr,i);
-      Index nn = (Index) mxGetNumberOfElements(p);
+      Index nn = Index( mxGetNumberOfElements(p) );
       ntot += nn;
       if ( ntot > n ) return false;
       std::copy_n(mxGetPr(p),nn,x);
@@ -990,7 +1001,7 @@ namespace IpoptInterface {
     if ( m_x_is_cell_array ) {
       for ( Index i = 0; i < mx_x_nc; ++i ) {
         mxArray const * p = mxGetCell(mx_x,i);
-        Index nn = (Index) mxGetNumberOfElements(p);
+        Index nn = Index( mxGetNumberOfElements(p) );
         std::copy_n( x, nn, mxGetPr(p) );
         x += nn;
       }
@@ -1014,7 +1025,7 @@ namespace IpoptInterface {
 
     // Call the MATLAB callback function.
     mxArray * ptr;
-    m_obj.eval( 1, &ptr, 1, (mxArray const **)&mx_x);
+    m_obj.eval( 1, &ptr, 1, const_cast<mxArray const **>(&mx_x) );
 
     // Get the output from the MATLAB callback function, which is the
     // value of the objective function at x.
@@ -1067,7 +1078,7 @@ namespace IpoptInterface {
 
     // Call the MATLAB callback function.
     mxArray * ptr;
-    m_grad.eval( 1, &ptr, 1, (mxArray const **)&mx_x );
+    m_grad.eval( 1, &ptr, 1, const_cast<mxArray const **>(&mx_x) );
 
     // se cell array converto
     if ( mxIsCell(ptr) ) {
@@ -1127,7 +1138,7 @@ namespace IpoptInterface {
 
     // Call the MATLAB callback function.
     mxArray * ptr;
-    m_constraint.eval( 1, &ptr, 1, (mxArray const **)&mx_x );
+    m_constraint.eval( 1, &ptr, 1, const_cast<mxArray const **>(&mx_x) );
 
     // Get the output from the MATLAB callback function, which is the
     // value of vector-valued constraint function at x.
@@ -1207,7 +1218,7 @@ namespace IpoptInterface {
 
     // Call the MATLAB callback function.
     mxArray * ptr;
-    m_jacstruc.eval( 1, &ptr, 0, (mxArray const **)nullptr );
+    m_jacstruc.eval( 1, &ptr, 0, static_cast<mxArray const **>(nullptr) );
 
     checkJacobian( m_jacstruc.name(), n, m, ptr );
     m_Jacobian.setup( ptr );
@@ -1270,7 +1281,7 @@ namespace IpoptInterface {
 
     // Call the MATLAB callback function.
     mxArray * ptr;
-    m_hesstruc.eval( 1, &ptr, 0, (mxArray const **)nullptr );
+    m_hesstruc.eval( 1, &ptr, 0, static_cast<mxArray const **>(nullptr) );
 
     checkHessian( m_hesstruc.name(), n, ptr );
     m_Hessian.setup( ptr );
@@ -1301,7 +1312,7 @@ namespace IpoptInterface {
 
     // Call the MATLAB callback function.
     mxArray * ptr;
-    m_jacobian.eval( 1, &ptr, 1, (mxArray const **)&mx_x );
+    m_jacobian.eval( 1, &ptr, 1, const_cast<mxArray const **>(&mx_x) );
 
     checkJacobian( m_jacobian.name(), n, m, ptr );
 
@@ -1401,8 +1412,8 @@ namespace IpoptInterface {
     Number alpha_du,
     Number alpha_pr,
     Index  ls_trials,
-    Ipopt::IpoptData const *           ip_data,
-    Ipopt::IpoptCalculatedQuantities * ip_cq
+    Ipopt::IpoptData const *           /* ip_data */,
+    Ipopt::IpoptCalculatedQuantities * /* ip_cq   */
   ) const {
 
     IPOPT_DEBUG("In CallbackFunctions::iterCallback");
@@ -1614,7 +1625,7 @@ namespace IpoptInterface {
   MatlabProgram::eval_f(
     Index          n,
     Number const * vars,
-    bool           ignore,
+    bool           /* ignore */,
     Number       & f
   ) {
     IPOPT_DEBUG("In MatlabProgram::eval_f");
@@ -1627,7 +1638,7 @@ namespace IpoptInterface {
   MatlabProgram::eval_grad_f(
     Index          n,
     Number const * vars,
-    bool           ignore,
+    bool           /* ignore */,
     Number       * grad
   ) {
     IPOPT_DEBUG("In MatlabProgram::eval_grad_f");
@@ -1640,7 +1651,7 @@ namespace IpoptInterface {
   MatlabProgram::eval_g(
     Index          n,
     Number const * vars,
-    bool           ignore,
+    bool           /* ignore */,
     Index          m,
     Number       * g
   ) {
@@ -1660,7 +1671,7 @@ namespace IpoptInterface {
   MatlabProgram::eval_jac_g(
     Index          numVariables,
     Number const * variables,
-    bool           ignoreThis,
+    bool           /* ignoreThis */,
     Index          numConstraints,
     Index          Jx_nnz,
     Index        * rows,
@@ -1706,11 +1717,11 @@ namespace IpoptInterface {
   MatlabProgram::eval_h(
     Index          n,
     Number const * vars,
-    bool           ignore,
+    bool           /* ignore */,
     Number         sigma,
     Index          m,
     Number const * lambda,
-    bool           ignoretoo,
+    bool           /* ignoretoo */,
     Index          Hx_nnz,
     Index        * rows,
     Index        * cols,
@@ -1749,17 +1760,17 @@ namespace IpoptInterface {
 
   void
   MatlabProgram::finalize_solution(
-    SolverReturn   status,
+    SolverReturn   /* status */,
     Index          numVariables,
     Number const * variables,
     Number const * zl,
     Number const * zu,
     Index          numConstraints,
-    Number const * constraints,
+    Number const * /* constraints */,
     Number const * lambda,
     Number         objective,
-    IpoptData const * ip_data,
-    IpoptCalculatedQuantities* ip_cq
+    IpoptData const * /* ip_data */,
+    IpoptCalculatedQuantities * /* ip_cq */
   ) {
 
     IPOPT_DEBUG("In MatlabProgram::finalize_solution");
@@ -1778,17 +1789,17 @@ namespace IpoptInterface {
 
   bool
   MatlabProgram::intermediate_callback(
-    AlgorithmMode mode,
-    Index        iter,
-    Number       f,
-    Number       inf_pr,
-    Number       inf_du,
-    Number       mu,
-    Number       d_norm,
-    Number       regularization_size,
-    Number       alpha_du,
-    Number       alpha_pr,
-    Index        ls_trials,
+    AlgorithmMode /* mode */,
+    Index         iter,
+    Number        f,
+    Number        inf_pr,
+    Number        inf_du,
+    Number        mu,
+    Number        d_norm,
+    Number        regularization_size,
+    Number        alpha_du,
+    Number        alpha_pr,
+    Index         ls_trials,
     IpoptData const * ip_data,
     IpoptCalculatedQuantities* ip_cq
   ) {
@@ -1839,8 +1850,8 @@ namespace Ipopt {
 
   void
   MatlabJournal::PrintImpl(
-    EJournalCategory category,
-    EJournalLevel    level,
+    EJournalCategory /* category */,
+    EJournalLevel    /* level    */,
     char const *     str
   ) {
     IPOPT_DEBUG("In MatlabJournal::PrintImpl");
@@ -1855,8 +1866,8 @@ namespace Ipopt {
 
   void
   MatlabJournal::PrintfImpl(
-    EJournalCategory category,
-    EJournalLevel    level,
+    EJournalCategory /* category */,
+    EJournalLevel    /* level    */,
     char const *     pformat,
     va_list          ap
   ) {

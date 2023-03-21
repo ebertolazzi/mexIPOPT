@@ -2,7 +2,9 @@
 *.mw
 *.DS_Store
 .vscode
+*.dylib
+*.mex*
 IPOPT-toolbox.mltbx
 /doc
 /coinbrew
-
+/toolbox/build

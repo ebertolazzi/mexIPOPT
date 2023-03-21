@@ -7,7 +7,7 @@
     <param.summary>Toolbox for MATLAB interfacing with IPOPT</param.summary>
     <param.description>Toolbox for MATLAB interfacing with IPOPT</param.description>
     <param.screenshot>${PROJECT_ROOT}/toolbox/screenshot.png</param.screenshot>
-    <param.version>1.1.5</param.version>
+    <param.version>1.1.6</param.version>
     <param.output>${PROJECT_ROOT}/IPOPT-toolbox.mltbx</param.output>
     <param.products.name />
     <param.products.id />
@@ -98,8 +98,11 @@
       <file>${PROJECT_ROOT}/toolbox</file>
     </fileset.rootdir>
     <fileset.rootfiles>
+      <file>${PROJECT_ROOT}/toolbox/CMakeLists.txt</file>
       <file>${PROJECT_ROOT}/toolbox/CompileIpoptMexLib.m</file>
       <file>${PROJECT_ROOT}/toolbox/bin</file>
+      <file>${PROJECT_ROOT}/toolbox/build</file>
+      <file>${PROJECT_ROOT}/toolbox/cmake_utils</file>
       <file>${PROJECT_ROOT}/toolbox/demos.xml</file>
       <file>${PROJECT_ROOT}/toolbox/doc</file>
       <file>${PROJECT_ROOT}/toolbox/examples</file>

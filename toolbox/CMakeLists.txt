@@ -1,9 +1,9 @@
 #-----------------------------------------------------------------------#
 #  file: CMakeLists.txt                                                 #
 #                                                                       #
-#  version: 1.0   date 9/3/2022                                         #
+#  version: 1.0  date March, 21, 2023                                   #
 #                                                                       #
-#  Copyright (C) 2022                                                   #
+#  Copyright (C) 2023                                                   #
 #                                                                       #
 #      Enrico Bertolazzi                                                #
 #      Dipartimento di Ingegneria Industriale                           #
@@ -47,43 +47,41 @@ message( STATUS "Compiler used: ${CMAKE_CXX_COMPILER_ID}" )
 message( STATUS "BASE SUFFIXES = ${ARTIFACTS_STATIC_SUFFIX} ${ARTIFACTS_DYNAMIC_SUFFIX}" )
 
 # extra include directory for compilation
-include_directories( src src_ipopt_osx/coin-or )
+include_directories( src )
 
-message( STATUS "SOURCES = ${SOURCES}" )
-
-#   _____                  _
-#  |_   _|_ _ _ _ __ _ ___| |_ ___
-#    | |/ _` | '_/ _` / -_)  _(_-<
-#    |_|\__,_|_| \__, \___|\__/__/
-#                |___/
-#
+if ( (UNIX OR LINUX) AND NOT APPLE )
+  include_directories( src_ipopt_linux/coin-or )
+  set( MEXNAME ipopt_linux )
+elseif ( APPLE )
+  include_directories( src_ipopt_osx/coin-or )
+  set(CMAKE_MACOSX_RPATH 1)
+  set(CMAKE_INSTALL_RPATH ${CMAKE_CURRENT_SOURCE_DIR}/bin/osx )
+  set( MEXNAME ipopt_osx )
+else()
+  include_directories( src_ipopt_win/coin-or )
+  set( MEXNAME ipopt_win )
+endif()
 
 utils_final_messages()
 
-message( STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
-if ( CMAKE_BUILD_TYPE MATCHES Debug )
-  message( STATUS "DEBUG MODE\n\n")
-  add_compile_definitions(DEBUG)
-endif()
-
-set(CMAKE_MACOSX_RPATH 1)
-set(CMAKE_INSTALL_RPATH ${CMAKE_CURRENT_SOURCE_DIR}/bin/osx )
-
 matlab_add_mex(
-  NAME ipopt_osx
+  NAME ${MEXNAME}
   SRC src/ipopt.cc src/IpoptInterfaceCommon.cc
-  LINK_TO -L${CMAKE_CURRENT_SOURCE_DIR}/bin/osx -lblas -ldmumps
-  ${CMAKE_CURRENT_SOURCE_DIR}/bin/osx/libgcc_s.1.dylib
-  -lgfortran.5
-  -lipopt.3
-  -lipoptamplinterface.3
-  -llapack
-  -lmpiseq
-  -lmumps_common
-  -lopenblas.0
-  -lpord
-  -lquadmath.0
-  -lsipopt.3
-  -lstdc++.6
-OUTPUT_NAME ipopt_osx
+  LINK_TO -L${CMAKE_CURRENT_SOURCE_DIR}/bin/osx
+          -lblas
+          -ldmumps
+          -lgcc_s.1
+          -lgcc_s.1.1
+          -lgfortran.5
+          -lipopt.3
+          -lipoptamplinterface.3
+          -llapack
+          -lmpiseq
+          -lmumps_common
+          -lopenblas.0
+          -lpord
+          -lquadmath.0
+          -lsipopt.3
+          -lstdc++.6
+  OUTPUT_NAME ${MEXNAME}
 )

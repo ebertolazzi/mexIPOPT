@@ -42,6 +42,17 @@
 
 #include "mex.h"
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wignored-attributes"
+#pragma clang diagnostic ignored "-Wsuggest-destructor-override"
+#pragma clang diagnostic ignored "-Wold-style-cast"
+#pragma clang diagnostic ignored "-Wsuggest-override"
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
+#pragma clang diagnostic ignored "-Wcomma"
+#pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
+#endif
+
 #include "IpUtils.hpp"
 #include "IpIpoptApplication.hpp"
 #include "IpTNLP.hpp"
@@ -86,6 +97,10 @@ namespace std {
   copy_n( Ta from, int n, Tb to )
   { std::copy( from, from+n, to ); }
 }
+#endif
+
+#ifdef __clang__
+#pragma clang diagnostic pop
 #endif
 
 namespace IpoptInterface {
@@ -149,7 +164,7 @@ namespace IpoptInterface {
     ) const;
 
     // Returns true if and only if the function handle is not null.
-    bool ok() const { return m_f != nullptr; };
+    bool ok() const { return m_f != nullptr; }
   };
 
   /*

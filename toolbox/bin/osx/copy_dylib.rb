@@ -25,6 +25,7 @@ FileUtils.cp_r "#{ipopt_hdr}/coin-or", "../../src_ipopt_osx"
   'libgfortran.5.dylib',
   'libquadmath.0.dylib',
   'libstdc++.6.dylib',
+  'libgomp.1.dylib',
   'libgcc_s.1.dylib',
   'libgcc_s.1.1.dylib'
 ].each do |lib|

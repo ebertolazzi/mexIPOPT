@@ -5,6 +5,7 @@ require 'colorize'
 LIST = %w(
 libblas
 libdmumps
+libgomp.1
 libgcc_s.1
 libgcc_s.1.1
 libgfortran.5
