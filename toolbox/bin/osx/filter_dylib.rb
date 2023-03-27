@@ -3,6 +3,8 @@ require 'colorize'
 # Adjust path for depend on dylib in the local bin directory
 #
 LIST = %w(
+libasl.3
+libmp
 libblas
 libdmumps
 libgomp.1

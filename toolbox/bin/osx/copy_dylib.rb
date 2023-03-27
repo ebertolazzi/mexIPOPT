@@ -11,6 +11,7 @@ fortran_home = Dir["#{hbrew}/Cellar/gcc/*/lib/gcc/current"].last
 ipopt_hdr    = Dir["#{hbrew}/Cellar/ipopt/*/include"].last
 ipopt_lib    = Dir["#{hbrew}/Cellar/ipopt/*/lib"].last
 openblas_lib = Dir["#{hbrew}/Cellar/openblas/*/lib"].last
+ampl         = Dir["#{hbrew}/Cellar/ampl-mp/*/lib"].last
 
 puts "fortran_home = #{fortran_home}"
 puts "ipopt_hdr    = #{ipopt_hdr}"
@@ -31,7 +32,7 @@ FileUtils.cp_r "#{ipopt_hdr}/coin-or", "../../src_ipopt_osx"
 ].each do |lib|
   #puts fortran_home+"/"+lib, lib
   FileUtils.rm lib if File.exist? lib
-  FileUtils.cp fortran_home+"/"+lib, lib
+  FileUtils.cp "#{fortran_home}/#{lib}", lib
 end
 
 [
@@ -45,6 +46,15 @@ end
 end
 
 [
+  'libasl.3.dylib',
+  'libmp.dylib'
+].each do |lib|
+  #puts fortran_home+"/"+lib, lib
+  FileUtils.rm lib if File.exist? lib
+  FileUtils.cp "#{ampl}/#{lib}", lib
+end
+
+[
   'libdmumps.dylib',
   'libipopt.3.dylib',
   'libipoptamplinterface.3.dylib',
@@ -54,5 +64,5 @@ end
   'libsipopt.3.dylib'
 ].each do |lib|
   FileUtils.rm lib if File.exist? lib
-  FileUtils.cp ipopt_lib+"/"+lib, lib
+  FileUtils.cp "#{ipopt_lib}/#{lib}", lib
 end
