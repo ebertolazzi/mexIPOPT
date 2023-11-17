@@ -1,4 +1,4 @@
-% IPOPT Call the IPOPT constrained, nonlinear solver. 
+% IPOPT Call the IPOPT constrained, nonlinear solver.
 %   The basic function call is
 %
 %     [x, info] = IPOPT(x0,funcs,options)
@@ -48,7 +48,7 @@
 %           c = [ prod(x); sum(x.^2) ];
 %
 %     funcs.jacobian (optional)
-% 
+%
 %     This function is only required if there are constraints on your
 %     variables. Evaluates the Jacobian of the constraints at the current
 %     point. It takes one input, x. The output must always be an M x N
@@ -136,7 +136,7 @@
 %   The options are passed through the third input. What follows is a
 %   description of the fields you may optionally specify.
 %
-%     options.lb  
+%     options.lb
 %
 %     Specify lower bounds on the variables. It must have the same number
 %     of elements as x0. Set an entry to -Inf to specify no lower bound.
@@ -247,42 +247,5 @@
 %   by Enrico Bertolazzi.
 %
 function [x,info] = ipopt( varargin )
-  cmp      = computer;
-  isOctave = isempty(ver('matlab'));
-  if ispc
-    if isOctave
-      [x,info] = ipopt_win_octave(varargin{:});
-    elseif strcmp( cmp, 'PCWIN64') == 1 || strcmp( cmp, 'x86_64-w64-mingw32') == 1 || strcmp( cmp, 'i686-w64-mingw32') == 1
-      %[x,info] = ipopt_win(varargin{:});
-      [x,info] = ipopt_win_mingw(varargin{:});
-    else
-      error('IPOPT: No support for architecture %s\n', cmp );
-    end
-  elseif ismac
-    if isOctave
-      [x,info] = ipopt_osx_octave(varargin{:});
-    elseif strcmp( cmp, 'MACI64') == 1 || regexp( cmp, 'x86_64-apple-darwin') == 1
-      [x,info] = ipopt_osx(varargin{:});
-    else
-      error('IPOPT: No support for architecture %s\n', cmp );
-    end
-  elseif isunix
-    if strcmp( cmp, 'GLNXA64') == 1
-      myCCompiler = mex.getCompilerConfigurations('C','Selected');
-      switch myCCompiler.Version(1:1)
-      case {'1','2','3','4','5'}
-        error('mexIPOPT do not support gcc < gcc6');
-      case {'6'}
-        [x,info] = ipopt_linux_3(varargin{:});
-      case {'7','8'}
-        [x,info] = ipopt_linux_4(varargin{:});
-      otherwise
-        [x,info] = ipopt_linux_5(varargin{:});
-      end
-    elseif strcmp( cmp, 'x86_64-pc-linux-gnu') == 1     % Octave
-        [x,info] = ipopt_linux_5(varargin{:});
-    else
-      error('IPOPT: No support for architecture %s\n', cmp );
-    end
-  end
+  error('IPOPT: please compile mex file\n');
 end

@@ -26,24 +26,6 @@ Use the toobox installer at
 
 - https://github.com/ebertolazzi/mexIPOPT/releases
 
-download and run in MATLAB to install following the instruction.
-
-**How to compile**
-
-Compilation shuold be not necessary. To (re-)compile the mex file
-for your architecture
-
-- change the working directory to the `toolbox` directory.
-- run the script `CompileIpoptMexLib`.
-
-if all the thing go well open
-
-- run the script `setup` and them `../IPOPT-toolbox.prj` to compile the toolbox.
-
-at this point you find the recompiled toolbox at
-
-- `../IPOPT-toolbox.mltbx`
-
 **Examples**
 
 In the directory `toolbox/example` you find the original examples

@@ -89,7 +89,10 @@ function H = hessian(x, sigma, lambda)
 end
 
 % ----------------------------------------------------------------------
-function b = callback(t, f, x)
-  fprintf('%3d  %0.3g \n',t,f);
+function b = callback(varargin) %t, f, x)
+  varargin{1}
+  varargin{2}
+  varargin{3}
+  %fprintf('%3d  %0.3g \n',t,f);
   b = true;
 end
